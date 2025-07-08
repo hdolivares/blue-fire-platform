@@ -7,7 +7,13 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  createProject(@Body() body: { projectName: string; fundingGoal: number }) {
+  createProject(@Body() body: { 
+    projectName: string; 
+    fundingGoal: number;
+    location: string;
+    avgHumidity: number;
+    avgTemperature: number;
+  }) {
     return this.projectsService.create(body);
   }
 

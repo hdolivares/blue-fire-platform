@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ProjectCard } from '@/components/ProjectCard';
+import Link from 'next/link'; // Make sure Link is imported
+
 
 // Define a type for our project data for type safety
 interface Project {

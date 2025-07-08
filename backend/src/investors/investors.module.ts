@@ -1,5 +1,4 @@
 // In backend/src/investors/investors.module.ts
-
 import { Module } from '@nestjs/common';
 import { InvestorsController } from './investors.controller';
 import { InvestorsService } from './investors.service';
@@ -12,5 +11,6 @@ import { Investor, InvestorSchema } from './schemas/investor.schema';
   ],
   controllers: [InvestorsController],
   providers: [InvestorsService],
+  exports: [MongooseModule], // <-- Add this line
 })
 export class InvestorsModule {}

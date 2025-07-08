@@ -7,7 +7,9 @@ import { InvestorsModule } from './investors/investors.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectsModule } from './projects/projects.module';
-import { PerformanceModule } from './performance/performance.module'; // <-- Import this
+import { PerformanceModule } from './performance/performance.module'; 
+import { AdminModule } from './admin/admin.module';
+
 
 @Module({
   imports: [
@@ -23,7 +25,8 @@ import { PerformanceModule } from './performance/performance.module'; // <-- Imp
     }),
     InvestorsModule,
     ProjectsModule,
-    PerformanceModule, // <-- Add this line
+    PerformanceModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -11,6 +11,6 @@ import { Project, ProjectSchema } from './schemas/project.schema';
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],
-  exports: [MongooseModule],
+  exports: [MongooseModule], // <-- Add this line
 })
 export class ProjectsModule {}

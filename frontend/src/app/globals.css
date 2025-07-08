@@ -23,3 +23,14 @@ body {
     @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg;
   }
 }
+
+/* 5 adding a custom colors for the naimated gradient */
+#gradient-canvas {
+  width: 100%;
+  height: 100%;
+  /* Your custom colors! */
+  --gradient-color-1: #6a11cb; /* Purple */
+  --gradient-color-2: #2575fc; /* Blue */
+  --gradient-color-3: #9e6c00; /* Orange */
+  --gradient-color-4: #a960ee; /* Violet */
+}
