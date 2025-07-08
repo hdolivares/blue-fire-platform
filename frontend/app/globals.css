@@ -1,9 +1,0 @@
-@import "tailwindcss";
-@import "tailwindcss/preflight"; /* This replaces @tailwind base */
-@tailwind utilities;
-
-@layer components {
-  .card-frosted {
-    @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg;
-  }
-}

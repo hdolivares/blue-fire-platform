@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@tailwind utilities;
+/* 2. Define all your custom styles and colors as CSS Variables */
+:root {
+  --gradient-secondary: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+  --gradient-accent: linear-gradient(to right, #8e2de2, #4a00e0);
+  --foreground-color: #ededed;
+}
+
+/* 3. Apply the base background and text color to the whole app */
+body {
+  background: var(--gradient-secondary);
+  color: var(--foreground-color);
+}
+
+/* 4. Define your custom utility classes */
+@layer utilities {
+  .bg-gradient-accent {
+    background-image: var(--gradient-accent);
+  }
+
+  .card-frosted {
+    @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg;
+  }
+}
