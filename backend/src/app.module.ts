@@ -7,13 +7,13 @@ import { InvestorsModule } from './investors/investors.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectsModule } from './projects/projects.module';
+import { PerformanceModule } from './performance/performance.module'; // <-- Import this
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Makes the .env variables available everywhere
+      isGlobal: true,
     }),
-    // This is the updated, safer way to connect
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -23,6 +23,7 @@ import { ProjectsModule } from './projects/projects.module';
     }),
     InvestorsModule,
     ProjectsModule,
+    PerformanceModule, // <-- Add this line
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,5 @@
 // In backend/src/projects/projects.controller.ts
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param } from '@nestjs/common'; // <-- Add Param here
 import { ProjectsService } from './projects.service';
 
 @Controller('projects')
@@ -14,5 +14,10 @@ export class ProjectsController {
   @Get()
   getAllProjects() {
     return this.projectsService.findAll();
+  }
+
+  @Get(':id')
+  getProjectById(@Param('id') id: string) {
+    return this.projectsService.findById(id);
   }
 }

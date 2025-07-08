@@ -2,31 +2,50 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ProjectsService } from './projects/projects.service';
+import { getModelToken } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { PerformanceData } from './performance/schemas/performance-data.schema';
+import { Project } from './projects/schemas/project.schema';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
+  
   const projectsService = app.get(ProjectsService);
+  const performanceDataModel = app.get<Model<PerformanceData>>(getModelToken(PerformanceData.name));
+  const projectModel = app.get<Model<Project>>(getModelToken(Project.name));
 
-  console.log('Seeding database with Villahermosa project...');
+  console.log('Seeding database...');
 
-  // Data based on the Villahermosa hotel installation
-  const villahermosaProject = {
-    [cite_start]projectName: 'Hotel in Villahermosa, Mexico', // [cite: 497]
-    [cite_start]fundingGoal: 72440, // Net yearly saving in USD [cite: 619]
-    currentFunding: 72440, // It's fully funded
+  // Clear existing data to prevent duplicates
+  await projectModel.deleteMany({});
+  await performanceDataModel.deleteMany({});
+
+  const villahermosaData = {
+    projectName: 'Hotel in Villahermosa, Mexico',
+    fundingGoal: 72440,
+    currentFunding: 72440,
     status: 'OPERATIONAL',
   };
-
-  // This prevents creating a duplicate project if the script is run more than once
-  const existingProject = await projectsService.findOneByName(villahermosaProject.projectName);
-  if (!existingProject) {
-    await projectsService.create(villahermosaProject);
-    console.log('Villahermosa project created successfully!');
-  } else {
-    console.log('Villahermosa project already exists.');
-  }
   
-  console.log('Seeding complete!');
+  const newProject = await projectsService.create(villahermosaData);
+  console.log('Villahermosa project created!');
+
+  // Seed performance data based on the PDF
+  const performanceEntries = [
+    { date: new Date('2015-11-10'), waterProduction: 1808, energyConsumption: 859 },
+    { date: new Date('2015-11-11'), waterProduction: 1732, energyConsumption: 870 },
+    { date: new Date('2015-11-12'), waterProduction: 1755, energyConsumption: 873 },
+  ];
+
+  for (const entry of performanceEntries) {
+    const newPerformanceData = new performanceDataModel({
+      project: newProject, // <-- This is the corrected line
+      ...entry,
+    });
+    await newPerformanceData.save();
+  }
+
+  console.log('Performance data seeded!');
   await app.close();
 }
 
