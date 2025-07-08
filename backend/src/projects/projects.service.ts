@@ -8,6 +8,10 @@ import { Project } from './schemas/project.schema';
 export class ProjectsService {
   constructor(@InjectModel(Project.name) private projectModel: Model<Project>) {}
 
+  async findOneByName(projectName: string): Promise<Project | null> {
+    return this.projectModel.findOne({ projectName: projectName }).exec();
+  }
+
   async create(projectData: { projectName: string; fundingGoal: number }): Promise<Project> {
     const newProject = new this.projectModel(projectData);
     return newProject.save();
