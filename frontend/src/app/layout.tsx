@@ -2,7 +2,9 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider"; // Import our new provider
+import { AuthProvider } from '@/context/AuthContext';
+import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider";
+import { AdminBar } from "@/components/AdminBar"; // Import the new component
 
 export const metadata: Metadata = {
   title: "Blue Fire Platform",
@@ -17,8 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={GeistSans.variable}>
-        <AnimatedGradientProvider /> {/* Use the new provider component */}
-        {children}
+        <AuthProvider>
+          <AdminBar /> {/* Add the admin bar here */}
+          <AnimatedGradientProvider />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
