@@ -34,3 +34,16 @@ body {
   --gradient-color-3: #9e6c00; /* Orange */
   --gradient-color-4: #a960ee; /* Violet */
 }
+
+/* 6 Custom styles for the carousel dots */
+.carousel .control-dots .dot {
+  background: var(--gradient-accent) !important;
+  box-shadow: none !important;
+  opacity: 0.5 !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.carousel .control-dots .dot.selected {
+  opacity: 1 !important;
+}

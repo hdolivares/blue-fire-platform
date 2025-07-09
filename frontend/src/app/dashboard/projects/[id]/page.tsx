@@ -1,4 +1,3 @@
-// In frontend/src/app/dashboard/projects/[id]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,6 +5,9 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; 
+
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -28,15 +30,24 @@ ChartJS.register(
   Legend
 );
 
+// Add the new climate fields to our Project type
 interface Project {
   projectName: string;
   status: string;
   imageUrl: string;
+  imageUrls: string[];
+  avgHumidity: number;
+  avgTemperature: number;
 }
 interface PerformanceData {
   date: string;
   waterProduction: number;
 }
+
+// Helper function to format the status text
+const formatStatus = (status: string) => {
+  return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -62,22 +73,10 @@ export default function ProjectDetailPage() {
   
   const chartOptions = {
     scales: {
-      y: {
-        ticks: { color: '#E5E7EB' },
-        grid: { color: 'rgba(229, 231, 235, 0.1)' }
-      },
-      x: {
-        ticks: { color: '#E5E7EB' },
-        grid: { color: 'rgba(229, 231, 235, 0.1)' }
-      },
+      y: { ticks: { color: '#E5E7EB' }, grid: { color: 'rgba(229, 231, 235, 0.1)' }},
+      x: { ticks: { color: '#E5E7EB' }, grid: { color: 'rgba(229, 231, 235, 0.1)' }},
     },
-    plugins: {
-        legend: {
-            labels: {
-                color: '#E5E7EB'
-            }
-        }
-    }
+    plugins: { legend: { labels: { color: '#E5E7EB' }}}
   };
   
   const chartData = {
@@ -97,27 +96,51 @@ export default function ProjectDetailPage() {
 
   return (
     <main className="container mx-auto p-4 md:p-8">
-      <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8">
-        <Image
-          src={project.imageUrl}
-          alt={project.projectName}
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
+      {/* Carousel or single image */}
+      {project.imageUrls && project.imageUrls.length > 0 ? (
+        <div className="rounded-2xl overflow-hidden mb-8 shadow-lg">
+          <Carousel showThumbs={false} autoPlay infiniteLoop showStatus={false}>
+            {project.imageUrls.map((url, index) => (
+              <div key={index} className="relative w-full h-96">
+                <Image src={url} alt={`${project.projectName} image ${index + 1}`} fill className="object-cover" />
+              </div>
+            ))}
+          </Carousel>
+        </div>
+      ) : (
+        <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
+          <Image src={project.imageUrl} alt={project.projectName} fill className="object-cover" />
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+      )}
 
       <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-200 mb-6 inline-block">
         &larr; Back to Dashboard
       </Link>
 
       <h1 className="text-4xl font-bold mb-2">{project.projectName}</h1>
-      <p className="text-lg text-green-400 font-semibold">{project.status}</p>
+      
+      {/* Formatted Status Label and Text */}
+      <div className="flex items-center space-x-2">
+        <span className="text-lg text-gray-400">Project Current Status:</span>
+        <span className="text-lg text-green-400 font-semibold">{formatStatus(project.status)}</span>
+      </div>
 
+      {/* Grid for all Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
         <div className="card-frosted p-6">
           <h3 className="text-gray-300 text-sm">Average Daily Water Production</h3>
           <p className="text-3xl font-bold">{!isNaN(avgWaterProduction) ? avgWaterProduction.toFixed(0) : '0'} L</p>
+        </div>
+        
+        {/* New Stat Cards for Climate Conditions */}
+        <div className="card-frosted p-6">
+          <h3 className="text-gray-300 text-sm">Avg. Humidity</h3>
+          <p className="text-3xl font-bold">{project.avgHumidity}%</p>
+        </div>
+        <div className="card-frosted p-6">
+          <h3 className="text-gray-300 text-sm">Avg. Temperature</h3>
+          <p className="text-3xl font-bold">{project.avgTemperature}°C</p>
         </div>
       </div>
 

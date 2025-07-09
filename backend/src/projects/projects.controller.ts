@@ -1,5 +1,13 @@
-// In backend/src/projects/projects.controller.ts
-import { Controller, Post, Get, Body, Param } from '@nestjs/common'; // <-- Add Param here
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProjectsService } from './projects.service';
 
 @Controller('projects')
@@ -7,14 +15,12 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  createProject(@Body() body: { 
-    projectName: string; 
-    fundingGoal: number;
-    location: string;
-    avgHumidity: number;
-    avgTemperature: number;
-  }) {
-    return this.projectsService.create(body);
+  @UseInterceptors(FilesInterceptor('images')) // 'images' is the field name for files
+  createProject(
+    @Body() body: any,
+    @UploadedFiles() images: Array<Express.Multer.File>,
+  ) {
+    return this.projectsService.create(body, images);
   }
 
   @Get()

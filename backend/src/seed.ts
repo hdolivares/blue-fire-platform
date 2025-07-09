@@ -26,11 +26,10 @@ async function bootstrap() {
     avgHumidity: 76,
     avgTemperature: 26.6,
     fundingGoal: 72440,
-    currentFunding: 72440,
-    status: 'OPERATIONAL',
   };
 
-  const newProject = await projectsService.create(villahermosaData);
+  // Pass an empty array for the images argument
+  const newProject = await projectsService.create(villahermosaData, []);
   console.log('Villahermosa project created!');
 
   const performanceEntries = [
