@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from '../projects/schemas/project.schema';
-import { Investor } from '../investors/schemas/investor.schema';
+import { Investor } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AdminService {

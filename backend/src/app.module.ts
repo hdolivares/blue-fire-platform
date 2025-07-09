@@ -3,12 +3,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { InvestorsModule } from './investors/investors.module';
+import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectsModule } from './projects/projects.module';
 import { PerformanceModule } from './performance/performance.module'; 
 import { AdminModule } from './admin/admin.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -23,10 +24,11 @@ import { AdminModule } from './admin/admin.module';
       }),
       inject: [ConfigService],
     }),
-    InvestorsModule,
+    UsersModule,
     ProjectsModule,
     PerformanceModule,
     AdminModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
