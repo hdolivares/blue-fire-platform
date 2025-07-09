@@ -8,6 +8,10 @@ import Image from 'next/image';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 
+import { ethers } from 'ethers';
+import stakingVaultAbi from '@/contracts/StakingVault.json';
+import contractAddress from '@/contracts/contract-address.json';
+
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -20,6 +24,9 @@ import {
   Legend,
 } from 'chart.js';
 
+import { StyledInput } from '@/components/StyledInput';
+import { GlowingButton } from '@/components/GlowingButton';
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,7 +37,6 @@ ChartJS.register(
   Legend
 );
 
-// Add the new climate fields to our Project type
 interface Project {
   projectName: string;
   status: string;
@@ -38,14 +44,16 @@ interface Project {
   imageUrls: string[];
   avgHumidity: number;
   avgTemperature: number;
+  fundingGoal: number;
+  currentFunding: number;
 }
 interface PerformanceData {
+  _id: string;
   date: string;
   waterProduction: number;
 }
 
-// Helper function to format the status text
-const formatStatus = (status: string) => {
+const formatStatus = (status: string = '') => {
   return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
 
@@ -54,6 +62,10 @@ export default function ProjectDetailPage() {
   const { id } = params;
   const [project, setProject] = useState<Project | null>(null);
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
+  const [investmentAmount, setInvestmentAmount] = useState('1000');
+  const [percentage, setPercentage] = useState(0);
+  const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
+  const [isInvesting, setIsInvesting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -66,6 +78,62 @@ export default function ProjectDetailPage() {
         .catch(error => console.error('Failed to fetch performance data:', error));
     }
   }, [id]);
+
+  useEffect(() => {
+    if (project && project.fundingGoal > 0) {
+      const amount = parseFloat(investmentAmount);
+      if (!isNaN(amount) && amount >= 0) {
+        setPercentage((amount / project.fundingGoal) * 100);
+      } else {
+        setPercentage(0);
+      }
+    }
+  }, [investmentAmount, project]);
+  
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPercentage = parseFloat(e.target.value);
+    setPercentage(newPercentage);
+    if (project) {
+      const newAmount = (newPercentage / 100) * project.fundingGoal;
+      setInvestmentAmount(newAmount.toFixed(0));
+    }
+  };
+  
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        setConnectedAccount(address);
+      } catch (error) {
+        console.error("Failed to connect wallet:", error);
+      }
+    } else {
+      alert('Please install a browser wallet like MetaMask.');
+    }
+  };
+
+  const handleInvestment = async () => {
+    if (!connectedAccount || !investmentAmount || !id) return;
+    setIsInvesting(true);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress.StakingVault, stakingVaultAbi, signer);
+      const priceInCrypto = Number(investmentAmount) * 0.0005;
+      const amountToSend = ethers.parseEther(priceInCrypto.toString());
+      const tx = await contract.stake(id.toString(), { value: amountToSend });
+      alert('Transaction sent! Waiting for confirmation...');
+      await tx.wait();
+      alert('Investment successful!');
+    } catch (error) {
+      console.error('Investment failed:', error);
+      alert('Investment transaction failed.');
+    } finally {
+      setIsInvesting(false);
+    }
+  };
 
   if (!project) {
     return <div className="text-center p-10">Loading...</div>;
@@ -93,10 +161,10 @@ export default function ProjectDetailPage() {
   };
 
   const avgWaterProduction = performanceData.reduce((acc, item) => acc + item.waterProduction, 0) / performanceData.length;
+  const fundingPercentage = (project.currentFunding / project.fundingGoal) * 100;
 
   return (
     <main className="container mx-auto p-4 md:p-8">
-      {/* Carousel or single image */}
       {project.imageUrls && project.imageUrls.length > 0 ? (
         <div className="rounded-2xl overflow-hidden mb-8 shadow-lg">
           <Carousel showThumbs={false} autoPlay infiniteLoop showStatus={false}>
@@ -120,20 +188,57 @@ export default function ProjectDetailPage() {
 
       <h1 className="text-4xl font-bold mb-2">{project.projectName}</h1>
       
-      {/* Formatted Status Label and Text */}
       <div className="flex items-center space-x-2">
-        <span className="text-lg text-gray-400">Project Current Status:</span>
+        <span className="text-lg text-gray-100">Project Current Status:</span>
         <span className="text-lg text-green-400 font-semibold">{formatStatus(project.status)}</span>
       </div>
 
-      {/* Grid for all Stat Cards */}
+      {project.status === 'SEEKING_FUNDING' && (
+        <div className="card-frosted p-6 my-8">
+          <h2 className="text-2xl font-bold mb-4">Invest in this Project</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="investment" className="block text-sm font-medium mb-1">Investment Amount (USD)</label>
+                <StyledInput id="investment" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} placeholder="e.g., 1000"/>
+              </div>
+              <div>
+                <label htmlFor="percentage" className="block text-sm font-medium mb-1">Ownership Percentage ({percentage > 100 ? 100 : percentage.toFixed(2)}%)</label>
+                <input id="percentage" type="range" min="0" max="100" value={percentage} onChange={handleSliderChange} className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"/>
+              </div>
+              
+              {!connectedAccount ? (
+                <GlowingButton onClick={connectWallet}>
+                  Connect Wallet to Invest
+                </GlowingButton>
+              ) : (
+                <>
+                  <div className="text-center p-3 rounded-lg bg-green-500/20 border border-green-500">
+                    <p className="text-sm">Wallet Connected</p>
+                  </div>
+                  <button onClick={handleInvestment} disabled={!investmentAmount || isInvesting} className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isInvesting ? 'Processing...' : 'Invest Now'}
+                  </button>
+                </>
+              )}
+            </div>
+            
+            <div className="bg-sky-500/20 rounded-lg p-6 flex flex-col items-center justify-center text-center">
+                <p className="text-gray-300">Funding Progress</p>
+                <p className="text-4xl font-bold my-2">${project.currentFunding.toLocaleString()} / <span className="text-2xl text-gray-300">${project.fundingGoal.toLocaleString()}</span></p>
+                <div className="w-full bg-white/10 rounded-full h-4">
+                  <div className="bg-gradient-accent h-4 rounded-full" style={{ width: `${fundingPercentage}%` }}></div>
+                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
         <div className="card-frosted p-6">
           <h3 className="text-gray-300 text-sm">Average Daily Water Production</h3>
           <p className="text-3xl font-bold">{!isNaN(avgWaterProduction) ? avgWaterProduction.toFixed(0) : '0'} L</p>
         </div>
-        
-        {/* New Stat Cards for Climate Conditions */}
         <div className="card-frosted p-6">
           <h3 className="text-gray-300 text-sm">Avg. Humidity</h3>
           <p className="text-3xl font-bold">{project.avgHumidity}%</p>

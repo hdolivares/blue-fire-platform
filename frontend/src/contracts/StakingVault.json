@@ -1,0 +1,14 @@
+[
+  {
+    "name": "stake",
+    "type": "function",
+    "stateMutability": "payable",
+    "inputs": [
+      {
+        "name": "projectId",
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  }
+]
