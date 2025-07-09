@@ -51,14 +51,14 @@ export const LoginForm = () => {
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
           <StyledInput id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          {/* Add this link */}
+          <div className="text-right mt-2">
+            <Link href="/forgot-password" legacyBehavior>
+              <a className="text-sm font-semibold hover:underline">Forgot Password?</a>
+            </Link>
+          </div>
         </div>
-        <button
-          type="submit"
-          className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold mt-6 transition-all hover:brightness-110"
-        >
-          Log In
-        </button>
-
+        <button type="submit" className="...">Log In</button>
         <p className="text-center text-sm pt-4">
           Don't have an account?{' '}
           <Link href="/register" className="font-semibold hover:underline">Register</Link>
