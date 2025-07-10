@@ -1,6 +1,8 @@
 // In backend/src/projects/schemas/project.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose'; // Import mongoose
+import { User } from '../../users/schemas/user.schema'; // Import the User schema
 
 export type ProjectDocument = HydratedDocument<Project>;
 
@@ -32,6 +34,9 @@ export class Project {
 
   @Prop({ enum: ['SEEKING_FUNDING', 'OPERATIONAL', 'COMPLETED'], default: 'SEEKING_FUNDING' })
   status: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  operator?: User;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

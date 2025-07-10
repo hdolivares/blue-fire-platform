@@ -10,6 +10,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { PerformanceModule } from './performance/performance.module'; 
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { OperatorsController } from './operators/operators.controller';
 
 
 @Module({
@@ -30,7 +31,7 @@ import { AuthModule } from './auth/auth.module';
     AdminModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, OperatorsController],
   providers: [AppService],
 })
 export class AppModule {}

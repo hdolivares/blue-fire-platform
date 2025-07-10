@@ -46,7 +46,8 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-    const project = await this.projectModel.findById(id).exec();
+    // Add .populate('operator') to fetch the full user object
+    const project = await this.projectModel.findById(id).populate('operator').exec();
     if (!project) {
       throw new NotFoundException(`Project with ID "${id}" not found`);
     }

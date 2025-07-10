@@ -1,15 +1,15 @@
 // In backend/src/admin/admin.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from '../projects/schemas/project.schema';
-import { User } from '../users/schemas/user.schema'; // <-- Change Investor to User here
+import { User } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<Project>,
-    @InjectModel(User.name) private userModel: Model<User>, // <-- And here
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async getDashboardStats() {
@@ -29,5 +29,24 @@ export class AdminService {
       operationalUnits,
       totalCapitalRaised,
     };
+  }
+
+    async assignOperatorToProject(projectId: string, operatorId: string): Promise<Project> {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    const operator = await this.userModel.findById(operatorId);
+    if (!operator) {
+      throw new NotFoundException('Operator user not found');
+    }
+
+    if (!operator.roles.includes('Operator')) {
+      throw new BadRequestException('This user is not an Operator');
+    }
+
+    project.operator = operator;
+    return project.save();
   }
 }
