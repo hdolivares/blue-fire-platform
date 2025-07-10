@@ -37,6 +37,9 @@ export class Project {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   operator?: User;
+
+  @Prop()
+  unitControllerAddress?: string;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

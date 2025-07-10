@@ -1,42 +1,50 @@
-// In frontend/src/app/admin/projects/[id]/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import Link from 'next/link';
+import { Listbox } from '@headlessui/react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminProjectDetailPage() {
   const params = useParams();
   const { id } = params;
+  const { token } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [operators, setOperators] = useState<any[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState('');
+  const [selectedOperator, setSelectedOperator] = useState<any | null>(null);
 
-  const fetchProject = () => {
-    if (id) {
-      axios.get(`http://localhost:3001/projects/${id}`)
+  const fetchProjectAndOperators = () => {
+    if (id && token) {
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+      
+      axios.get(`http://localhost:3001/projects/${id}`, authHeader)
         .then(response => {
           setProject(response.data);
-          // Set the default selected operator if one is already assigned
-          if(response.data.operator) {
-            setSelectedOperator(response.data.operator._id);
+          if (response.data.operator) {
+            setSelectedOperator(response.data.operator);
           }
         });
-      axios.get('http://localhost:3001/users/operators')
-        .then(response => setOperators(response.data));
+      
+      axios.get('http://localhost:3001/operators', authHeader)
+        .then(response => {
+          setOperators(response.data);
+        });
     }
   };
 
-  useEffect(fetchProject, [id]);
+  useEffect(fetchProjectAndOperators, [id, token]);
 
   const handleAssignOperator = async () => {
+    if (!selectedOperator) return;
     try {
-      await axios.patch(`http://localhost:3001/admin/projects/${id}/assign-operator`, {
-        operatorId: selectedOperator,
-      });
+      await axios.patch(`http://localhost:3001/admin/projects/${id}/assign-operator`, 
+        { operatorId: selectedOperator._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       alert('Operator assigned successfully!');
-      fetchProject(); // Refresh the project data
+      fetchProjectAndOperators(); // Refresh the data
     } catch (error) {
       console.error('Failed to assign operator:', error);
       alert('Failed to assign operator.');
@@ -51,7 +59,7 @@ export default function AdminProjectDetailPage() {
         &larr; Back to Admin Dashboard
       </Link>
       <h1 className="text-4xl font-bold">{project.projectName}</h1>
-
+      
       <div className="mt-8 card-frosted p-6">
         <h2 className="text-2xl font-bold mb-4">Assign Operator</h2>
         {project.operator ? (
@@ -60,30 +68,40 @@ export default function AdminProjectDetailPage() {
           <p className="text-yellow-400">No operator assigned.</p>
         )}
 
-        <div className="mt-4 flex items-end space-x-4">
-          <div className="flex-grow">
-            <label htmlFor="operator-select" className="block text-sm font-medium mb-1">Select an Operator</label>
-            <select 
-              id="operator-select"
-              value={selectedOperator}
-              onChange={(e) => setSelectedOperator(e.target.value)}
-              className="w-full text-black p-2 rounded-md"
+        <div className="mt-4">
+          <label htmlFor="operator-select" className="block text-sm font-medium mb-1">Select an Operator</label>
+          <div className="flex items-end space-x-4">
+            <div className="flex-grow">
+              <Listbox value={selectedOperator} onChange={setSelectedOperator}>
+                <div className="relative mt-1">
+                  <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white/20 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus:ring-2 focus:ring-white/75 sm:text-sm">
+                    <span className="block truncate">{selectedOperator ? `${selectedOperator.firstName} ${selectedOperator.lastName}` : 'Please choose an operator'}</span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-gray-400" aria-hidden="true"><path fillRule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3z" clipRule="evenodd" /></svg>
+                    </span>
+                  </Listbox.Button>
+                  <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-10">
+                    {operators.map((op) => (
+                      <Listbox.Option
+                        key={op._id}
+                        className={({ active }) => `relative cursor-default select-none py-2 pl-4 pr-4 ${active ? 'bg-purple-500/50 text-white' : 'text-gray-900'}`}
+                        value={op}
+                      >
+                        {({ selected }) => <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{op.firstName} {op.lastName}</span>}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </div>
+              </Listbox>
+            </div>
+            <button
+              onClick={handleAssignOperator}
+              disabled={!selectedOperator}
+              className="bg-gradient-accent text-white font-bold py-2 px-6 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
             >
-              <option value="">-- Please choose an operator --</option>
-              {operators.map(op => (
-                <option key={op._id} value={op._id}>
-                  {op.firstName} {op.lastName} ({op.email})
-                </option>
-              ))}
-            </select>
+              {project.operator ? 'Re-assign' : 'Assign'}
+            </button>
           </div>
-          <button
-            onClick={handleAssignOperator}
-            disabled={!selectedOperator}
-            className="bg-gradient-accent text-white font-bold py-2 px-4 rounded-lg transition-all hover:brightness-110 disabled:opacity-50"
-          >
-            Assign
-          </button>
         </div>
       </div>
     </main>

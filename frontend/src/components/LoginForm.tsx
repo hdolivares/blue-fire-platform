@@ -6,15 +6,17 @@ import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { StyledInput } from './StyledInput';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export const LoginForm = () => {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, setIsLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true); // Show loading overlay
     try {
       const response = await axios.post('http://localhost:3001/auth/login', {
         email,
@@ -24,8 +26,8 @@ export const LoginForm = () => {
       
       login(access_token);
       
-      alert('Login successful!');
-
+      toast.success('Logged in successfully!');
+      
       if (user.roles.includes('Admin')) {
         router.push('/admin/dashboard');
       } else if (user.roles.includes('Operator')) {
@@ -35,8 +37,10 @@ export const LoginForm = () => {
       }
 
     } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
       console.error('Login failed:', error);
-      alert('Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false); // Hide loading overlay
     }
   };
 
@@ -51,14 +55,19 @@ export const LoginForm = () => {
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
           <StyledInput id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          {/* Add this link */}
-        <div className="text-right mt-2">
-          <Link href="/forgot-password" className="text-sm font-semibold hover:underline">
-            Forgot Password?
-          </Link>
+          <div className="text-right mt-2">
+            <Link href="/forgot-password" className="text-sm font-semibold hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
         </div>
-        </div>
-        <button type="submit" className="...">Log In</button>
+        <button
+          type="submit"
+          className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold mt-6 transition-all hover:brightness-110"
+        >
+          Log In
+        </button>
+
         <p className="text-center text-sm pt-4">
           Don't have an account?{' '}
           <Link href="/register" className="font-semibold hover:underline">Register</Link>

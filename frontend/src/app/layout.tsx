@@ -1,12 +1,12 @@
-// In frontend/src/app/layout.tsx
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { AuthProvider } from '@/context/AuthContext';
 import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider";
-import { AdminBar } from "@/components/AdminBar"; // Import the new component
-import { Header } from "@/components/Header"; // Import our new Header
-
+import { AdminBar } from "@/components/AdminBar";
+import { Header } from "@/components/Header";
+import { Toaster } from "react-hot-toast";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 
 export const metadata: Metadata = {
   title: "Blue Fire Platform",
@@ -22,9 +22,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={GeistSans.variable}>
         <AuthProvider>
-          <AdminBar /> {/* Add the admin bar here */}
+          <LoadingOverlay />
+          <Toaster position="top-center" />
+          <AdminBar />
           <AnimatedGradientProvider />
-          <Header /> {/* Add the Header here */}
+          <Header />
           {children}
         </AuthProvider>
       </body>
