@@ -23,4 +23,12 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email }).select('+password').exec();
   }
+
+  // 3. find a user by reset token
+  async findUserByResetToken(token: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() }, // Check if the token has not expired
+    }).select('+password').exec();
+  }
 }
