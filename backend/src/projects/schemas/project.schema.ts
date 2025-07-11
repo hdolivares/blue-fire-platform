@@ -40,6 +40,9 @@ export class Project {
 
   @Prop()
   unitControllerAddress?: string;
+
+  @Prop()
+  avgDailyWaterProduction: number;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

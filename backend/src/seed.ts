@@ -18,7 +18,7 @@ async function bootstrap() {
   console.log('Seeding database...');
 
   // --- Create Admin User ---
-  const adminEmail = 'admin@bluefire.com';
+  const adminEmail = 'hobeja7@gmail.com';
   const existingAdmin = await userModel.findOne({ email: adminEmail }).exec();
 
   if (!existingAdmin) {
@@ -53,7 +53,10 @@ async function bootstrap() {
       location: 'Villahermosa, Tabasco, Mexico',
       avgHumidity: 76,
       avgTemperature: 26.6,
+      avgDailyWaterProduction: 1750,
       fundingGoal: 72440,
+      currentFunding:72440,
+      status: 'OPERATIONAL',
     };
     await projectsService.create(villahermosaData, []);
     console.log('Villahermosa project created!');
