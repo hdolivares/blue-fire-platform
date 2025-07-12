@@ -47,3 +47,17 @@ body {
 .carousel .control-dots .dot.selected {
   opacity: 1 !important;
 }
+
+/* New, simpler style for the calendar */
+.rdp-root {
+  --rdp-accent-color: white !important;
+  --rdp-background-color: var(--gradient-accent) !important;
+  --rdp-background-color-dark: var(--gradient-accent) !important;
+  --rdp-range_middle-background-color: rgba(142, 45, 226, 0.4) !important;
+  --rdp-range_start-color: rgba(255, 255, 255, 0.9) !important;
+  --rdp-range_start-date-background-color: rgb(0, 156, 252) !important;
+  --rdp-range_start-date-background: rgb(6, 49, 77) !important;
+  --rdp-range_end-color: rgba(255, 255, 255, 0.9) !important;
+  --rdp-range_end-date-background-color: rgb(0, 156, 252) !important;
+  --rdp-range_end-date-background: rgb(6, 49, 77) !important;
+}

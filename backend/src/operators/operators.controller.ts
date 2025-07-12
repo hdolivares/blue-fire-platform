@@ -25,6 +25,6 @@ export class OperatorsController {
   getMyProject(@Request() req) {
     // req.user is populated by the JwtAuthGuard with the token payload
     const operatorId = req.user.userId;
-    return this.usersService.findProjectByOperator(operatorId);
+    return this.usersService.findProjectsByOperator(operatorId);
   }
 }

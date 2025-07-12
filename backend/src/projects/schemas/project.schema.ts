@@ -43,6 +43,9 @@ export class Project {
 
   @Prop()
   avgDailyWaterProduction: number;
+
+  @Prop({ type: Date }) // date keeping
+  waterSoldUntil?: Date;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

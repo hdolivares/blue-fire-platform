@@ -38,8 +38,9 @@ export class UsersService {
     return this.userModel.find({ roles: 'Operator' }).exec();
   }
 
-  async findProjectByOperator(operatorId: string): Promise<Project | null> {
-    // This now works because projectModel is available
-    return this.projectModel.findOne({ operator: operatorId }).exec();
+  // Find all projects assigned to a specific operator
+  async findProjectsByOperator(operatorId: string): Promise<Project[]> {
+    // We change findOne to find to get a list (an array)
+    return this.projectModel.find({ operator: operatorId }).exec();
   }
 }
