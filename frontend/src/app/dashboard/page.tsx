@@ -3,8 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { ProjectCard } from '@/components/ProjectCard';
+import { QuickNavigation } from '@/components/Navigation';
 import Link from 'next/link';
 import api from '@/lib/axios';
+import { useAuth } from '@/context/AuthContext';
 
 // Define a type for our project data for type safety
 interface Project {
@@ -17,6 +19,7 @@ interface Project {
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +43,80 @@ export default function DashboardPage() {
     fetchProjects();
   }, []); // The empty array means this effect runs once on mount
 
+  // Helper function to get user's primary role
+  const getPrimaryRole = () => {
+    if (!user) return 'User';
+    
+    // Priority order: Admin > Operator > Investor
+    if (user.roles.includes('Admin')) return 'Admin';
+    if (user.roles.includes('Operator')) return 'Operator';
+    if (user.roles.includes('Investor')) return 'Investor';
+    return 'User';
+  };
+
+  // Get role-specific dashboard content
+  const getDashboardContent = () => {
+    const role = getPrimaryRole();
+    
+    switch (role) {
+      case 'Admin':
+        return {
+          title: 'Admin Dashboard',
+          subtitle: 'Manage projects, users, and platform operations',
+          color: 'text-blue-300',
+          bgColor: 'bg-blue-500/10',
+          actionButton: (
+            <Link 
+              href="/admin/dashboard" 
+              className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-blue-700"
+            >
+              Full Admin Panel
+            </Link>
+          )
+        };
+      case 'Operator':
+        return {
+          title: 'Operator Dashboard',
+          subtitle: 'Monitor and manage your assigned projects',
+          color: 'text-orange-300',
+          bgColor: 'bg-orange-500/10',
+          actionButton: (
+            <Link 
+              href="/operator/dashboard" 
+              className="bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-orange-700"
+            >
+              Operator Panel
+            </Link>
+          )
+        };
+      case 'Investor':
+        return {
+          title: 'Investor Dashboard',
+          subtitle: 'Discover and invest in water production projects',
+          color: 'text-purple-300',
+          bgColor: 'bg-purple-500/10',
+          actionButton: (
+            <Link 
+              href="/portfolio" 
+              className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-purple-700"
+            >
+              View Portfolio
+            </Link>
+          )
+        };
+      default:
+        return {
+          title: 'Dashboard',
+          subtitle: 'Welcome to Blue Fire Platform',
+          color: 'text-gray-300',
+          bgColor: 'bg-gray-500/10',
+          actionButton: null
+        };
+    }
+  };
+
+  const dashboardContent = getDashboardContent();
+
   if (loading) {
     return (
       <main className="container mx-auto p-8">
@@ -58,13 +135,54 @@ export default function DashboardPage() {
 
   return (
     <main className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-8">Investor Dashboard</h1>
-      <h2 className="text-2xl font-semibold mb-4 text-gray-300">Projects Seeking Funding</h2>
+      {/* Role-specific header */}
+      <div className={`${dashboardContent.bgColor} rounded-lg p-6 mb-8`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className={`text-4xl font-bold ${dashboardContent.color} mb-2`}>
+              {dashboardContent.title}
+            </h1>
+            <p className="text-gray-300 text-lg">{dashboardContent.subtitle}</p>
+            {user && (
+              <p className="text-sm text-gray-400 mt-2">
+                Welcome back, {user.email}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center space-x-4">
+            {dashboardContent.actionButton}
+            <QuickNavigation />
+          </div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((project) => (
-          <ProjectCard key={project._id} project={project} />
-        ))}
+      {/* Projects section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-300">
+          {getPrimaryRole() === 'Admin' ? 'All Projects' : 
+           getPrimaryRole() === 'Operator' ? 'Available Projects' : 
+           'Projects Seeking Funding'}
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project) => (
+            <ProjectCard key={project._id} project={project} />
+          ))}
+        </div>
+
+        {projects.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">No projects available at the moment.</p>
+            {getPrimaryRole() === 'Admin' && (
+              <Link 
+                href="/admin/projects/new" 
+                className="inline-block mt-4 bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-green-700"
+              >
+                Create First Project
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

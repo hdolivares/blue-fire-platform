@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/axios';
 import Link from 'next/link';
 import { StatCard } from '@/components/StatCard';
 
@@ -25,13 +25,13 @@ export default function AdminDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/admin/dashboard')
-      .then(response => setStats(response.data))
-      .catch(error => console.error('Failed to fetch dashboard stats:', error));
+    api.get('/admin/dashboard')
+      .then((response: any) => setStats(response.data))
+      .catch((error: any) => console.error('Failed to fetch dashboard stats:', error));
     
-    axios.get('http://localhost:3001/projects')
-      .then(response => setProjects(response.data))
-      .catch(error => console.error('Failed to fetch projects:', error));
+    api.get('/projects')
+      .then((response: any) => setProjects(response.data))
+      .catch((error: any) => console.error('Failed to fetch projects:', error));
   }, []);
 
   if (!stats) {

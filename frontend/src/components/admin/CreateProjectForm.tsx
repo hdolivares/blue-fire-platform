@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { StyledInput } from '@/components/StyledInput';
 
@@ -32,7 +32,7 @@ export const CreateProjectForm = () => {
 
     try {
       // Send the FormData object with the correct headers
-      await axios.post('http://localhost:3001/projects', formData, {
+      await api.post('/projects', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert('Project created successfully!');

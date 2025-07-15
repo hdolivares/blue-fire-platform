@@ -4,8 +4,6 @@ import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { RateLimitGuard } from './guards/rate-limit.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   providers: [
@@ -24,14 +22,6 @@ import { RolesGuard } from './guards/roles.guard';
     {
       provide: APP_GUARD,
       useClass: RateLimitGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
     },
   ],
 })

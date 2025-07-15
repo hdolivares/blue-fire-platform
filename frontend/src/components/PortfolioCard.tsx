@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import axios from 'axios';
+import api from '@/lib/axios';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import stakingVaultAbi from '@/contracts/StakingVault.json';
@@ -16,10 +16,8 @@ export const PortfolioCard = ({ investment }: { investment: any }) => {
 
   useEffect(() => {
     if (token && investment.project) {
-      axios.get(`http://localhost:3001/investments/${investment.project._id}/claimable`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => setClaimable(response.data));
+      api.get(`/investments/${investment.project._id}/claimable`)
+        .then((response: any) => setClaimable(response.data));
     }
   }, [token, investment]);
 

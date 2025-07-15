@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import axios from 'axios';
+import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import { ProjectSection } from '@/components/operator/ProjectSection';
@@ -20,17 +20,15 @@ const OperatorDashboard = () => {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:3001/operators/my-project', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => { 
-        setProjects(response.data) 
-      })
-      .catch(error => { 
-        console.error("Failed to fetch projects", error);
-        toast.error("Could not load your assigned project.");
-      })
-      .finally(() => { setLoading(false) });
+      api.get('/operators/my-project')
+        .then((response: any) => { 
+          setProjects(response.data) 
+        })
+        .catch((error: any) => { 
+          console.error("Failed to fetch projects", error);
+          toast.error("Could not load your assigned project.");
+        })
+        .finally(() => { setLoading(false) });
     } else if (token === null) {
       setLoading(false);
     }

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import axios from 'axios';
+import api from '@/lib/axios';
 import { PortfolioCard } from '@/components/PortfolioCard';
 
 export default function PortfolioPage() {
@@ -13,14 +13,12 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (token) {
-      axios.get('http://localhost:3001/investors/my-portfolio', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(response => {
-        setPortfolio(response.data);
-      })
-      .catch(error => console.error("Failed to fetch portfolio", error))
-      .finally(() => setLoading(false));
+      api.get('/investors/my-portfolio')
+        .then((response: any) => {
+          setPortfolio(response.data);
+        })
+        .catch((error: any) => console.error("Failed to fetch portfolio", error))
+        .finally(() => setLoading(false));
     } else if (token === null) {
       setLoading(false);
     }

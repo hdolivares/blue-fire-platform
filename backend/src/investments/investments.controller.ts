@@ -2,18 +2,18 @@
  * @file investments.controller.ts
  * @description This controller handles incoming API requests for logging investments.
  */
-import { Controller, Post, Body, UseGuards, Request, Get, Param } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Controller, Post, Body, Request, Get, Param } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
+import { InvestorOnly } from '../common/decorators/auth.decorator';
 
 @Controller('investments')
+@InvestorOnly()
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}
 
   /**
    * Endpoint to log a new investment after a successful on-chain transaction.
    */
-  @UseGuards(JwtAuthGuard)
   @Post()
   logInvestment(
     @Request() req,
@@ -30,7 +30,6 @@ export class InvestmentsController {
     /**
    * @description Endpoint to get claimable rewards for a user and project.
    */
-  @UseGuards(JwtAuthGuard)
   @Get(':projectId/claimable')
   getClaimableRewards(
     @Request() req,

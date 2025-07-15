@@ -1,11 +1,13 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
+import { useRoles } from "@/hooks/useRoles";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export const UserMenu = () => {
   const { user, logout } = useAuth();
+  const { hasRole, getPrimaryRole } = useRoles();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -16,25 +18,75 @@ export const UserMenu = () => {
   return (
     <div className="flex items-center space-x-4">
       {user ? (
-        // This <> fragment is the single parent element
         <>
-          {/* Show portfolio link only if the user is an Investor or Admin */}
-          {(user.roles.includes('Investor') || user.roles.includes('Admin')) && (
-            <Link href="/portfolio" className="text-sm font-semibold hover:underline">
-              My Portfolio
-            </Link>
-          )}
+          {/* Role-based navigation links */}
+          <div className="flex items-center space-x-4">
+            {/* Admin-specific links */}
+            {hasRole(['Admin']) && (
+              <>
+                <Link 
+                  href="/admin/dashboard" 
+                  className="text-sm font-semibold hover:underline text-blue-300"
+                >
+                  Admin Dashboard
+                </Link>
+                <Link 
+                  href="/admin/projects/new" 
+                  className="text-sm font-semibold hover:underline text-green-300"
+                >
+                  Create Project
+                </Link>
+              </>
+            )}
 
-          <span className="text-sm text-gray-300">Welcome, {user.email}</span>
-          <button
-            onClick={handleLogout}
-            className="bg-white/10 text-white font-semibold py-2 px-4 rounded-lg transition-all hover:bg-white/20"
-          >
-            Log Out
-          </button>
+            {/* Operator-specific links */}
+            {hasRole(['Operator']) && (
+              <Link 
+                href="/operator/dashboard" 
+                className="text-sm font-semibold hover:underline text-orange-300"
+              >
+                Operator Dashboard
+              </Link>
+            )}
+
+            {/* Investor-specific links */}
+            {hasRole(['Investor']) && (
+              <Link 
+                href="/portfolio" 
+                className="text-sm font-semibold hover:underline text-purple-300"
+              >
+                My Portfolio
+              </Link>
+            )}
+
+            {/* General dashboard link (for all authenticated users) */}
+            <Link 
+              href="/dashboard" 
+              className="text-sm font-semibold hover:underline"
+            >
+              Dashboard
+            </Link>
+          </div>
+
+          {/* User info and logout */}
+          <div className="flex items-center space-x-3">
+            <span className="text-sm text-gray-300">
+              Welcome, {user.email}
+              {getPrimaryRole() && (
+                <span className="ml-2 px-2 py-1 text-xs bg-white/10 rounded-full">
+                  {getPrimaryRole()}
+                </span>
+              )}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-white/10 text-white font-semibold py-2 px-4 rounded-lg transition-all hover:bg-white/20"
+            >
+              Log Out
+            </button>
+          </div>
         </>
       ) : (
-        // This <> fragment is also a parent
         <>
           <Link href="/login" className="text-sm font-semibold hover:underline">
             Log In

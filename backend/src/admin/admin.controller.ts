@@ -1,8 +1,10 @@
 // In backend/src/admin/admin.controller.ts
-import { Controller, Get, Patch, Param, Body } from '@nestjs/common'; // <-- Adding Patch and Param
+import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { AdminOnly } from '../common/decorators/auth.decorator';
 
 @Controller('admin')
+@AdminOnly()
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 

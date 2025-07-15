@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import axios from 'axios';
+import api from '@/lib/axios';
 import Link from 'next/link';
 import { Listbox } from '@headlessui/react';
 import { useAuth } from '@/context/AuthContext';
@@ -17,18 +17,16 @@ export default function AdminProjectDetailPage() {
 
   const fetchProjectAndOperators = () => {
     if (id && token) {
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-      
-      axios.get(`http://localhost:3001/projects/${id}`, authHeader)
-        .then(response => {
+      api.get(`/projects/${id}`)
+        .then((response: any) => {
           setProject(response.data);
           if (response.data.operator) {
             setSelectedOperator(response.data.operator);
           }
         });
       
-      axios.get('http://localhost:3001/operators', authHeader)
-        .then(response => {
+      api.get('/operators')
+        .then((response: any) => {
           setOperators(response.data);
         });
     }
@@ -39,9 +37,8 @@ export default function AdminProjectDetailPage() {
   const handleAssignOperator = async () => {
     if (!selectedOperator) return;
     try {
-      await axios.patch(`http://localhost:3001/admin/projects/${id}/assign-operator`, 
-        { operatorId: selectedOperator._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.patch(`/admin/projects/${id}/assign-operator`, 
+        { operatorId: selectedOperator._id }
       );
       alert('Operator assigned successfully!');
       fetchProjectAndOperators(); // Refresh the data
