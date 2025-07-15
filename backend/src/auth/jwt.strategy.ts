@@ -42,7 +42,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @returns {object} The user object to be attached to the request.
    */
   async validate(payload: any) {
-    // The payload contains the data we put into it when we signed the token in auth.service.ts.
-    return { userId: payload.sub, email: payload.email, roles: payload.roles };
+    // Add walletAddress to the user object that gets attached to requests
+    return { 
+      userId: payload.sub, 
+      email: payload.email, 
+      roles: payload.roles, 
+      walletAddress: payload.walletAddress 
+    };
   }
 }

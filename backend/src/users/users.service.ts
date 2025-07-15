@@ -5,13 +5,16 @@ import { User, UserDocument } from './schemas/user.schema';
 import { RegisterUserDto } from './dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Project } from '../projects/schemas/project.schema';
+// This is the corrected import path. It now goes "up" one folder from 'users'
+// before going "down" into 'investments'.
+import { Investment } from '../investments/schemas/investment.schema';
 
 @Injectable()
 export class UsersService {
-  // The constructor now takes both the UserModel and ProjectModel
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    @InjectModel(Investment.name) private investmentModel: Model<Investment>,
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
@@ -38,9 +41,14 @@ export class UsersService {
     return this.userModel.find({ roles: 'Operator' }).exec();
   }
 
-  // Find all projects assigned to a specific operator
   async findProjectsByOperator(operatorId: string): Promise<Project[]> {
-    // We change findOne to find to get a list (an array)
     return this.projectModel.find({ operator: operatorId }).exec();
+  }
+  
+  async findMyPortfolio(userId: string): Promise<any[]> {
+    return this.investmentModel
+      .find({ user: userId })
+      .populate('project')
+      .exec();
   }
 }

@@ -40,13 +40,13 @@ export class AuthService {
     return { message: 'Password has been reset successfully.' };
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, sub: user._id, roles: user.roles };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: user,
-    };
-  }
+async login(user: any) {
+  const payload = { email: user.email, sub: user._id, roles: user.roles, walletAddress: user.walletAddress };
+  return {
+    access_token: this.jwtService.sign(payload),
+    user: user,
+  };
+}
 
   async forgotPassword(email: string): Promise<{ message: string }> {
     const user = await this.usersService.findOneByEmail(email);

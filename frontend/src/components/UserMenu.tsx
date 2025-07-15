@@ -1,4 +1,3 @@
-// In frontend/src/components/UserMenu.tsx
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
@@ -17,9 +16,16 @@ export const UserMenu = () => {
   return (
     <div className="flex items-center space-x-4">
       {user ? (
-        // If user is logged in
+        // This <> fragment is the single parent element
         <>
-          <span className="text-sm">Welcome, {user.email}</span>
+          {/* Show portfolio link only if the user is an Investor or Admin */}
+          {(user.roles.includes('Investor') || user.roles.includes('Admin')) && (
+            <Link href="/portfolio" className="text-sm font-semibold hover:underline">
+              My Portfolio
+            </Link>
+          )}
+
+          <span className="text-sm text-gray-300">Welcome, {user.email}</span>
           <button
             onClick={handleLogout}
             className="bg-white/10 text-white font-semibold py-2 px-4 rounded-lg transition-all hover:bg-white/20"
@@ -28,7 +34,7 @@ export const UserMenu = () => {
           </button>
         </>
       ) : (
-        // If user is logged out
+        // This <> fragment is also a parent
         <>
           <Link href="/login" className="text-sm font-semibold hover:underline">
             Log In

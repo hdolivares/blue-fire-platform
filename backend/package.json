@@ -37,6 +37,7 @@
     "bcrypt": "^6.0.0",
     "buffer-to-stream": "^1.0.0",
     "cloudinary": "^2.7.0",
+    "ethers": "^6.15.0",
     "mongoose": "^8.16.2",
     "multer": "^2.0.1",
     "nodemailer": "^7.0.5",
