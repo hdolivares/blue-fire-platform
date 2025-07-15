@@ -2,10 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ProjectCard } from '@/components/ProjectCard';
-import Link from 'next/link'; // Make sure Link is imported
-
+import Link from 'next/link';
+import api from '@/lib/axios';
 
 // Define a type for our project data for type safety
 interface Project {
@@ -14,24 +13,48 @@ interface Project {
   fundingGoal: number;
   currentFunding: number;
   status: string;
+  imageUrl?: string; // Make imageUrl optional since it might not always be present
 }
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch projects from the backend when the page loads
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/projects');
+        setLoading(true);
+        const response = await api.get('/projects');
         setProjects(response.data);
-      } catch (error) {
+        setError(null);
+      } catch (error: any) {
         console.error('Failed to fetch projects:', error);
+        setError('Failed to load projects. Please try again.');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProjects();
   }, []); // The empty array means this effect runs once on mount
+
+  if (loading) {
+    return (
+      <main className="container mx-auto p-8">
+        <div className="text-center">Loading projects...</div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="container mx-auto p-8">
+        <div className="text-center text-red-500">{error}</div>
+      </main>
+    );
+  }
 
   return (
     <main className="container mx-auto p-8">

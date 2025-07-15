@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { StyledInput } from './StyledInput';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import api from '@/lib/axios';
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -16,18 +16,25 @@ export const LoginForm = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoading(true); // Show loading overlay
+    setIsLoading(true);
+    
     try {
-      const response = await axios.post('http://localhost:3001/auth/login', {
-        email,
+      const response = await api.post('/auth/login', {
+        email: email.toLowerCase(), // Convert to lowercase for consistency
         password,
       });
+      
       const { access_token, user } = response.data;
       
+      // Store token in localStorage
+      localStorage.setItem('token', access_token);
+      
+      // Update auth context
       login(access_token);
       
       toast.success('Logged in successfully!');
       
+      // Redirect based on user role
       if (user.roles.includes('Admin')) {
         router.push('/admin/dashboard');
       } else if (user.roles.includes('Operator')) {
@@ -36,11 +43,12 @@ export const LoginForm = () => {
         router.push('/dashboard');
       }
 
-    } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
+      toast.error(errorMessage);
       console.error('Login failed:', error);
     } finally {
-      setIsLoading(false); // Hide loading overlay
+      setIsLoading(false);
     }
   };
 

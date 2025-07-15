@@ -1,7 +1,8 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from '../users/users.service';
 
 /**
  * @class JwtStrategy
@@ -14,7 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @constructor
    * @param {ConfigService} configService - Service for accessing configuration (environment variables).
    */
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {
     // Get the JWT secret from environment variables.
     const secret = configService.get<string>('JWT_SECRET');
 
@@ -42,12 +46,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @returns {object} The user object to be attached to the request.
    */
   async validate(payload: any) {
-    // Add walletAddress to the user object that gets attached to requests
-    return { 
-      userId: payload.sub, 
-      email: payload.email, 
-      roles: payload.roles, 
-      walletAddress: payload.walletAddress 
+    // Validate that the user still exists in the database
+    const user = await this.usersService.findOneByEmail(payload.email);
+    
+    if (!user) {
+      throw new UnauthorizedException('User no longer exists');
+    }
+
+    // Return user object that will be attached to the request
+    return {
+      userId: user._id,
+      email: user.email,
+      roles: user.roles,
+      walletAddress: user.walletAddress,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
   }
 }

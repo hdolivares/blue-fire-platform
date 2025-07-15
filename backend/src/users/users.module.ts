@@ -1,6 +1,5 @@
 // backend/src/users/users.module.ts
 import { Module, forwardRef } from '@nestjs/common';
-import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
@@ -13,7 +12,6 @@ import { InvestmentsModule } from '../investments/investments.module';
     ProjectsModule,
     forwardRef(() => InvestmentsModule), // This breaks the cycle
   ],
-  controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService, MongooseModule],
 })

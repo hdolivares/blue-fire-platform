@@ -7,7 +7,7 @@ interface Project {
   projectName: string;
   fundingGoal: number;
   currentFunding: number;
-  imageUrl: string; // Add imageUrl to the type
+  imageUrl?: string; // Make imageUrl optional
 }
 
 export const ProjectCard = ({ project }: { project: Project }) => {
@@ -18,7 +18,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
       {/* Image Section */}
       <div className="relative w-full h-40">
         <Image
-          src={project.imageUrl}
+          src={project.imageUrl || '/placeholder-project.jpg'} // Fallback image
           alt={project.projectName}
           fill
           className="object-cover"

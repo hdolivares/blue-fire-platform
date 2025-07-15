@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false); // New state for transitions
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
+    const storedToken = localStorage.getItem('token'); // Use same key as axios interceptor
     if (storedToken) {
       setToken(storedToken);
       try {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser({ _id: payload.sub, email: payload.email, roles: payload.roles });
       } catch (e) {
         console.error("Failed to decode token on load", e);
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
       }
     }
     setLoading(false);
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const payload = JSON.parse(atob(newToken.split('.')[1]));
       setUser({ _id: payload.sub, email: payload.email, roles: payload.roles });
-      localStorage.setItem('authToken', newToken);
+      localStorage.setItem('token', newToken); // Use same key as axios interceptor
     } catch (e) {
       console.error("Failed to decode token", e);
     }
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token'); // Use same key as axios interceptor
   };
 
   return (

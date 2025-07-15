@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Listbox } from '@headlessui/react';
-import toast from 'react-hot-toast'; // 1. Import toast
+import toast from 'react-hot-toast';
 import { ethers } from 'ethers';
 
 import { StyledInput } from './StyledInput';
 import { GlowingButton } from './GlowingButton';
+import api from '@/lib/axios';
 
 // The available roles for selection.
 const roles = ['Investor', 'Operator'];
@@ -65,7 +65,7 @@ export const RegistrationForm = () => {
     const formData = { 
       firstName,
       lastName,
-      email, 
+      email: email.toLowerCase(), // Convert to lowercase for consistency
       password, 
       country, 
       walletAddress,
@@ -73,14 +73,15 @@ export const RegistrationForm = () => {
     };
 
     try {
-      await axios.post('http://localhost:3001/auth/register', formData);
+      await api.post('/auth/register', formData);
       toast.dismiss(loadingToast);
       toast.success('Registration successful! Please log in.');
       router.push('/login'); // Redirect to login page after registration
-    } catch (error) {
+    } catch (error: any) {
       toast.dismiss(loadingToast);
       console.error('Registration failed:', error);
-      toast.error('Registration failed. The email or wallet may already be in use.');
+      const errorMessage = error.response?.data?.message || 'Registration failed. The email or wallet may already be in use.';
+      toast.error(errorMessage);
     } finally {
       setIsRegistering(false);
     }

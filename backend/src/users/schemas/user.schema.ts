@@ -34,3 +34,9 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Add case-insensitive index for email
+UserSchema.index({ email: 1 }, { 
+  unique: true, 
+  collation: { locale: 'en', strength: 2 } // Case-insensitive collation
+});

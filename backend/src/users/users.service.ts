@@ -18,16 +18,26 @@ export class UsersService {
   ) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
+    // Convert email to lowercase
+    const email = registerUserDto.email.toLowerCase();
+    
+    // Check if user already exists (case-insensitive)
+    const existingUser = await this.findOneByEmail(email);
+    if (existingUser) {
+      throw new Error('User with this email already exists');
+    }
+    
     const hashedPassword = await bcrypt.hash(registerUserDto.password, 10);
     const newUser = new this.userModel({
       ...registerUserDto,
+      email, // Use lowercase email
       password: hashedPassword,
     });
     return newUser.save();
   }
 
   async findOneByEmail(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email }).select('+password').exec();
+    return this.userModel.findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } }).select('+password').exec();
   }
 
   async findUserByResetToken(token: string): Promise<UserDocument | null> {

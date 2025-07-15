@@ -1,45 +1,66 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  roles: string[];
+  requiredRoles?: string[];
+  redirectTo?: string;
 }
 
-export const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth(); // Get the new loading state
+export const ProtectedRoute = ({ 
+  children, 
+  requiredRoles = [], 
+  redirectTo = '/login' 
+}: ProtectedRouteProps) => {
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Wait until the initial loading is done
-    if (loading) {
-      return;
-    }
+    if (!loading) {
+      // If no user is logged in, redirect to login
+      if (!user) {
+        router.push(redirectTo);
+        return;
+      }
 
-    if (!user) {
-      router.push('/login');
-      return;
+      // If roles are required, check if user has any of the required roles
+      if (requiredRoles.length > 0) {
+        const hasRequiredRole = requiredRoles.some(role => 
+          user.roles.includes(role)
+        );
+        
+        if (!hasRequiredRole) {
+          // Redirect to dashboard if user doesn't have required role
+          router.push('/dashboard');
+          return;
+        }
+      }
     }
+  }, [user, loading, requiredRoles, redirectTo, router]);
 
-    const hasRequiredRole = user.roles.some(role => roles.includes(role));
-    if (!hasRequiredRole) {
-      router.push('/dashboard'); 
-    }
-  }, [user, loading, roles, router]);
-
-  // Show a loading message while we check the user's status
+  // Show loading while checking authentication
   if (loading) {
-    return <div className="text-center p-10">Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  // If checks pass, show the page content
-  if (user && user.roles.some(role => roles.includes(role))) {
-    return <>{children}</>;
+  // If no user, don't render children (will redirect)
+  if (!user) {
+    return null;
   }
 
-  // Fallback while redirecting
-  return <div className="text-center p-10">Loading...</div>;
+  // If roles are required, check if user has required role
+  if (requiredRoles.length > 0) {
+    const hasRequiredRole = requiredRoles.some(role => 
+      user.roles.includes(role)
+    );
+    
+    if (!hasRequiredRole) {
+      return null; // Will redirect
+    }
+  }
+
+  return <>{children}</>;
 };

@@ -10,13 +10,12 @@ import { LocalStrategy } from './local.strategy';
 import { EmailModule } from '../email/email.module';
 import { JwtStrategy } from './jwt.strategy'; 
 
-
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     ConfigModule,
-    EmailModule, // <-- Add this
+    EmailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,5 +27,6 @@ import { JwtStrategy } from './jwt.strategy';
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
+  exports: [AuthService, JwtModule], // Export JwtModule for use in other modules
 })
 export class AuthModule {}
