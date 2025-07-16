@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRoles } from "@/hooks/useRoles";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
 
 export const UserMenu = () => {
   const { user, logout } = useAuth();
@@ -33,12 +35,20 @@ export const UserMenu = () => {
 
             {/* Operator-specific links */}
             {hasRole(['Operator']) && (
-              <Link 
-                href="/operator/dashboard" 
-                className="text-sm font-semibold hover:underline text-orange-300"
-              >
-                Operator Dashboard
-              </Link>
+              <>
+                <Link 
+                  href="/operator/dashboard" 
+                  className="text-sm font-semibold hover:underline text-orange-300"
+                >
+                  Operator Dashboard
+                </Link>
+                <Link 
+                  href="/operator/my-requests" 
+                  className="text-sm font-semibold hover:underline text-orange-300"
+                >
+                  My Requests
+                </Link>
+              </>
             )}
 
             {/* Investor-specific links */}
@@ -62,20 +72,21 @@ export const UserMenu = () => {
 
           {/* User info and logout */}
           <div className="flex items-center space-x-3">
-            <span className="text-sm text-gray-300">
+            <span className="text-sm text-secondary">
               Welcome, {user.email}
               {getPrimaryRole() && (
-                <span className="ml-2 px-2 py-1 text-xs bg-white/10 rounded-full">
+                <Badge variant="info" size="sm" className="ml-2">
                   {getPrimaryRole()}
-                </span>
+                </Badge>
               )}
             </span>
-            <button
+            <Button
               onClick={handleLogout}
-              className="bg-white/10 text-white font-semibold py-2 px-4 rounded-lg transition-all hover:bg-white/20"
+              variant="outline"
+              size="sm"
             >
               Log Out
-            </button>
+            </Button>
           </div>
         </>
       ) : (
@@ -83,9 +94,9 @@ export const UserMenu = () => {
           <Link href="/login" className="text-sm font-semibold hover:underline">
             Log In
           </Link>
-          <Link href="/register" className="bg-gradient-accent text-white font-bold py-2 px-4 rounded-lg transition-all hover:brightness-110">
+          <Button variant="primary" size="sm" onClick={() => window.location.href = '/register'}>
             Register
-          </Link>
+          </Button>
         </>
       )}
     </div>

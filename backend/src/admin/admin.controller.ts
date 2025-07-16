@@ -41,4 +41,9 @@ export class AdminController {
   ) {
     return this.adminService.assignOperatorToProject(projectId, operatorId);
   }
+
+  @Get('operator-requests')
+  getPendingOperatorRequests() {
+    return this.adminService.getPendingOperatorRequests();
+  }
 }

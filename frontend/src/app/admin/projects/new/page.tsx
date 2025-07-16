@@ -1,14 +1,20 @@
 // In frontend/src/app/admin/projects/new/page.tsx
 import { CreateProjectForm } from "@/components/admin/CreateProjectForm";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
 export default function NewProjectPage() {
   return (
-    <main className="container mx-auto p-8">
-      <Link href="/admin/dashboard" className="text-gray-300 hover:text-white transition-colors duration-200 mb-6 inline-block">
+    <main className="container-main">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => window.location.href = '/admin/dashboard'}
+        className="mb-6"
+      >
         &larr; Back to Admin Dashboard
-      </Link>
-      <h1 className="text-4xl font-bold mb-8">Create New Project Proposal</h1>
+      </Button>
+      <h1 className="section-header">Create New Project Proposal</h1>
       <CreateProjectForm />
     </main>
   );

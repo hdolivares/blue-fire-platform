@@ -8,6 +8,8 @@ import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import stakingVaultAbi from '@/contracts/StakingVault.json';
 import contractAddress from '@/contracts/contract-address.json';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
 
 export const PortfolioCard = ({ investment }: { investment: any }) => {
   const { token } = useAuth();
@@ -48,31 +50,33 @@ export const PortfolioCard = ({ investment }: { investment: any }) => {
   const hasClaimable = parseFloat(claimable) > 0;
 
   return (
-    <div className="card-frosted p-6">
+    <Card variant="frosted" className="p-6">
       <h2 className="text-2xl font-bold">{investment.project.projectName}</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
         <div>
-          <p className="text-sm text-gray-300">Your Investment</p>
+          <p className="text-sm text-secondary">Your Investment</p>
           <p className="text-xl font-bold">${investment.amount.toLocaleString()}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-300">Your Share</p>
+          <p className="text-sm text-secondary">Your Share</p>
           <p className="text-xl font-bold">{((investment.amount / investment.project.fundingGoal) * 100).toFixed(2)}%</p>
         </div>
         <div>
-          <p className="text-sm text-gray-300">Claimable Rewards</p>
+          <p className="text-sm text-secondary">Claimable Rewards</p>
           <p className="text-xl font-bold text-green-400">{parseFloat(claimable).toFixed(4)} RBTC</p>
         </div>
         <div className="flex items-center">
-          <button 
+          <Button 
             onClick={handleClaim}
             disabled={!hasClaimable || isClaiming}
-            className="w-full py-2 px-4 rounded-md bg-gradient-accent text-white font-bold transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="primary"
+            size="sm"
+            className="w-full"
           >
             {isClaiming ? 'Claiming...' : 'Claim Rewards'}
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

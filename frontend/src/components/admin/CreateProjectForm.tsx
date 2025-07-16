@@ -4,6 +4,8 @@ import { useState } from 'react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { StyledInput } from '@/components/StyledInput';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 export const CreateProjectForm = () => {
   const router = useRouter();
@@ -44,7 +46,7 @@ export const CreateProjectForm = () => {
   };
 
   return (
-    <div className="card-frosted max-w-2xl mx-auto p-8">
+    <Card variant="frosted" className="max-w-2xl mx-auto p-8">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -80,10 +82,10 @@ export const CreateProjectForm = () => {
             />
         </div>
 
-        <button type="submit" className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold mt-6 transition-all duration-300 hover:brightness-110">
+        <Button type="submit" variant="primary" size="lg" className="w-full mt-6">
           Create Project
-        </button>
+        </Button>
       </form>
-    </div>
+    </Card>
   );
 };

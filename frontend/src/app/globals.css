@@ -1,63 +1,311 @@
 @import "tailwindcss";
-@tailwind utilities;
-/* 2. Define all your custom styles and colors as CSS Variables */
+
+/* Design System - CSS Custom Properties */
 :root {
-  --gradient-secondary: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-  --gradient-accent: linear-gradient(to right, #2fd4ed, #11afe9);
-  --foreground-color: #ededed;
+  /* Gradient Colors for Animated Background */
+  --gradient-color-1: #0692d2;
+  --gradient-color-2: #2487d8;
+  --gradient-color-3: #305af1;
+  --gradient-color-4: #126097;
 }
 
-/* 3. Apply the base background and text color to the whole app */
+/* Base Styles */
 body {
-  background: var(--gradient-secondary);
-  color: var(--foreground-color);
+  background: #0f172a;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* 4. Define your custom utility classes */
-@layer utilities {
-  .bg-gradient-accent {
-    background-image: var(--gradient-accent);
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+/* Component Styles */
+.card-frosted {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-secondary {
+  background: #d1d5db;
+  color: #111827;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #9ca3af;
+}
+
+.btn-success {
+  background: #059669;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-success:hover {
+  background: #047857;
+}
+
+.btn-warning {
+  background: #d97706;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-warning:hover {
+  background: #b45309;
+}
+
+.btn-error {
+  background: #dc2626;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-error:hover {
+  background: #b91c1c;
+}
+
+/* Status Badges */
+.badge-pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-approved {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-rejected {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Form Components */
+.input-field {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: white;
+  transition: 200ms ease-in-out;
+}
+
+.input-field::placeholder {
+  color: #d1d5db;
+}
+
+.input-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Navigation */
+.nav-link {
+  color: #d1d5db;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: white;
+}
+
+.nav-link-active {
+  color: white;
+  font-weight: 600;
+}
+
+/* Layout Components */
+.container-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.section-subtitle {
+  color: #d1d5db;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+/* Utility Classes */
+.text-secondary { 
+  color: #d1d5db; 
+}
+
+.bg-card { 
+  background: rgba(255, 255, 255, 0.05); 
+}
+
+.bg-overlay { 
+  background: rgba(0, 0, 0, 0.2); 
+}
+
+.border-light { 
+  border-color: rgba(255, 255, 255, 0.1); 
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: 200ms ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .card-frosted {
-    @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg;
+  to { 
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* 5 adding a custom colors for the naimated gradient */
-#gradient-canvas {
-  width: 100%;
-  height: 100%;
-  /* Your custom colors! */
-  --gradient-color-1: #6f3cbb; /* Purple */
-  --gradient-color-2: #2575fc; /* Blue */
-  --gradient-color-3: #6ca7f4; /* Orange */
-  --gradient-color-4: #6086ee; /* Violet */
+/* Gradient Utilities */
+.gradient-accent {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 }
 
-/* 6 Custom styles for the carousel dots */
-.carousel .control-dots .dot {
-  background: var(--gradient-accent) !important;
-  box-shadow: none !important;
-  opacity: 0.5 !important;
-  width: 10px !important;
-  height: 10px !important;
+.gradient-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
-.carousel .control-dots .dot.selected {
-  opacity: 1 !important;
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .container-main {
+    padding: 1rem;
+  }
+  
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.375rem; }
 }
 
-/* New, simpler style for the calendar */
-.rdp-root {
-  --rdp-accent-color: white !important;
-  --rdp-background-color: var(--gradient-accent) !important;
-  --rdp-background-color-dark: var(--gradient-accent) !important;
-  --rdp-range_middle-background-color: rgba(142, 45, 226, 0.4) !important;
-  --rdp-range_start-color: rgba(255, 255, 255, 0.9) !important;
-  --rdp-range_start-date-background-color: rgb(0, 156, 252) !important;
-  --rdp-range_start-date-background: rgb(6, 49, 77) !important;
-  --rdp-range_end-color: rgba(255, 255, 255, 0.9) !important;
-  --rdp-range_end-date-background-color: rgb(0, 156, 252) !important;
-  --rdp-range_end-date-background: rgb(6, 49, 77) !important;
+/* Custom Slider Styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* DayPicker Customization */
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: #3b82f6;
+  --rdp-background-color: rgba(255, 255, 255, 0.1);
+  --rdp-accent-color-dark: #2563eb;
+  --rdp-background-color-dark: rgba(255, 255, 255, 0.05);
+  --rdp-outline: 2px solid #3b82f6;
+  --rdp-outline-selected: 2px solid #3b82f6;
+  margin: 0;
+}
+
+.rdp-day_selected, 
+.rdp-day_selected:focus-visible, 
+.rdp-day_selected:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.rdp-day_range_start, 
+.rdp-day_range_end {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.rdp-day_range_middle {
+  background-color: rgba(59, 130, 246, 0.3);
 }

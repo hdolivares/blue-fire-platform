@@ -11,6 +11,8 @@ import { OperatorsModule } from './operators/operators.module';
 import { InvestmentsModule } from './investments/investments.module';
 import { InvestorsModule } from './investors/investors.module';
 import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { CommonModule } from './common/common.module';
       inject: [ConfigService],
     }),
     CommonModule, // Global middleware, guards, and interceptors
+    AuthModule, // Authentication module
+    EmailModule, // Email service
     UsersModule,
     ProjectsModule,
     PerformanceModule,

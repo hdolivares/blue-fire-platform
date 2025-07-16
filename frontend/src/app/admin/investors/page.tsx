@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
 import { StatCard } from '@/components/StatCard';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 
 interface Investor {
@@ -107,10 +109,10 @@ export default function AdminInvestorsPage() {
   }
 
   return (
-    <main className="container mx-auto p-8">
+    <main className="container-main">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Investor Management</h1>
-        <p className="text-gray-300">Manage and monitor all active investors and their investments</p>
+        <h1 className="section-header">Investor Management</h1>
+        <p className="text-secondary">Manage and monitor all active investors and their investments</p>
       </div>
 
       {/* Stats Cards */}
@@ -137,32 +139,26 @@ export default function AdminInvestorsPage() {
 
       {/* Tab Navigation */}
       <div className="flex space-x-4 mb-6">
-        <button
+        <Button
           onClick={() => setActiveTab('investors')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            activeTab === 'investors'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white/10 text-gray-300 hover:bg-white/20'
-          }`}
+          variant={activeTab === 'investors' ? 'primary' : 'outline'}
+          size="sm"
         >
           Investors ({investors.length})
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setActiveTab('investments')}
-          className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-            activeTab === 'investments'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white/10 text-gray-300 hover:bg-white/20'
-          }`}
+          variant={activeTab === 'investments' ? 'primary' : 'outline'}
+          size="sm"
         >
           Investments ({investments.length})
-        </button>
+        </Button>
       </div>
 
       {/* Investors Tab */}
       {activeTab === 'investors' && (
-        <div className="card-frosted p-6">
-          <h2 className="text-2xl font-bold mb-6">Active Investors</h2>
+        <Card variant="frosted" className="p-6">
+          <h2 className="section-header">Active Investors</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -184,13 +180,13 @@ export default function AdminInvestorsPage() {
                         <div className="font-semibold">{investor.firstName} {investor.lastName}</div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-gray-300">{investor.email}</td>
+                    <td className="py-3 px-4 text-secondary">{investor.email}</td>
                     <td className="py-3 px-4">
                       <code className="text-sm bg-white/10 px-2 py-1 rounded">
                         {formatWalletAddress(investor.walletAddress)}
                       </code>
                     </td>
-                    <td className="py-3 px-4 text-gray-300">{investor.country}</td>
+                    <td className="py-3 px-4 text-secondary">{investor.country}</td>
                     <td className="py-3 px-4">
                       <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-sm">
                         {getInvestorInvestmentCount(investor._id)}
@@ -199,7 +195,7 @@ export default function AdminInvestorsPage() {
                     <td className="py-3 px-4 font-semibold">
                       ${getInvestorTotalInvestment(investor._id).toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-gray-300 text-sm">
+                    <td className="py-3 px-4 text-secondary text-sm">
                       {formatDate(investor.createdAt)}
                     </td>
                   </tr>
@@ -207,13 +203,13 @@ export default function AdminInvestorsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Investments Tab */}
       {activeTab === 'investments' && (
-        <div className="card-frosted p-6">
-          <h2 className="text-2xl font-bold mb-6">All Investments</h2>
+        <Card variant="frosted" className="p-6">
+          <h2 className="section-header">All Investments</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -231,13 +227,13 @@ export default function AdminInvestorsPage() {
                     <td className="py-3 px-4">
                       <div>
                         <div className="font-semibold">{investment.user.firstName} {investment.user.lastName}</div>
-                        <div className="text-sm text-gray-300">{investment.user.email}</div>
+                        <div className="text-sm text-secondary">{investment.user.email}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div>
                         <div className="font-semibold">{investment.project.projectName}</div>
-                        <div className="text-sm text-gray-300">{investment.project.location}</div>
+                        <div className="text-sm text-secondary">{investment.project.location}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4 font-semibold">
@@ -249,12 +245,12 @@ export default function AdminInvestorsPage() {
                           ? 'bg-green-500/20 text-green-300'
                           : investment.project.status === 'SEEKING_FUNDING'
                           ? 'bg-yellow-500/20 text-yellow-300'
-                          : 'bg-gray-500/20 text-gray-300'
+                          : 'bg-gray-300/20 text-secondary'
                       }`}>
                         {investment.project.status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-300 text-sm">
+                    <td className="py-3 px-4 text-secondary text-sm">
                       {formatDate(investment.createdAt)}
                     </td>
                   </tr>
@@ -262,7 +258,7 @@ export default function AdminInvestorsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
     </main>
   );

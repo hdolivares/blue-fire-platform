@@ -7,6 +7,8 @@ import { QuickNavigation } from '@/components/Navigation';
 import Link from 'next/link';
 import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 // Define a type for our project data for type safety
 interface Project {
@@ -15,7 +17,7 @@ interface Project {
   fundingGoal: number;
   currentFunding: number;
   status: string;
-  imageUrl?: string; // Make imageUrl optional since it might not always be present
+  imageUrl?: string;
 }
 
 export default function DashboardPage() {
@@ -66,12 +68,9 @@ export default function DashboardPage() {
           color: 'text-blue-300',
           bgColor: 'bg-blue-500/10',
           actionButton: (
-            <Link 
-              href="/admin/dashboard" 
-              className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-blue-700"
-            >
+            <Button variant="primary" size="md" onClick={() => window.location.href = '/admin/dashboard'}>
               Full Admin Panel
-            </Link>
+            </Button>
           )
         };
       case 'Operator':
@@ -81,12 +80,9 @@ export default function DashboardPage() {
           color: 'text-orange-300',
           bgColor: 'bg-orange-500/10',
           actionButton: (
-            <Link 
-              href="/operator/dashboard" 
-              className="bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-orange-700"
-            >
+            <Button variant="warning" size="md" onClick={() => window.location.href = '/operator/dashboard'}>
               Operator Panel
-            </Link>
+            </Button>
           )
         };
       case 'Investor':
@@ -96,12 +92,9 @@ export default function DashboardPage() {
           color: 'text-purple-300',
           bgColor: 'bg-purple-500/10',
           actionButton: (
-            <Link 
-              href="/portfolio" 
-              className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-purple-700"
-            >
+            <Button variant="secondary" size="md" onClick={() => window.location.href = '/portfolio'}>
               View Portfolio
-            </Link>
+            </Button>
           )
         };
       default:
@@ -109,7 +102,7 @@ export default function DashboardPage() {
           title: 'Dashboard',
           subtitle: 'Welcome to Blue Fire Platform',
           color: 'text-gray-300',
-          bgColor: 'bg-gray-500/10',
+          bgColor: 'bg-gray-300/10',
           actionButton: null
         };
     }
@@ -134,17 +127,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="container mx-auto p-8">
+    <main className="container-main">
       {/* Role-specific header */}
-      <div className={`${dashboardContent.bgColor} rounded-lg p-6 mb-8`}>
+      <Card variant="frosted" className={`${dashboardContent.bgColor} p-6 mb-8`}>
         <div className="flex items-center justify-between">
           <div>
             <h1 className={`text-4xl font-bold ${dashboardContent.color} mb-2`}>
               {dashboardContent.title}
             </h1>
-            <p className="text-gray-300 text-lg">{dashboardContent.subtitle}</p>
+            <p className="text-secondary text-lg">{dashboardContent.subtitle}</p>
             {user && (
-              <p className="text-sm text-gray-400 mt-2">
+              <p className="text-sm text-secondary mt-2">
                 Welcome back, {user.email}
               </p>
             )}
@@ -154,11 +147,11 @@ export default function DashboardPage() {
             <QuickNavigation />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Projects section */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-300">
+        <h2 className="section-header">
           {getPrimaryRole() === 'Admin' ? 'All Projects' : 
            getPrimaryRole() === 'Operator' ? 'Available Projects' : 
            'Projects Seeking Funding'}
@@ -172,14 +165,16 @@ export default function DashboardPage() {
 
         {projects.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">No projects available at the moment.</p>
+            <p className="text-secondary text-lg">No projects available at the moment.</p>
             {getPrimaryRole() === 'Admin' && (
-              <Link 
-                href="/admin/projects/new" 
-                className="inline-block mt-4 bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all hover:bg-green-700"
+              <Button 
+                variant="success"
+                size="md"
+                onClick={() => window.location.href = '/admin/projects/new'}
+                className="mt-4"
               >
                 Create First Project
-              </Link>
+              </Button>
             )}
           </div>
         )}

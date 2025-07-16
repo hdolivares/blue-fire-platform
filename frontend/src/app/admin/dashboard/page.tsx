@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
 import Link from 'next/link';
 import { StatCard } from '@/components/StatCard';
+import { OperatorRequestsSection } from '@/components/admin/OperatorRequestsSection';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 // Keep this interface to define the shape of our data
 interface DashboardStats {
@@ -11,6 +14,7 @@ interface DashboardStats {
   projectsSeekingFunding: number;
   operationalUnits: number;
   totalCapitalRaised: number;
+  pendingOperatorRequests: number;
 }
 
 interface Project {
@@ -39,12 +43,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="container mx-auto p-8">
+    <main className="container-main">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Admin Dashboard</h1>
-        <Link href="/admin/projects/new" className="bg-gradient-accent text-white font-bold py-2 px-4 rounded-lg transition-all hover:brightness-110">
+        <h1 className="section-header">Admin Dashboard</h1>
+        <Button variant="primary" size="md" onClick={() => window.location.href = '/admin/projects/new'}>
           + New Project
-        </Link>
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -52,25 +56,36 @@ export default function AdminDashboardPage() {
         <StatCard title="Active Investors" value={stats.totalInvestors.toString()} />
         <StatCard title="Projects Seeking Funding" value={stats.projectsSeekingFunding.toString()} />
         <StatCard title="Operational Units" value={stats.operationalUnits.toString()} />
+        <StatCard title="Pending Operator Requests" value={stats.pendingOperatorRequests.toString()} />
       </div>
 
       <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">Manage Projects</h2>
-        <div className="card-frosted p-4">
+        <h2 className="section-header">Manage Projects</h2>
+        <Card variant="frosted" className="p-4">
           <ul className="space-y-2">
             {projects.map(project => (
               <li key={project._id} className="flex justify-between items-center p-3 bg-black/20 rounded-lg">
                 <div>
                   <p className="font-bold">{project.projectName}</p>
-                  <p className="text-sm text-gray-400">{project.status}</p>
+                  <p className="text-sm text-secondary">{project.status}</p>
                 </div>
-                <Link href={`/admin/projects/${project._id}`} className="font-semibold text-sm hover:underline">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.href = `/admin/projects/${project._id}`}
+                  className="font-semibold text-sm"
+                >
                   Manage &rarr;
-                </Link>
+                </Button>
               </li>
             ))}
           </ul>
-        </div>
+        </Card>
+      </div>
+
+      {/* Operator Requests Section */}
+      <div className="mt-12">
+        <OperatorRequestsSection />
       </div>
     </main>
   );

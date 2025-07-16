@@ -26,6 +26,9 @@ import {
 
 import { StyledInput } from '@/components/StyledInput';
 import { GlowingButton } from '@/components/GlowingButton';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 ChartJS.register(
   CategoryScale,
@@ -164,7 +167,7 @@ export default function ProjectDetailPage() {
   const fundingPercentage = (project.currentFunding / project.fundingGoal) * 100;
 
   return (
-    <main className="container mx-auto p-4 md:p-8">
+    <main className="container-main">
       {project.imageUrls && project.imageUrls.length > 0 ? (
         <div className="rounded-2xl overflow-hidden mb-8 shadow-lg">
           <Carousel showThumbs={false} autoPlay infiniteLoop showStatus={false}>
@@ -182,20 +185,25 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors duration-200 mb-6 inline-block">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => window.location.href = '/dashboard'}
+        className="mb-6"
+      >
         &larr; Back to Dashboard
-      </Link>
+      </Button>
 
-      <h1 className="text-4xl font-bold mb-2">{project.projectName}</h1>
+      <h1 className="section-header">{project.projectName}</h1>
       
-      <div className="flex items-center space-x-2">
-        <span className="text-lg text-gray-100">Project Current Status:</span>
-        <span className="text-lg text-green-400 font-semibold">{formatStatus(project.status)}</span>
+      <div className="flex items-center space-x-2 mb-6">
+        <span className="text-lg text-secondary">Project Current Status:</span>
+        <Badge variant="success" size="md">{formatStatus(project.status)}</Badge>
       </div>
 
       {project.status === 'SEEKING_FUNDING' && (
-        <div className="card-frosted p-6 my-8">
-          <h2 className="text-2xl font-bold mb-4">Invest in this Project</h2>
+        <Card variant="frosted" className="p-6 my-8">
+          <h2 className="section-header">Invest in this Project</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
               <div>
@@ -213,48 +221,48 @@ export default function ProjectDetailPage() {
                 </GlowingButton>
               ) : (
                 <>
-                  <div className="text-center p-3 rounded-lg bg-green-500/20 border border-green-500">
+                  <Card variant="default" className="text-center p-3 bg-green-500/20 border border-green-500">
                     <p className="text-sm">Wallet Connected</p>
-                  </div>
-                  <button onClick={handleInvestment} disabled={!investmentAmount || isInvesting} className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+                  </Card>
+                  <Button onClick={handleInvestment} disabled={!investmentAmount || isInvesting} variant="primary" size="lg" className="w-full">
                     {isInvesting ? 'Processing...' : 'Invest Now'}
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
             
-            <div className="bg-sky-500/20 rounded-lg p-6 flex flex-col items-center justify-center text-center">
-                <p className="text-gray-300">Funding Progress</p>
-                <p className="text-4xl font-bold my-2">${project.currentFunding.toLocaleString()} / <span className="text-2xl text-gray-300">${project.fundingGoal.toLocaleString()}</span></p>
+            <Card variant="default" className="bg-sky-500/20 p-6 flex flex-col items-center justify-center text-center">
+                <p className="text-secondary">Funding Progress</p>
+                <p className="text-4xl font-bold my-2">${project.currentFunding.toLocaleString()} / <span className="text-2xl text-secondary">${project.fundingGoal.toLocaleString()}</span></p>
                 <div className="w-full bg-white/10 rounded-full h-4">
                   <div className="bg-gradient-accent h-4 rounded-full" style={{ width: `${fundingPercentage}%` }}></div>
                 </div>
-            </div>
+            </Card>
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-        <div className="card-frosted p-6">
-          <h3 className="text-gray-300 text-sm">Average Daily Water Production</h3>
+        <Card variant="frosted" className="p-6">
+          <h3 className="text-secondary text-sm">Average Daily Water Production</h3>
           <p className="text-3xl font-bold">{!isNaN(avgWaterProduction) ? avgWaterProduction.toFixed(0) : '0'} L</p>
-        </div>
-        <div className="card-frosted p-6">
-          <h3 className="text-gray-300 text-sm">Avg. Humidity</h3>
+        </Card>
+        <Card variant="frosted" className="p-6">
+          <h3 className="text-secondary text-sm">Avg. Humidity</h3>
           <p className="text-3xl font-bold">{project.avgHumidity}%</p>
-        </div>
-        <div className="card-frosted p-6">
-          <h3 className="text-gray-300 text-sm">Avg. Temperature</h3>
+        </Card>
+        <Card variant="frosted" className="p-6">
+          <h3 className="text-secondary text-sm">Avg. Temperature</h3>
           <p className="text-3xl font-bold">{project.avgTemperature}°C</p>
-        </div>
+        </Card>
       </div>
 
-      <div className="card-frosted p-6">
-        <h2 className="text-2xl font-bold mb-4">Historical Performance</h2>
+      <Card variant="frosted" className="p-6">
+        <h2 className="section-header">Historical Performance</h2>
         <div className="relative h-96">
           <Line data={chartData} options={chartOptions} />
         </div>
-      </div>
+      </Card>
     </main>
   );
 }

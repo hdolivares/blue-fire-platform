@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { Project } from '../projects/schemas/project.schema';
 import { User } from '../users/schemas/user.schema';
 import { Investment } from '../investments/schemas/investment.schema';
+import { OperatorRequest } from '../operators/schemas/operator-request.schema';
 
 @Injectable()
 export class AdminService {
@@ -12,12 +13,14 @@ export class AdminService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Investment.name) private investmentModel: Model<Investment>,
+    @InjectModel(OperatorRequest.name) private operatorRequestModel: Model<OperatorRequest>,
   ) {}
 
   async getDashboardStats() {
     const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
     const projectsSeekingFunding = await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec();
     const operationalUnits = await this.projectModel.countDocuments({ status: 'OPERATIONAL' }).exec();
+    const pendingOperatorRequests = await this.operatorRequestModel.countDocuments({ status: 'PENDING' }).exec();
     
     const totalCapitalResult = await this.projectModel.aggregate([
       { $group: { _id: null, total: { $sum: '$currentFunding' } } }
@@ -30,6 +33,7 @@ export class AdminService {
       projectsSeekingFunding,
       operationalUnits,
       totalCapitalRaised,
+      pendingOperatorRequests,
     };
   }
 
@@ -101,5 +105,14 @@ export class AdminService {
       totalInvestmentAmount: totalInvestmentAmount[0]?.total || 0,
       averageInvestmentPerInvestor,
     };
+  }
+
+  async getPendingOperatorRequests() {
+    return this.operatorRequestModel
+      .find({ status: 'PENDING' })
+      .populate('operator', 'firstName lastName email')
+      .populate('project', 'projectName status location')
+      .sort({ createdAt: -1 })
+      .exec();
   }
 }

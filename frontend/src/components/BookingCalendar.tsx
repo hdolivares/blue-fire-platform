@@ -2,6 +2,7 @@
 
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { Card } from './ui/Card';
 
 /**
  * @interface BookingCalendarProps
@@ -46,9 +47,9 @@ export const BookingCalendar = ({ soldUntilDate, daysToPurchase }: BookingCalend
   const disabledDays = { before: firstAvailableDay };
 
   return (
-    <div>
+    <Card variant="frosted" className="p-6 h-full">
       <h3 className="text-xl font-bold mb-4">Production Schedule</h3>
-      <div className="card-frosted p-2 inline-block">
+      <div className="flex justify-center">
         <DayPicker
           mode="range"
           disabled={disabledDays}
@@ -56,12 +57,19 @@ export const BookingCalendar = ({ soldUntilDate, daysToPurchase }: BookingCalend
           month={firstAvailableDay}
           showOutsideDays
           fixedWeeks
+          className="text-white"
         />
       </div>
-       <div className="mt-4 space-y-2 text-sm">
-        <div className="flex items-center"><div className="w-4 h-4 rounded-full mr-2 bg-gray-600" /> Already Purchased</div>
-        <div className="flex items-center"><div className="w-4 h-4 rounded-full mr-2 bg-gradient-accent" /> Your Potential Purchase</div>
+      <div className="mt-4 space-y-2 text-sm">
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded-full mr-2 bg-gray-300" /> 
+          <span className="text-secondary">Already Purchased</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded-full mr-2 bg-gradient-accent" /> 
+          <span className="text-secondary">Your Potential Purchase</span>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };

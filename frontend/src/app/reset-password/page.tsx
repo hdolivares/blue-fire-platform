@@ -5,6 +5,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 const ResetPasswordForm = () => {
   const router = useRouter();
@@ -47,7 +49,7 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <div className="card-frosted w-full max-w-md p-8 text-white">
+    <Card variant="frosted" className="w-full max-w-md p-8 text-white">
       <h2 className="text-3xl font-bold text-center mb-6">Reset Your Password</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -58,16 +60,18 @@ const ResetPasswordForm = () => {
           <label htmlFor="confirmPassword">Confirm New Password</label>
           <StyledInput id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
         </div>
-        <button
+        <Button
           type="submit"
           disabled={!token}
-          className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold mt-6 transition-all hover:brightness-110 disabled:opacity-50"
+          variant="primary"
+          size="lg"
+          className="w-full mt-6"
         >
           Reset Password
-        </button>
+        </Button>
       </form>
       {message && <p className="mt-4 text-center">{message}</p>}
-    </div>
+    </Card>
   );
 }
 

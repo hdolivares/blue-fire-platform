@@ -7,6 +7,8 @@ import { StyledInput } from './StyledInput';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import api from '@/lib/axios';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -53,7 +55,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="card-frosted w-full max-w-md p-8 text-white">
+    <Card variant="frosted" className="w-full max-w-md p-8 text-white">
       <h2 className="text-3xl font-bold text-center mb-6">Log In</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -69,18 +71,20 @@ export const LoginForm = () => {
             </Link>
           </div>
         </div>
-        <button
+        <Button
           type="submit"
-          className="w-full py-3 px-4 rounded-md bg-gradient-accent text-white font-bold mt-6 transition-all hover:brightness-110"
+          variant="primary"
+          size="lg"
+          className="w-full mt-6"
         >
           Log In
-        </button>
+        </Button>
 
         <p className="text-center text-sm pt-4">
           Don't have an account?{' '}
           <Link href="/register" className="font-semibold hover:underline">Register</Link>
         </p>
       </form>
-    </div>
+    </Card>
   );
 };

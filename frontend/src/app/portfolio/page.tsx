@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/axios';
 import { PortfolioCard } from '@/components/PortfolioCard';
+import { Card } from '@/components/ui/Card';
 
 export default function PortfolioPage() {
   const { token } = useAuth();
@@ -29,15 +30,15 @@ export default function PortfolioPage() {
   }
 
   return (
-    <main className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-8">My Portfolio</h1>
+    <main className="container-main">
+      <h1 className="section-header">My Portfolio</h1>
       <div className="space-y-6">
         {portfolio.length > 0 ? portfolio.map(investment => (
           <PortfolioCard key={investment._id} investment={investment} />
         )) : (
-          <div className="card-frosted p-8 text-center">
-            <p>You have not invested in any projects yet.</p>
-          </div>
+          <Card variant="frosted" className="p-8 text-center">
+            <p className="text-secondary">You have not invested in any projects yet.</p>
+          </Card>
         )}
       </div>
     </main>

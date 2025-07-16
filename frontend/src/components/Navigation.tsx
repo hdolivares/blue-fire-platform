@@ -68,8 +68,8 @@ export const Navigation = () => {
       color: 'text-orange-300'
     },
     {
-      label: 'My Projects',
-      href: '/operator/projects',
+      label: 'My Requests',
+      href: '/operator/my-requests',
       roles: ['Operator'],
       color: 'text-orange-300'
     },
