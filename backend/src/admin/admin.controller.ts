@@ -13,7 +13,27 @@ export class AdminController {
     return this.adminService.getDashboardStats();
   }
 
-    // --- Adding new endpoint for operator---
+  @Get('investors')
+  getAllActiveInvestors() {
+    return this.adminService.getAllActiveInvestors();
+  }
+
+  @Get('investments')
+  getAllInvestments() {
+    return this.adminService.getAllInvestments();
+  }
+
+  @Get('investors/:investorId/investments')
+  getInvestorInvestments(@Param('investorId') investorId: string) {
+    return this.adminService.getInvestorInvestments(investorId);
+  }
+
+  @Get('investor-stats')
+  getInvestorStats() {
+    return this.adminService.getInvestorStats();
+  }
+
+  // --- Adding new endpoint for operator---
   @Patch('projects/:projectId/assign-operator')
   assignOperator(
     @Param('projectId') projectId: string,
@@ -21,5 +41,4 @@ export class AdminController {
   ) {
     return this.adminService.assignOperatorToProject(projectId, operatorId);
   }
-  
 }

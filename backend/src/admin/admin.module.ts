@@ -2,11 +2,19 @@
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { ProjectsModule } from '../projects/projects.module';
-import { UsersModule } from '../users/users.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Project, ProjectSchema } from '../projects/schemas/project.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
+import { Investment, InvestmentSchema } from '../investments/schemas/investment.schema';
 
 @Module({
-  imports: [ProjectsModule, UsersModule], // Import modules to access their models
+  imports: [
+    MongooseModule.forFeature([
+      { name: Project.name, schema: ProjectSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Investment.name, schema: InvestmentSchema },
+    ]),
+  ],
   controllers: [AdminController],
   providers: [AdminService],
 })

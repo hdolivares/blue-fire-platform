@@ -23,20 +23,12 @@ export const UserMenu = () => {
           <div className="flex items-center space-x-4">
             {/* Admin-specific links */}
             {hasRole(['Admin']) && (
-              <>
-                <Link 
-                  href="/admin/dashboard" 
-                  className="text-sm font-semibold hover:underline text-blue-300"
-                >
-                  Admin Dashboard
-                </Link>
-                <Link 
-                  href="/admin/projects/new" 
-                  className="text-sm font-semibold hover:underline text-green-300"
-                >
-                  Create Project
-                </Link>
-              </>
+              <Link 
+                href="/admin/dashboard" 
+                className="text-sm font-semibold hover:underline text-blue-300"
+              >
+                Admin Dashboard
+              </Link>
             )}
 
             {/* Operator-specific links */}
@@ -64,7 +56,7 @@ export const UserMenu = () => {
               href="/dashboard" 
               className="text-sm font-semibold hover:underline"
             >
-              Dashboard
+              Projects
             </Link>
           </div>
 

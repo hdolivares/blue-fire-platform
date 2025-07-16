@@ -2,7 +2,6 @@
 
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { addDays, startOfToday } from 'date-fns';
 
 /**
  * @interface BookingCalendarProps
@@ -18,6 +17,19 @@ interface BookingCalendarProps {
  * @description Displays a calendar showing sold-out dates and a user's potential purchase range.
  */
 export const BookingCalendar = ({ soldUntilDate, daysToPurchase }: BookingCalendarProps) => {
+  // Simple date utilities without external dependencies
+  const startOfToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  };
+
+  const addDays = (date: Date, days: number) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
   // Determine the first available day for purchase
   const today = startOfToday();
   const firstAvailableDay = soldUntilDate && new Date(soldUntilDate) >= today 

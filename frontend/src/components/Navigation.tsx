@@ -48,10 +48,16 @@ export const Navigation = () => {
       color: 'text-yellow-300'
     },
     {
+      label: 'Manage Investors',
+      href: '/admin/investors',
+      roles: ['Admin'],
+      color: 'text-purple-300'
+    },
+    {
       label: 'Manage Users',
       href: '/admin/users',
       roles: ['Admin'],
-      color: 'text-purple-300'
+      color: 'text-indigo-300'
     },
 
     // Operator-specific items

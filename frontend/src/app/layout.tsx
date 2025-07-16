@@ -1,32 +1,34 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from '@/context/AuthContext';
+import { AuthProvider } from "@/context/AuthContext";
 import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider";
-import { AdminBar } from "@/components/AdminBar";
 import { Header } from "@/components/Header";
 import { Toaster } from "react-hot-toast";
-import { LoadingOverlay } from "@/components/LoadingOverlay";
+import ClientLoadingOverlay from "@/components/ClientLoadingOverlay";
+import ClientAdminBar from "@/components/ClientAdminBar";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Blue Fire Platform",
-  description: "Decentralized Water & Energy Infrastructure",
+  description: "Blockchain-based water production investment platform",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={GeistSans.variable}>
+      <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
-          <LoadingOverlay />
-          <Toaster position="top-center" />
-          <AdminBar />
+          <ClientLoadingOverlay />
+          <ClientAdminBar />
           <AnimatedGradientProvider />
           <Header />
+          <Toaster position="top-center" />
           {children}
         </AuthProvider>
       </body>
