@@ -1,23 +1,33 @@
 // In backend/src/performance/schemas/performance-data.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Project } from '../../projects/schemas/project.schema';
+import { MachineStatus } from './machine-status.enum';
 
-export type PerformanceDataDocument = HydratedDocument<PerformanceData>;
+export type PerformanceDataDocument = PerformanceData & Document;
 
 @Schema({ timestamps: true })
 export class PerformanceData {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Project' })
+  @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
   project: Project;
 
-  @Prop({ required: true })
-  date: Date;
+  @Prop()
+  timestamp: Date; // Renaming 'date' to 'timestamp' for consistency
 
-  @Prop({ required: true })
-  waterProduction: number; // In Liters
+  @Prop()
+  litersProduced: number;
 
-  @Prop({ required: true })
-  energyConsumption: number; // In kWh
+  @Prop()
+  kwhPerLiter: number;
+
+  @Prop()
+  humidity: number; // Renaming 'avgHumidity' to 'humidity'
+
+  @Prop()
+  temperature: number; // Renaming 'avgTemperature' to 'temperature'
+
+  @Prop({ type: String, enum: MachineStatus })
+  machineStatus: MachineStatus;
 }
 
 export const PerformanceDataSchema = SchemaFactory.createForClass(PerformanceData);

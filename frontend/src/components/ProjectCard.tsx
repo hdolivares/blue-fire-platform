@@ -10,22 +10,51 @@ import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import api from '@/lib/axios';
 
+// The Project interface now supports both the new and old data shapes
+// to ensure backward compatibility with existing data in the database.
 interface Project {
   _id: string;
-  projectName: string;
-  fundingGoal: number;
-  currentFunding: number;
-  imageUrl?: string;
   status?: string;
+  // New schema fields
+  name?: string;
+  goalAmount?: number;
+  currentAmount?: number;
+  mainImage?: string;
+  // --- Legacy fields for backward compatibility ---
+  projectName?: string;
+  fundingGoal?: number;
+  currentFunding?: number;
+  imageUrl?: string;
 }
 
 interface OperatorRequest {
   _id: string;
   status: string;
   project?: {
-    _id: string;
+    _id:string;
   };
 }
+
+// Helper functions for status display
+const formatStatus = (status: string = '') => {
+  return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
+
+const getStatusBadgeVariant = (status: string): 'success' | 'info' | 'warning' | 'pending' => {
+  switch (status) {
+    case 'OPERATIONAL':
+      return 'success';
+    case 'SEEKING_FUNDING':
+      return 'info';
+    case 'FUNDED_ORDER_PLACED':
+    case 'FUNDED_MACHINE_SHIPPED':
+    case 'FUNDED_INSTALLATION_PHASE':
+      return 'warning';
+    default:
+      return 'pending';
+  }
+};
+
 
 export const ProjectCard = ({ project }: { project: Project }) => {
   const { user } = useAuth();
@@ -33,8 +62,14 @@ export const ProjectCard = ({ project }: { project: Project }) => {
   const [hasApplied, setHasApplied] = useState(false);
   const [requestStatus, setRequestStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Use nullish coalescing to safely access properties from either the new or old schema
+  const goal = project.goalAmount ?? project.fundingGoal ?? 0;
+  const current = project.currentAmount ?? project.currentFunding ?? 0;
+  const name = project.name ?? project.projectName ?? 'Untitled Project';
+  const image = project.mainImage ?? project.imageUrl;
   
-  const fundingPercentage = (project.currentFunding / project.fundingGoal) * 100;
+  const fundingPercentage = goal > 0 ? (current / goal) * 100 : 0;
 
   const isOperator = hasRole(['Operator']);
   const showBecomeOperatorButton = isOperator && project.status === 'SEEKING_FUNDING';
@@ -95,29 +130,38 @@ export const ProjectCard = ({ project }: { project: Project }) => {
 
   return (
     <Card variant="frosted" hover className="flex flex-col justify-between overflow-hidden">
-      {/* Image Section */}
-      <div className="relative w-full h-40">
-        <Image
-          src={project.imageUrl || '/placeholder-project.jpg'}
-          alt={project.projectName}
-          fill
-          className="object-cover"
-        />
+      {/* Image Section - Using a div with background image for robustness */}
+      <div 
+        className="relative w-full h-40 bg-cover bg-center"
+        style={{ backgroundImage: `url(${image || '/placeholder-project.jpg'})` }}
+      >
+        {/* The Image component is no longer needed here */}
       </div>
 
       {/* Content Section */}
       <div className="p-6 flex flex-col flex-grow justify-between">
         <div>
-          <h3 className="text-xl font-bold mb-2">{project.projectName}</h3>
+          {/* Header with Project Name and Status Badge */}
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-xl font-bold">{name}</h3>
+            {project.status && (
+              <Badge 
+                variant={getStatusBadgeVariant(project.status)}
+                className="shadow-lg ml-2 flex-shrink-0"
+              >
+                {formatStatus(project.status)}
+              </Badge>
+            )}
+          </div>
           <p className="text-secondary mb-4">
-            Funding Goal: ${project.fundingGoal.toLocaleString()}
+            Funding Goal: ${goal.toLocaleString()}
           </p>
         </div>
 
         <div>
           <div className="w-full bg-black/30 rounded-full h-2.5 mb-2">
             <div
-              className="bg-gradient-accent h-2.5 rounded-full"
+              className="bg-green-500 h-2.5 rounded-full"
               style={{ width: `${fundingPercentage}%` }}
             ></div>
           </div>
@@ -129,7 +173,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
               {!hasApplied ? (
                 <BecomeOperatorButton 
                   projectId={project._id} 
-                  projectName={project.projectName}
+                  projectName={name}
                   onRequestSubmitted={() => setHasApplied(true)}
                 />
               ) : (

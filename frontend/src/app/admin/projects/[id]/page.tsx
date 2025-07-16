@@ -8,14 +8,43 @@ import { Listbox } from '@headlessui/react';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { ProjectStatusInfo } from '@/components/ProjectStatusInfo';
+import { PerformanceChart } from '@/components/PerformanceChart';
+
+// Should match backend enums
+type ProjectStatus = 
+  | 'SEEKING_FUNDING'
+  | 'FUNDED_ORDER_PLACED'
+  | 'FUNDED_MACHINE_SHIPPED'
+  | 'FUNDED_INSTALLATION_PHASE'
+  | 'OPERATIONAL';
+
+interface Operator {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+interface Project {
+  _id: string;
+  projectName: string;
+  status: ProjectStatus;
+  operator: Operator | null;
+}
+
+const formatStatus = (status: string = '') => {
+  return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+};
 
 export default function AdminProjectDetailPage() {
   const params = useParams();
   const { id } = params;
   const { token } = useAuth();
-  const [project, setProject] = useState<any>(null);
-  const [operators, setOperators] = useState<any[]>([]);
-  const [selectedOperator, setSelectedOperator] = useState<any | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
+  const [operators, setOperators] = useState<Operator[]>([]);
+  const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
 
   const fetchProjectAndOperators = () => {
     if (id && token) {
@@ -64,6 +93,15 @@ export default function AdminProjectDetailPage() {
       </Button>
       <h1 className="section-header">{project.projectName}</h1>
       
+      <div className="flex items-center space-x-2 my-4">
+        <span className="text-lg text-secondary">Status:</span>
+        <Badge variant={project.status === 'OPERATIONAL' ? 'success' : 'pending'} size="md">
+          {formatStatus(project.status)}
+        </Badge>
+      </div>
+
+      <ProjectStatusInfo status={project.status} />
+
       <Card variant="frosted" className="mt-8 p-6">
         <h2 className="section-header">Assign Operator</h2>
         {project.operator ? (
@@ -109,6 +147,12 @@ export default function AdminProjectDetailPage() {
           </div>
         </div>
       </Card>
+
+      {project.status === 'OPERATIONAL' && id && (
+        <div className="mt-8">
+          <PerformanceChart projectId={id as string} />
+        </div>
+      )}
     </main>
   );
 }

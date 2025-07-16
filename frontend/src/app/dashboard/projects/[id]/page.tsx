@@ -29,7 +29,11 @@ import { GlowingButton } from '@/components/GlowingButton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { ProjectStatusInfo } from '@/components/ProjectStatusInfo'; // Import the new component
+import { PerformanceChart } from '@/components/PerformanceChart'; // Import the new chart component
 
+// ChartJS registration is no longer needed here as it's handled in the component
+/*
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -39,23 +43,42 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+*/
 
+// This should align with the backend enum
+type ProjectStatus = 
+  | 'SEEKING_FUNDING'
+  | 'FUNDED_ORDER_PLACED'
+  | 'FUNDED_MACHINE_SHIPPED'
+  | 'FUNDED_INSTALLATION_PHASE'
+  | 'OPERATIONAL';
+  
+// Updated interface for backward compatibility
 interface Project {
-  projectName: string;
-  status: string;
-  imageUrl: string;
-  imageUrls: string[];
-  avgHumidity: number;
-  avgTemperature: number;
-  fundingGoal: number;
-  currentFunding: number;
+  status: ProjectStatus;
+  // New schema fields
+  name?: string;
+  goalAmount?: number;
+  currentAmount?: number;
+  mainImage?: string;
+  images?: string[];
+  // Legacy fields
+  projectName?: string;
+  fundingGoal?: number;
+  currentFunding?: number;
+  imageUrl?: string;
+  imageUrls?: string[];
+  // Other fields that might exist
+  avgHumidity?: number;
+  avgTemperature?: number;
 }
+/*
 interface PerformanceData {
   _id: string;
   date: string;
   waterProduction: number;
 }
-
+*/
 const formatStatus = (status: string = '') => {
   return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
@@ -64,7 +87,8 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const { id } = params;
   const [project, setProject] = useState<Project | null>(null);
-  const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
+  // The new component handles its own data fetching
+  // const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
   const [investmentAmount, setInvestmentAmount] = useState('1000');
   const [percentage, setPercentage] = useState(0);
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
@@ -76,28 +100,38 @@ export default function ProjectDetailPage() {
         .then(response => setProject(response.data))
         .catch(error => console.error('Failed to fetch project details:', error));
 
+      // This is now handled by PerformanceChart component
+      /*
       axios.get(`http://localhost:3001/performance/${id}`)
         .then(response => setPerformanceData(response.data))
         .catch(error => console.error('Failed to fetch performance data:', error));
+      */
     }
   }, [id]);
 
+  // Safely access properties for backward compatibility
+  const name = project?.name ?? project?.projectName ?? 'Untitled Project';
+  const goal = project?.goalAmount ?? project?.fundingGoal ?? 0;
+  const current = project?.currentAmount ?? project?.currentFunding ?? 0;
+  const mainImage = project?.mainImage ?? project?.imageUrl ?? '';
+  const images = project?.images ?? project?.imageUrls ?? [];
+
   useEffect(() => {
-    if (project && project.fundingGoal > 0) {
+    if (project && goal > 0) {
       const amount = parseFloat(investmentAmount);
       if (!isNaN(amount) && amount >= 0) {
-        setPercentage((amount / project.fundingGoal) * 100);
+        setPercentage((amount / goal) * 100);
       } else {
         setPercentage(0);
       }
     }
-  }, [investmentAmount, project]);
+  }, [investmentAmount, project, goal]);
   
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPercentage = parseFloat(e.target.value);
     setPercentage(newPercentage);
     if (project) {
-      const newAmount = (newPercentage / 100) * project.fundingGoal;
+      const newAmount = (newPercentage / 100) * goal;
       setInvestmentAmount(newAmount.toFixed(0));
     }
   };
@@ -142,6 +176,8 @@ export default function ProjectDetailPage() {
     return <div className="text-center p-10">Loading...</div>;
   }
   
+  // All chart logic is now in the PerformanceChart component
+  /*
   const chartOptions = {
     scales: {
       y: { ticks: { color: '#E5E7EB' }, grid: { color: 'rgba(229, 231, 235, 0.1)' }},
@@ -162,25 +198,26 @@ export default function ProjectDetailPage() {
       },
     ],
   };
+  */
 
-  const avgWaterProduction = performanceData.reduce((acc, item) => acc + item.waterProduction, 0) / performanceData.length;
-  const fundingPercentage = (project.currentFunding / project.fundingGoal) * 100;
+  // const avgWaterProduction = performanceData.reduce((acc, item) => acc + item.waterProduction, 0) / performanceData.length;
+  const fundingPercentage = goal > 0 ? (current / goal) * 100 : 0;
 
   return (
     <main className="container-main">
-      {project.imageUrls && project.imageUrls.length > 0 ? (
+      {images.length > 0 ? (
         <div className="rounded-2xl overflow-hidden mb-8 shadow-lg">
           <Carousel showThumbs={false} autoPlay infiniteLoop showStatus={false}>
-            {project.imageUrls.map((url, index) => (
+            {images.map((url, index) => (
               <div key={index} className="relative w-full h-96">
-                <Image src={url} alt={`${project.projectName} image ${index + 1}`} fill className="object-cover" />
+                <Image src={url} alt={`${name} image ${index + 1}`} fill className="object-cover" />
               </div>
             ))}
           </Carousel>
         </div>
       ) : (
         <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
-          <Image src={project.imageUrl} alt={project.projectName} fill className="object-cover" />
+          <Image src={mainImage} alt={name} fill className="object-cover" />
           <div className="absolute inset-0 bg-black/40"></div>
         </div>
       )}
@@ -194,12 +231,15 @@ export default function ProjectDetailPage() {
         &larr; Back to Dashboard
       </Button>
 
-      <h1 className="section-header">{project.projectName}</h1>
+      <h1 className="section-header">{name}</h1>
       
-      <div className="flex items-center space-x-2 mb-6">
-        <span className="text-lg text-secondary">Project Current Status:</span>
-        <Badge variant="success" size="md">{formatStatus(project.status)}</Badge>
+      <div className="flex items-center space-x-2 mb-2">
+        <span className="text-lg text-secondary">Status:</span>
+        <Badge variant={project.status === 'OPERATIONAL' ? 'success' : 'pending'} size="md">{formatStatus(project.status)}</Badge>
       </div>
+
+      {/* --- New Project Status Info Component --- */}
+      <ProjectStatusInfo status={project.status} />
 
       {project.status === 'SEEKING_FUNDING' && (
         <Card variant="frosted" className="p-6 my-8">
@@ -233,7 +273,7 @@ export default function ProjectDetailPage() {
             
             <Card variant="default" className="bg-sky-500/20 p-6 flex flex-col items-center justify-center text-center">
                 <p className="text-secondary">Funding Progress</p>
-                <p className="text-4xl font-bold my-2">${project.currentFunding.toLocaleString()} / <span className="text-2xl text-secondary">${project.fundingGoal.toLocaleString()}</span></p>
+                <p className="text-4xl font-bold my-2">${current.toLocaleString()} / <span className="text-2xl text-secondary">${goal.toLocaleString()}</span></p>
                 <div className="w-full bg-white/10 rounded-full h-4">
                   <div className="bg-gradient-accent h-4 rounded-full" style={{ width: `${fundingPercentage}%` }}></div>
                 </div>
@@ -242,27 +282,28 @@ export default function ProjectDetailPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-        <Card variant="frosted" className="p-6">
-          <h3 className="text-secondary text-sm">Average Daily Water Production</h3>
-          <p className="text-3xl font-bold">{!isNaN(avgWaterProduction) ? avgWaterProduction.toFixed(0) : '0'} L</p>
-        </Card>
-        <Card variant="frosted" className="p-6">
-          <h3 className="text-secondary text-sm">Avg. Humidity</h3>
-          <p className="text-3xl font-bold">{project.avgHumidity}%</p>
-        </Card>
-        <Card variant="frosted" className="p-6">
-          <h3 className="text-secondary text-sm">Avg. Temperature</h3>
-          <p className="text-3xl font-bold">{project.avgTemperature}°C</p>
-        </Card>
-      </div>
-
-      <Card variant="frosted" className="p-6">
-        <h2 className="section-header">Historical Performance</h2>
-        <div className="relative h-96">
-          <Line data={chartData} options={chartOptions} />
+      {/* --- Performance Section with stats and the new chart --- */}
+      {project.status === 'OPERATIONAL' && (
+        <div className="mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+            <Card variant="frosted" className="p-6">
+              <h3 className="text-secondary text-sm">Average Humidity</h3>
+              <p className="text-3xl font-bold">{project.avgHumidity || 'N/A'}%</p>
+            </Card>
+            <Card variant="frosted" className="p-6">
+              <h3 className="text-secondary text-sm">Average Temperature</h3>
+              <p className="text-3xl font-bold">{project.avgTemperature || 'N/A'} °C</p>
+            </Card>
+            <Card variant="frosted" className="p-6">
+              <h3 className="text-secondary text-sm">Est. Daily Production</h3>
+              <p className="text-3xl font-bold">~1750 L</p>
+            </Card>
+          </div>
+          
+          {id && <PerformanceChart projectId={id as string} />}
         </div>
-      </Card>
+      )}
+
     </main>
   );
 }

@@ -13,7 +13,7 @@
   /* Selected Range Colors */
   --range-start-end-bg: #3b82f6;
   --range-start-end-text: #ffffff;
-  --rdp-accent-background-color: rgba(14, 98, 234, 0.571); /* Color for the middle of the range */
+  --rdp-accent-background-color: rgba(14, 98, 234, 0.571) !important; /* Color for the middle of the range */
   --range-middle-text: #e2e8f0;
 
   /* Caption and Navigation */

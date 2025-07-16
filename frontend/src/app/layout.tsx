@@ -6,7 +6,6 @@ import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider"
 import { Header } from "@/components/Header";
 import { Toaster } from "react-hot-toast";
 import ClientLoadingOverlay from "@/components/ClientLoadingOverlay";
-import ClientAdminBar from "@/components/ClientAdminBar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +24,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
           <ClientLoadingOverlay />
-          <ClientAdminBar />
+          {/* <ClientAdminBar /> */}
           <AnimatedGradientProvider />
           <Header />
           <Toaster position="top-center" />

@@ -1,51 +1,64 @@
 // In backend/src/projects/schemas/project.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import mongoose from 'mongoose'; // Import mongoose
-import { User } from '../../users/schemas/user.schema'; // Import the User schema
+import { Document, Types } from 'mongoose';
+import { User } from '../../users/schemas/user.schema';
 
-export type ProjectDocument = HydratedDocument<Project>;
+export enum ProjectStatus {
+  SEEKING_FUNDING = 'SEEKING_FUNDING',
+  FUNDED_ORDER_PLACED = 'FUNDED_ORDER_PLACED',
+  FUNDED_MACHINE_SHIPPED = 'FUNDED_MACHINE_SHIPPED',
+  FUNDED_INSTALLATION_PHASE = 'FUNDED_INSTALLATION_PHASE',
+  OPERATIONAL = 'OPERATIONAL',
+}
+
+export type ProjectDocument = Project & Document;
 
 @Schema({ timestamps: true })
-export class Project {
-  @Prop({ required: true })
-  projectName: string;
+export class Project extends Document {
+  @Prop({ required: true, unique: true, index: true })
+  name: string;
+
+  @Prop()
+  projectName?: string; // For backward compatibility
 
   @Prop({ required: true })
-  fundingGoal: number;
+  location: string;
+  
+  @Prop({ type: String, enum: ProjectStatus, default: ProjectStatus.SEEKING_FUNDING })
+  status: ProjectStatus;
 
   @Prop({ default: 0 })
-  currentFunding: number;
-
-  @Prop()
-  location: string;
-
-  @Prop() 
   avgHumidity: number;
 
-  @Prop() 
+  @Prop({ default: 0 })
   avgTemperature: number;
 
-  @Prop({ default: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070' })
-  imageUrl: string; // <-- adding a static image for now
-
-  @Prop({ type: [String], default: [] }) // <-- Adding array for image carousel
-  imageUrls: string[];
-
-  @Prop({ enum: ['SEEKING_FUNDING', 'OPERATIONAL', 'COMPLETED'], default: 'SEEKING_FUNDING' })
-  status: string;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  operator?: User;
+  @Prop({ required: true })
+  goalAmount: number;
 
   @Prop()
-  unitControllerAddress?: string;
+  fundingGoal?: number; // For backward compatibility
+
+  @Prop({ default: 0 })
+  currentAmount: number;
 
   @Prop()
-  avgDailyWaterProduction: number;
+  currentFunding?: number; // For backward compatibility
 
-  @Prop({ type: Date }) // date keeping
-  waterSoldUntil?: Date;
+  @Prop()
+  mainImage: string;
+
+  @Prop()
+  imageUrl?: string; // For backward compatibility
+
+  @Prop([String])
+  images: string[];
+
+  @Prop()
+  imageUrls?: string[]; // For backward compatibility
+  
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  operator: User;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);
