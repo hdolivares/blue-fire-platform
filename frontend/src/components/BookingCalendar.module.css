@@ -1,0 +1,92 @@
+/* 
+  Defines custom styles for the DayPicker component using CSS variables for theming.
+  These classes are passed to the DayPicker via the `classNames` prop.
+*/
+
+.calendar_container {
+  /* --- Custom Properties for Theming --- */
+  --calendar-bg: transparent; /* Background of the entire calendar */
+  --day-text-color: #e2e8f0; /* Default text color for days */
+  --day-outside-color: #475569; /* Text color for days of previous/next month */
+  --day-hover-bg: rgba(59, 130, 246, 0.15); /* Background on hover */
+  
+  /* Selected Range Colors */
+  --range-start-end-bg: #3b82f6;
+  --range-start-end-text: #ffffff;
+  --rdp-accent-background-color: rgba(14, 98, 234, 0.571); /* Color for the middle of the range */
+  --range-middle-text: #e2e8f0;
+
+  /* Caption and Navigation */
+  --caption-text-color: #ffffff;
+  --nav-button-bg: rgba(255, 255, 255, 0.05);
+  --nav-button-hover-bg: rgba(255, 255, 255, 0.15);
+
+  /* Weekday Headers */
+  --head-cell-text-color: #94a3b8;
+
+  /* General component styling */
+  background-color: var(--calendar-bg);
+  color: var(--day-text-color);
+  width: 100%;
+}
+
+/* --- Base Element Styles --- */
+
+.caption_label {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--caption-text-color);
+}
+
+.nav_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: var(--nav-button-bg);
+  transition: background-color 0.2s ease;
+}
+.nav_button:hover {
+  background-color: var(--nav-button-hover-bg);
+}
+
+.head_cell {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--head-cell-text-color);
+  padding-bottom: 0.5rem;
+}
+
+.day {
+  height: 36px;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+.day:hover:not([class*="disabled"]) {
+  background-color: var(--day-hover-bg);
+}
+
+/* --- Modifiers for Day States --- */
+
+.day_outside {
+  color: var(--day-outside-color);
+}
+
+.day_range_start {
+  background-color: var(--range-start-end-bg) !important;
+  color: var(--range-start-end-text) !important;
+}
+
+.day_range_end {
+  background-color: var(--range-start-end-bg) !important;
+  color: var(--range-start-end-text) !important;
+}
+
+.day_range_middle {
+  background-color: var(--rdp-accent-background-color) !important;
+  color: var(--range-middle-text) !important;
+  border-radius: 0; /* Creates the solid bar effect */
+} 

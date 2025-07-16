@@ -3,10 +3,10 @@
 /* Design System - CSS Custom Properties */
 :root {
   /* Gradient Colors for Animated Background */
-  --gradient-color-1: #0692d2;
-  --gradient-color-2: #2487d8;
-  --gradient-color-3: #305af1;
-  --gradient-color-4: #126097;
+  --gradient-color-1: #11a8ee;
+  --gradient-color-2: #0461b9;
+  --gradient-color-3: #308af1;
+  --gradient-color-4: #6e19d7;
 }
 
 /* Base Styles */
@@ -261,51 +261,54 @@ h6 { font-size: 1rem; }
 }
 
 /* Custom Slider Styles */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #10b981 0%, #10b981 var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) 100%);
+  outline: none;
+  transition: background 0.2s ease;
+}
+
 .slider::-webkit-slider-thumb {
   appearance: none;
-  height: 20px;
-  width: 20px;
+  height: 24px;
+  width: 24px;
   border-radius: 50%;
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .slider::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
+  height: 24px;
+  width: 24px;
   border-radius: 50%;
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #10b981 0%, #10b981 var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) 100%);
   border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* DayPicker Customization */
-.rdp {
-  --rdp-cell-size: 40px;
-  --rdp-accent-color: #3b82f6;
-  --rdp-background-color: rgba(255, 255, 255, 0.1);
-  --rdp-accent-color-dark: #2563eb;
-  --rdp-background-color-dark: rgba(255, 255, 255, 0.05);
-  --rdp-outline: 2px solid #3b82f6;
-  --rdp-outline-selected: 2px solid #3b82f6;
-  margin: 0;
-}
-
-.rdp-day_selected, 
-.rdp-day_selected:focus-visible, 
-.rdp-day_selected:hover {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.rdp-day_range_start, 
-.rdp-day_range_end {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.rdp-day_range_middle {
-  background-color: rgba(59, 130, 246, 0.3);
-}
+/* DayPicker styles are now handled in BookingCalendar.module.css for better specificity */

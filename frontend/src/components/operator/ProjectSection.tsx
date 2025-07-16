@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
@@ -13,6 +13,7 @@ import { AssignedProject } from '@/types/project';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Slider } from '@/components/ui/Slider';
 
 /**
  * @function formatStatus
@@ -35,6 +36,8 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   // --- CONSTANTS FOR CALCULATION ---
   const PRICE_PER_LITER_USD = 0.10;
   const USD_TO_RBTC_RATE = 0.000035;
+  const MIN_DAYS = 7;
+  const MAX_DAYS = 45;
 
   // --- DERIVED CALCULATIONS ---
   // These calculations are based on the project data and the slider value.
@@ -143,24 +146,14 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
         ) : (
           <form onSubmit={handlePurchaseWater} className="space-y-6 flex flex-col flex-grow">
             <div className="space-y-4">
-              <div>
-                <label htmlFor="days" className="block text-sm font-medium mb-3">
-                  Days to Purchase: <span className="font-bold text-white text-lg">{daysToPurchase}</span>
-                </label>
-                <input 
-                  id="days" 
-                  type="range" 
-                  min="7" 
-                  max="45" 
-                  value={daysToPurchase} 
-                  onChange={(e) => setDaysToPurchase(Number(e.target.value))} 
-                  className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-secondary mt-1">
-                  <span>7 days</span>
-                  <span>45 days</span>
-                </div>
-              </div>
+              <Slider
+                min={MIN_DAYS}
+                max={MAX_DAYS}
+                value={daysToPurchase}
+                onChange={setDaysToPurchase}
+                label="Days to Purchase:"
+                showValue={true}
+              />
             </div>
             
             <Card variant="default" className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-6 text-center border border-blue-500/20">
@@ -191,7 +184,11 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
 
       {/* Column 3: Calendar */}
       <div className="lg:col-span-1">
-        <BookingCalendar soldUntilDate={project.waterSoldUntil ? new Date(project.waterSoldUntil) : undefined} daysToPurchase={daysToPurchase} />
+        <BookingCalendar 
+          soldUntilDate={project.waterSoldUntil ? new Date(project.waterSoldUntil) : undefined} 
+          daysToPurchase={daysToPurchase}
+          avgDailyWaterProduction={project.avgDailyWaterProduction}
+        />
       </div>
     </div>
   );
