@@ -46,9 +46,14 @@ export default function AdminDashboardPage() {
     <main className="container-main">
       <div className="flex justify-between items-center mb-8">
         <h1 className="section-header">Admin Dashboard</h1>
-        <Button variant="primary" size="md" onClick={() => window.location.href = '/admin/projects/new'}>
-          + New Project
-        </Button>
+        <div className="flex space-x-2">
+          <Button variant="outline" size="md" onClick={() => window.location.href = '/admin/analytics'}>
+            📊 Analytics
+          </Button>
+          <Button variant="primary" size="md" onClick={() => window.location.href = '/admin/projects/new'}>
+            + New Project
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

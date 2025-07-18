@@ -7,6 +7,7 @@ import { Project, ProjectSchema } from '../projects/schemas/project.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { Investment, InvestmentSchema } from '../investments/schemas/investment.schema';
 import { OperatorRequest, OperatorRequestSchema } from '../operators/schemas/operator-request.schema';
+import { PerformanceData, PerformanceDataSchema } from '../performance/schemas/performance-data.schema';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { OperatorRequest, OperatorRequestSchema } from '../operators/schemas/ope
       { name: User.name, schema: UserSchema },
       { name: Investment.name, schema: InvestmentSchema },
       { name: OperatorRequest.name, schema: OperatorRequestSchema },
+      { name: PerformanceData.name, schema: PerformanceDataSchema },
     ]),
   ],
   controllers: [AdminController],
