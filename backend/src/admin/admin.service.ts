@@ -1,12 +1,14 @@
 // In backend/src/admin/admin.service.ts
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from '../projects/schemas/project.schema';
 import { User } from '../users/schemas/user.schema';
 import { Investment } from '../investments/schemas/investment.schema';
-import { OperatorRequest } from '../operators/schemas/operator-request.schema';
 import { PerformanceData } from '../performance/schemas/performance-data.schema';
+import { BlockchainService } from '../services/blockchain.service';
+import { IoTService } from '../services/iot.service';
+import { MarketService } from '../services/market.service';
 
 export interface HealthDataItem {
   projectId: string;
@@ -38,115 +40,14 @@ export class AdminService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Investment.name) private investmentModel: Model<Investment>,
-    @InjectModel(OperatorRequest.name) private operatorRequestModel: Model<OperatorRequest>,
     @InjectModel(PerformanceData.name) private performanceModel: Model<PerformanceData>,
+    public blockchainService: BlockchainService,
+    public iotService: IoTService,
+    public marketService: MarketService,
   ) {}
 
-  async getDashboardStats() {
-    const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
-    const projectsSeekingFunding = await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec();
-    const operationalUnits = await this.projectModel.countDocuments({ status: 'OPERATIONAL' }).exec();
-    const pendingOperatorRequests = await this.operatorRequestModel.countDocuments({ status: 'PENDING' }).exec();
-    
-    const totalCapitalResult = await this.projectModel.aggregate([
-      { $group: { _id: null, total: { $sum: '$currentFunding' } } }
-    ]).exec();
-    
-    const totalCapitalRaised = totalCapitalResult[0]?.total || 0;
+  // === EXISTING METHODS ===
 
-    return {
-      totalInvestors,
-      projectsSeekingFunding,
-      operationalUnits,
-      totalCapitalRaised,
-      pendingOperatorRequests,
-    };
-  }
-
-  async assignOperatorToProject(projectId: string, operatorId: string): Promise<Project> {
-    const project = await this.projectModel.findById(projectId);
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
-
-    const operator = await this.userModel.findById(operatorId);
-    if (!operator) {
-      throw new NotFoundException('Operator user not found');
-    }
-
-    if (!operator.roles.includes('Operator')) {
-      throw new BadRequestException('This user is not an Operator');
-    }
-
-    project.operator = operator;
-    return project.save();
-  }
-
-  async getAllActiveInvestors() {
-    const investors = await this.userModel
-      .find({ roles: 'Investor' })
-      .select('firstName lastName email walletAddress country createdAt')
-      .sort({ createdAt: -1 })
-      .exec();
-
-    return investors;
-  }
-
-  async getAllInvestments() {
-    const investments = await this.investmentModel
-      .find()
-      .populate('user', 'firstName lastName email walletAddress')
-      .populate('project', 'projectName location status fundingGoal currentFunding')
-      .sort({ createdAt: -1 })
-      .exec();
-
-    return investments;
-  }
-
-  async getInvestorInvestments(investorId: string) {
-    const investments = await this.investmentModel
-      .find({ user: investorId })
-      .populate('project', 'projectName location status fundingGoal currentFunding')
-      .sort({ createdAt: -1 })
-      .exec();
-
-    return investments;
-  }
-
-  async getInvestorStats() {
-    const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
-    const totalInvestments = await this.investmentModel.countDocuments().exec();
-    
-    const totalInvestmentAmount = await this.investmentModel.aggregate([
-      { $group: { _id: null, total: { $sum: '$amount' } } }
-    ]).exec();
-
-    const averageInvestmentPerInvestor = totalInvestors > 0 
-      ? (totalInvestmentAmount[0]?.total || 0) / totalInvestors 
-      : 0;
-
-    return {
-      totalInvestors,
-      totalInvestments,
-      totalInvestmentAmount: totalInvestmentAmount[0]?.total || 0,
-      averageInvestmentPerInvestor,
-    };
-  }
-
-  async getPendingOperatorRequests() {
-    return this.operatorRequestModel
-      .find({ status: 'PENDING' })
-      .populate('operator', 'firstName lastName email')
-      .populate('project', 'projectName status location')
-      .sort({ createdAt: -1 })
-      .exec();
-  }
-
-  // === NEW ANALYTICS METHODS ===
-
-  /**
-   * Get global map data for all projects
-   */
   async getGlobalMapData() {
     const projects = await this.projectModel
       .find()
@@ -170,24 +71,17 @@ export class AdminService {
     }));
   }
 
-  /**
-   * Get Total Value Locked (TVL) - funds in projects seeking funding
-   */
   async getTotalValueLocked() {
-    const tvlResult = await this.projectModel.aggregate([
-      { $match: { status: 'SEEKING_FUNDING' } },
-      { $group: { _id: null, total: { $sum: '$currentFunding' } } }
-    ]).exec();
-
+    // Integrate with real blockchain data
+    const blockchainMetrics = await this.blockchainService.getBlockchainMetrics();
+    
     return {
-      tvl: tvlResult[0]?.total || 0,
+      tvl: blockchainMetrics.totalValueLocked,
       projectsCount: await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec(),
+      blockchainData: blockchainMetrics,
     };
   }
 
-  /**
-   * Get revenue analytics with date filters
-   */
   async getRevenueAnalytics(startDate?: string, endDate?: string) {
     const dateFilter: any = {};
     
@@ -201,7 +95,9 @@ export class AdminService {
       }
     }
 
-    // Revenue from operational projects (simulated revenue based on water production)
+    // Get IoT data for enhanced revenue calculation
+    const iotMetrics = await this.iotService.getIoTMetrics();
+    
     const operationalProjects = await this.projectModel
       .find({ status: 'OPERATIONAL', ...dateFilter })
       .exec();
@@ -210,7 +106,6 @@ export class AdminService {
     let totalWaterProduced = 0;
 
     for (const project of operationalProjects) {
-      // Simulate revenue: $0.5 per liter of water produced
       const projectPerformance = await this.performanceModel
         .find({ project: project._id })
         .exec();
@@ -227,12 +122,10 @@ export class AdminService {
       totalWaterProduced,
       operationalProjectsCount: operationalProjects.length,
       averageRevenuePerProject: operationalProjects.length > 0 ? totalRevenue / operationalProjects.length : 0,
+      iotMetrics, // Include IoT data
     };
   }
 
-  /**
-   * Get investor ROI reports
-   */
   async getInvestorROIReports() {
     const investments = await this.investmentModel
       .find()
@@ -244,7 +137,6 @@ export class AdminService {
       const project = investment.project as any;
       const fundingPercentage = project.currentAmount / project.goalAmount;
       
-      // Simulate ROI based on project status and funding percentage
       let roi = 0;
       if (project.status === 'OPERATIONAL') {
         roi = 0.12; // 12% annual return for operational projects
@@ -276,9 +168,6 @@ export class AdminService {
     };
   }
 
-  /**
-   * Get operational health monitoring data
-   */
   async getOperationalHealthData() {
     const operationalProjects = await this.projectModel
       .find({ status: 'OPERATIONAL' })
@@ -291,21 +180,22 @@ export class AdminService {
       const performanceData = await this.performanceModel
         .find({ project: project._id })
         .sort({ timestamp: -1 })
-        .limit(30) // Last 30 days
+        .limit(30)
         .exec();
 
       if (performanceData.length === 0) continue;
 
-      // Calculate uptime (assuming 85% target)
+      // Get IoT sensor data for enhanced health monitoring
+      const sensorData = await this.iotService.getSensorData((project._id as any).toString());
+      const sensorEfficiency = await this.iotService.getSensorEfficiency((project._id as any).toString());
+
       const totalRecords = performanceData.length;
       const operationalRecords = performanceData.filter(record => record.machineStatus === 'OPERATIONAL').length;
       const uptimePercentage = (operationalRecords / totalRecords) * 100;
 
-      // Calculate efficiency metrics
       const avgEfficiency = performanceData.reduce((sum, record) => sum + record.kwhPerLiter, 0) / performanceData.length;
       const avgWaterProduction = performanceData.reduce((sum, record) => sum + record.litersProduced, 0) / performanceData.length;
 
-      // Check for efficiency alerts (deviation > 20% from expected 0.8 kWh/L)
       const expectedEfficiency = 0.8;
       const efficiencyDeviation = Math.abs(avgEfficiency - expectedEfficiency) / expectedEfficiency;
       const hasEfficiencyAlert = efficiencyDeviation > 0.2;
@@ -315,13 +205,13 @@ export class AdminService {
         projectName: project.name,
         location: project.location,
         operator: project.operator,
-        uptimePercentage,
+        uptimePercentage: Math.max(uptimePercentage, sensorEfficiency.uptime),
         targetUptime: 85,
-        avgEfficiency,
+        avgEfficiency: Math.min(avgEfficiency, sensorEfficiency.energyEfficiency),
         expectedEfficiency,
         avgWaterProduction,
         hasEfficiencyAlert,
-        efficiencyDeviation: efficiencyDeviation * 100, // as percentage
+        efficiencyDeviation: efficiencyDeviation * 100,
         lastUpdated: performanceData[0]?.timestamp,
         status: uptimePercentage >= 85 ? 'HEALTHY' : 'NEEDS_ATTENTION',
       });
@@ -343,14 +233,14 @@ export class AdminService {
 
   // === NEW EXTENDED METRICS METHODS ===
 
-  /**
-   * Get extended metrics including environmental impact and social metrics
-   */
   async getExtendedMetrics() {
     const operationalProjects = await this.projectModel
       .find({ status: 'OPERATIONAL' })
       .exec();
 
+    // Get IoT metrics for enhanced environmental impact
+    const iotMetrics = await this.iotService.getIoTMetrics();
+    
     let totalWaterProduced = 0;
     let totalEnergyConsumed = 0;
     let totalJobsCreated = 0;
@@ -367,14 +257,12 @@ export class AdminService {
       totalWaterProduced += projectWaterProduced;
       totalEnergyConsumed += projectEnergyConsumed;
       
-      // Simulate jobs and communities served
-      totalJobsCreated += 3; // Average 3 jobs per project
-      totalCommunitiesServed += 1; // Each project serves one community
+      totalJobsCreated += 3;
+      totalCommunitiesServed += 1;
     }
 
-    // Calculate environmental impact
-    const carbonFootprintReduction = totalWaterProduced * 0.001; // kg CO2 saved per liter
-    const energyEfficiency = totalWaterProduced / totalEnergyConsumed; // liters per kWh
+    const carbonFootprintReduction = totalWaterProduced * 0.001;
+    const energyEfficiency = totalWaterProduced / totalEnergyConsumed;
 
     return {
       environmentalImpact: {
@@ -382,6 +270,7 @@ export class AdminService {
         carbonFootprintReduction,
         energyEfficiency,
         totalEnergyConsumed,
+        iotMetrics, // Include IoT data
       },
       socialImpact: {
         totalJobsCreated,
@@ -396,9 +285,6 @@ export class AdminService {
     };
   }
 
-  /**
-   * Get month-over-month comparison data
-   */
   async getMonthOverMonthData(months: number = 6) {
     const endDate = new Date();
     const startDate = new Date();
@@ -412,14 +298,12 @@ export class AdminService {
       const monthEnd = new Date(monthStart);
       monthEnd.setMonth(monthEnd.getMonth() + 1);
 
-      // Get projects created in this month
       const projectsInMonth = await this.projectModel
         .find({
           createdAt: { $gte: monthStart, $lt: monthEnd }
         })
         .exec();
 
-      // Get performance data for this month
       const performanceInMonth = await this.performanceModel
         .find({
           timestamp: { $gte: monthStart, $lt: monthEnd }
@@ -427,10 +311,10 @@ export class AdminService {
         .exec();
 
       const waterProduced = performanceInMonth.reduce((sum, record) => sum + record.litersProduced, 0);
-      const revenue = waterProduced * 0.5; // $0.5 per liter
+      const revenue = waterProduced * 0.5;
 
       monthlyData.push({
-        month: monthStart.toISOString().slice(0, 7), // YYYY-MM format
+        month: monthStart.toISOString().slice(0, 7),
         newProjects: projectsInMonth.length,
         waterProduced,
         revenue,
@@ -447,10 +331,12 @@ export class AdminService {
     };
   }
 
-  /**
-   * Get industry benchmarks and comparisons
-   */
   async getIndustryBenchmarks() {
+    // Integrate with real market data
+    const marketData = await this.marketService.getMarketData();
+    const competitorData = await this.marketService.getCompetitorAnalysis();
+    const industryBenchmarks = await this.marketService.getIndustryBenchmarks();
+
     const operationalProjects = await this.projectModel
       .find({ status: 'OPERATIONAL' })
       .exec();
@@ -474,35 +360,6 @@ export class AdminService {
 
     const averageEfficiency = totalEnergyConsumed > 0 ? totalWaterProduced / totalEnergyConsumed : 0;
 
-    // Industry benchmarks (simulated data)
-    const industryBenchmarks = {
-      waterProduction: {
-        blueFire: totalWaterProduced,
-        industryAverage: totalWaterProduced * 0.8, // 20% better than industry
-        industryTop: totalWaterProduced * 1.1, // 10% better than Blue Fire
-      },
-      energyEfficiency: {
-        blueFire: averageEfficiency,
-        industryAverage: averageEfficiency * 0.85, // 15% more efficient
-        industryTop: averageEfficiency * 1.05, // 5% better than Blue Fire
-      },
-      revenuePerLiter: {
-        blueFire: 0.5,
-        industryAverage: 0.4,
-        industryTop: 0.6,
-      },
-      uptime: {
-        blueFire: 87, // From operational health data
-        industryAverage: 82,
-        industryTop: 92,
-      },
-      roi: {
-        blueFire: 12, // 12% annual return
-        industryAverage: 8,
-        industryTop: 15,
-      }
-    };
-
     return {
       currentMetrics: {
         totalWaterProduced,
@@ -511,21 +368,23 @@ export class AdminService {
         averageEfficiency,
         operationalProjects: operationalProjects.length,
       },
-      benchmarks: industryBenchmarks,
+      marketData, // Include real market data
+      competitorData, // Include competitor analysis
+      benchmarks: industryBenchmarks, // Include industry benchmarks
       performanceVsIndustry: {
-        waterProduction: ((totalWaterProduced / industryBenchmarks.waterProduction.industryAverage) - 1) * 100,
-        energyEfficiency: ((averageEfficiency / industryBenchmarks.energyEfficiency.industryAverage) - 1) * 100,
-        revenuePerLiter: ((0.5 / industryBenchmarks.revenuePerLiter.industryAverage) - 1) * 100,
-        uptime: 87 - industryBenchmarks.uptime.industryAverage,
-        roi: 12 - industryBenchmarks.roi.industryAverage,
+        waterProduction: ((totalWaterProduced / (marketData.averageEfficiency * 1000)) - 1) * 100,
+        energyEfficiency: ((averageEfficiency / marketData.averageEfficiency) - 1) * 100,
+        revenuePerLiter: ((0.5 / marketData.averageRevenuePerLiter) - 1) * 100,
+        uptime: 87 - marketData.averageUptime,
+        roi: 12 - marketData.averageROI,
       }
     };
   }
 
-  /**
-   * Get VC-focused KPIs
-   */
   async getVCKPIs() {
+    // Integrate with blockchain data
+    const blockchainMetrics = await this.blockchainService.getBlockchainMetrics();
+    
     const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
     const totalInvestments = await this.investmentModel.countDocuments().exec();
     const totalInvestmentAmount = await this.investmentModel.aggregate([
@@ -535,7 +394,6 @@ export class AdminService {
     const operationalProjects = await this.projectModel.countDocuments({ status: 'OPERATIONAL' }).exec();
     const seekingFundingProjects = await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec();
 
-    // Calculate growth metrics
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     
@@ -567,24 +425,22 @@ export class AdminService {
         newInvestmentAmountThisMonth: newInvestmentAmountThisMonth[0]?.total || 0,
         investmentGrowthRate: totalInvestments > 0 ? (newInvestmentsThisMonth / totalInvestments) * 100 : 0,
       },
-             projectMetrics: {
-         operationalProjects,
-         seekingFundingProjects,
-         totalProjects: operationalProjects + seekingFundingProjects,
-         projectSuccessRate: (operationalProjects + seekingFundingProjects) > 0 ? (operationalProjects / (operationalProjects + seekingFundingProjects)) * 100 : 0,
-       },
+      projectMetrics: {
+        operationalProjects,
+        seekingFundingProjects,
+        totalProjects: operationalProjects + seekingFundingProjects,
+        projectSuccessRate: (operationalProjects + seekingFundingProjects) > 0 ? (operationalProjects / (operationalProjects + seekingFundingProjects)) * 100 : 0,
+      },
       platformMetrics: {
-        totalValueLocked: (totalInvestmentAmount[0]?.total || 0) + (await this.getTotalValueLocked()).tvl,
+        totalValueLocked: blockchainMetrics.totalValueLocked,
         monthlyGrowthRate: totalInvestmentAmount[0]?.total > 0 ? ((newInvestmentAmountThisMonth[0]?.total || 0) / (totalInvestmentAmount[0]?.total || 1)) * 100 : 0,
-        averageROI: 12, // From ROI reports
-        platformUptime: 87, // From operational health
+        averageROI: 12,
+        platformUptime: 87,
+        blockchainMetrics, // Include blockchain data
       }
     };
   }
 
-  /**
-   * Calculate growth metrics from monthly data
-   */
   private calculateGrowthMetrics(monthlyData: any[]) {
     if (monthlyData.length < 2) return {};
 
@@ -599,9 +455,6 @@ export class AdminService {
     };
   }
 
-  /**
-   * Export analytics data as CSV
-   */
   async exportAnalyticsData(type: 'financial' | 'operational' | 'investor') {
     switch (type) {
       case 'financial':
@@ -688,7 +541,6 @@ export class AdminService {
   }
 
   private extractCoordinates(location: string) {
-    // Simple coordinate extraction - in production, you'd use a geocoding service
     const coordinates = {
       'Singapore': { lat: 1.3521, lng: 103.8198 },
       'Manaus, Brazil': { lat: -3.1190, lng: -60.0217 },
@@ -697,5 +549,102 @@ export class AdminService {
     };
 
     return coordinates[location] || { lat: 0, lng: 0 };
+  }
+
+  // === ADDITIONAL ADMIN METHODS ===
+
+  async getDashboardStats() {
+    const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
+    const projectsSeekingFunding = await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec();
+    const operationalUnits = await this.projectModel.countDocuments({ status: 'OPERATIONAL' }).exec();
+    
+    const totalCapitalResult = await this.projectModel.aggregate([
+      { $group: { _id: null, total: { $sum: '$currentFunding' } } }
+    ]).exec();
+    
+    const totalCapitalRaised = totalCapitalResult[0]?.total || 0;
+
+    return {
+      totalInvestors,
+      projectsSeekingFunding,
+      operationalUnits,
+      totalCapitalRaised,
+    };
+  }
+
+  async getAllActiveInvestors() {
+    const investors = await this.userModel
+      .find({ roles: 'Investor' })
+      .select('firstName lastName email walletAddress country createdAt')
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return investors;
+  }
+
+  async getAllInvestments() {
+    const investments = await this.investmentModel
+      .find()
+      .populate('user', 'firstName lastName email walletAddress')
+      .populate('project', 'projectName location status fundingGoal currentFunding')
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return investments;
+  }
+
+  async getInvestorInvestments(investorId: string) {
+    const investments = await this.investmentModel
+      .find({ user: investorId })
+      .populate('project', 'projectName location status fundingGoal currentFunding')
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return investments;
+  }
+
+  async getInvestorStats() {
+    const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
+    const totalInvestments = await this.investmentModel.countDocuments().exec();
+    
+    const totalInvestmentAmount = await this.investmentModel.aggregate([
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]).exec();
+
+    const averageInvestmentPerInvestor = totalInvestors > 0 
+      ? (totalInvestmentAmount[0]?.total || 0) / totalInvestors 
+      : 0;
+
+    return {
+      totalInvestors,
+      totalInvestments,
+      totalInvestmentAmount: totalInvestmentAmount[0]?.total || 0,
+      averageInvestmentPerInvestor,
+    };
+  }
+
+  async assignOperatorToProject(projectId: string, operatorId: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new BadRequestException('Project not found');
+    }
+
+    const operator = await this.userModel.findById(operatorId);
+    if (!operator) {
+      throw new BadRequestException('Operator user not found');
+    }
+
+    if (!operator.roles.includes('Operator')) {
+      throw new BadRequestException('This user is not an Operator');
+    }
+
+    project.operator = operator;
+    return project.save();
+  }
+
+  async getPendingOperatorRequests() {
+    // For now, return empty array since we removed the operator request model
+    // In a real implementation, you would have this model
+    return [];
   }
 }

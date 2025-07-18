@@ -75,7 +75,13 @@ const IndustryBenchmarks: React.FC = () => {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -171,7 +177,7 @@ const IndustryBenchmarks: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Water Produced</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.currentMetrics.totalWaterProduced)} L</p>
+              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.currentMetrics?.totalWaterProduced || 0)} L</p>
             </div>
           </div>
         </div>
@@ -185,7 +191,7 @@ const IndustryBenchmarks: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.currentMetrics.totalRevenue)}</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.currentMetrics?.totalRevenue || 0)}</p>
             </div>
           </div>
         </div>
@@ -199,7 +205,7 @@ const IndustryBenchmarks: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Energy Efficiency</p>
-              <p className="text-2xl font-bold text-gray-900">{data.currentMetrics.averageEfficiency.toFixed(2)} L/kWh</p>
+              <p className="text-2xl font-bold text-gray-900">{(data.currentMetrics?.averageEfficiency || 0).toFixed(2)} L/kWh</p>
             </div>
           </div>
         </div>
@@ -213,7 +219,7 @@ const IndustryBenchmarks: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Operational Projects</p>
-              <p className="text-2xl font-bold text-gray-900">{data.currentMetrics.operationalProjects}</p>
+              <p className="text-2xl font-bold text-gray-900">{data.currentMetrics?.operationalProjects || 0}</p>
             </div>
           </div>
         </div>
@@ -225,31 +231,31 @@ const IndustryBenchmarks: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
-              {formatPercentage(data.performanceVsIndustry.waterProduction)}
+              {formatPercentage(data.performanceVsIndustry?.waterProduction || 0)}
             </div>
             <div className="text-sm text-gray-600">Water Production</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
-              {formatPercentage(data.performanceVsIndustry.energyEfficiency)}
+              {formatPercentage(data.performanceVsIndustry?.energyEfficiency || 0)}
             </div>
             <div className="text-sm text-gray-600">Energy Efficiency</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
-              {formatPercentage(data.performanceVsIndustry.revenuePerLiter)}
+              {formatPercentage(data.performanceVsIndustry?.revenuePerLiter || 0)}
             </div>
             <div className="text-sm text-gray-600">Revenue per Liter</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
-              {formatPercentage(data.performanceVsIndustry.uptime)}
+              {formatPercentage(data.performanceVsIndustry?.uptime || 0)}
             </div>
             <div className="text-sm text-gray-600">Uptime</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
-              {formatPercentage(data.performanceVsIndustry.roi)}
+              {formatPercentage(data.performanceVsIndustry?.roi || 0)}
             </div>
             <div className="text-sm text-gray-600">ROI</div>
           </div>
@@ -260,41 +266,41 @@ const IndustryBenchmarks: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BenchmarkCard
           title="Water Production"
-          blueFireValue={data.benchmarks.waterProduction.blueFire}
-          industryAverage={data.benchmarks.waterProduction.industryAverage}
-          industryTop={data.benchmarks.waterProduction.industryTop}
+          blueFireValue={data.benchmarks?.waterProduction?.blueFire || 0}
+          industryAverage={data.benchmarks?.waterProduction?.industryAverage || 0}
+          industryTop={data.benchmarks?.waterProduction?.industryTop || 0}
           unit=" L"
         />
         
         <BenchmarkCard
           title="Energy Efficiency"
-          blueFireValue={data.benchmarks.energyEfficiency.blueFire}
-          industryAverage={data.benchmarks.energyEfficiency.industryAverage}
-          industryTop={data.benchmarks.energyEfficiency.industryTop}
+          blueFireValue={data.benchmarks?.energyEfficiency?.blueFire || 0}
+          industryAverage={data.benchmarks?.energyEfficiency?.industryAverage || 0}
+          industryTop={data.benchmarks?.energyEfficiency?.industryTop || 0}
           unit=" L/kWh"
         />
         
         <BenchmarkCard
           title="Revenue per Liter"
-          blueFireValue={data.benchmarks.revenuePerLiter.blueFire}
-          industryAverage={data.benchmarks.revenuePerLiter.industryAverage}
-          industryTop={data.benchmarks.revenuePerLiter.industryTop}
+          blueFireValue={data.benchmarks?.revenuePerLiter?.blueFire || 0}
+          industryAverage={data.benchmarks?.revenuePerLiter?.industryAverage || 0}
+          industryTop={data.benchmarks?.revenuePerLiter?.industryTop || 0}
           isCurrency={true}
         />
         
         <BenchmarkCard
           title="Uptime"
-          blueFireValue={data.benchmarks.uptime.blueFire}
-          industryAverage={data.benchmarks.uptime.industryAverage}
-          industryTop={data.benchmarks.uptime.industryTop}
+          blueFireValue={data.benchmarks?.uptime?.blueFire || 0}
+          industryAverage={data.benchmarks?.uptime?.industryAverage || 0}
+          industryTop={data.benchmarks?.uptime?.industryTop || 0}
           isPercentage={true}
         />
         
         <BenchmarkCard
           title="ROI"
-          blueFireValue={data.benchmarks.roi.blueFire}
-          industryAverage={data.benchmarks.roi.industryAverage}
-          industryTop={data.benchmarks.roi.industryTop}
+          blueFireValue={data.benchmarks?.roi?.blueFire || 0}
+          industryAverage={data.benchmarks?.roi?.industryAverage || 0}
+          industryTop={data.benchmarks?.roi?.industryTop || 0}
           isPercentage={true}
         />
       </div>

@@ -8,40 +8,21 @@ import ExtendedMetrics from '@/components/admin/ExtendedMetrics';
 import MonthOverMonthReports from '@/components/admin/MonthOverMonthReports';
 import IndustryBenchmarks from '@/components/admin/IndustryBenchmarks';
 import VCKPIs from '@/components/admin/VCKPIs';
+import BlockchainMetrics from '@/components/admin/BlockchainMetrics';
 
 const AnalyticsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('global-map');
 
   const tabs = [
-    { id: 'global-map', name: 'Global Map', icon: '🗺️' },
-    { id: 'financial', name: 'Financial Reports', icon: '💰' },
-    { id: 'operational', name: 'Operational Health', icon: '🏥' },
-    { id: 'extended', name: 'Extended Metrics', icon: '📊' },
-    { id: 'month-over-month', name: 'Month-over-Month', icon: '📈' },
-    { id: 'benchmarks', name: 'Industry Benchmarks', icon: '🏆' },
-    { id: 'vc-kpis', name: 'VC KPIs', icon: '🎯' },
+    { id: 'global-map', name: 'Global Map', component: <GlobalMapView /> },
+    { id: 'financial-reports', name: 'Financial Reports', component: <FinancialReports /> },
+    { id: 'operational-health', name: 'Operational Health', component: <OperationalHealth /> },
+    { id: 'blockchain-metrics', name: 'Blockchain Metrics', component: <BlockchainMetrics /> },
+    { id: 'extended-metrics', name: 'Extended Metrics', component: <ExtendedMetrics /> },
+    { id: 'month-over-month', name: 'Month-over-Month', component: <MonthOverMonthReports /> },
+    { id: 'industry-benchmarks', name: 'Industry Benchmarks', component: <IndustryBenchmarks /> },
+    { id: 'vc-kpis', name: 'VC KPIs', component: <VCKPIs /> },
   ];
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'global-map':
-        return <GlobalMapView />;
-      case 'financial':
-        return <FinancialReports />;
-      case 'operational':
-        return <OperationalHealth />;
-      case 'extended':
-        return <ExtendedMetrics />;
-      case 'month-over-month':
-        return <MonthOverMonthReports />;
-      case 'benchmarks':
-        return <IndustryBenchmarks />;
-      case 'vc-kpis':
-        return <VCKPIs />;
-      default:
-        return <GlobalMapView />;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,34 +36,27 @@ const AnalyticsPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2
-                    ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }
-                  `}
-                >
-                  <span className="text-lg">{tab.icon}</span>
-                  <span>{tab.name}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
+        <div className="mb-8">
+          <nav className="flex space-x-8 overflow-x-auto">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            {renderTabContent()}
-          </div>
+        <div className="bg-white rounded-lg shadow">
+          {tabs.find(tab => tab.id === activeTab)?.component}
         </div>
       </div>
     </div>

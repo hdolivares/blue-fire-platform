@@ -1,4 +1,3 @@
-// In backend/src/admin/admin.controller.ts
 import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AdminOnly } from '../common/decorators/auth.decorator';
@@ -9,11 +8,13 @@ import { Roles } from '../common/decorators/roles.decorator';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  // === DASHBOARD ENDPOINTS ===
   @Get('dashboard')
   getDashboardStats() {
     return this.adminService.getDashboardStats();
   }
 
+  // === INVESTOR ENDPOINTS ===
   @Get('investors')
   getAllActiveInvestors() {
     return this.adminService.getAllActiveInvestors();
@@ -34,7 +35,7 @@ export class AdminController {
     return this.adminService.getInvestorStats();
   }
 
-  // --- Adding new endpoint for operator---
+  // === OPERATOR ENDPOINTS ===
   @Patch('projects/:projectId/assign-operator')
   assignOperator(
     @Param('projectId') projectId: string,
@@ -48,44 +49,39 @@ export class AdminController {
     return this.adminService.getPendingOperatorRequests();
   }
 
-  // === NEW ANALYTICS ENDPOINTS ===
-
+  // === ANALYTICS ENDPOINTS ===
   @Get('analytics/global-map')
-  getGlobalMapData() {
+  @Roles('Admin')
+  async getGlobalMapData() {
     return this.adminService.getGlobalMapData();
   }
 
   @Get('analytics/tvl')
-  getTotalValueLocked() {
+  @Roles('Admin')
+  async getTotalValueLocked() {
     return this.adminService.getTotalValueLocked();
   }
 
   @Get('analytics/revenue')
-  getRevenueAnalytics(
+  @Roles('Admin')
+  async getRevenueAnalytics(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
     return this.adminService.getRevenueAnalytics(startDate, endDate);
   }
 
-  @Get('analytics/roi')
-  getInvestorROIReports() {
+  @Get('analytics/roi-reports')
+  @Roles('Admin')
+  async getInvestorROIReports() {
     return this.adminService.getInvestorROIReports();
   }
 
   @Get('analytics/operational-health')
   @Roles('Admin')
-  async getOperationalHealth() {
+  async getOperationalHealthData() {
     return this.adminService.getOperationalHealthData();
   }
-
-  @Get('analytics/export/:type')
-  @Roles('Admin')
-  async exportAnalyticsData(@Param('type') type: 'financial' | 'operational' | 'investor') {
-    return this.adminService.exportAnalyticsData(type);
-  }
-
-  // === NEW EXTENDED ANALYTICS ENDPOINTS ===
 
   @Get('analytics/extended-metrics')
   @Roles('Admin')
@@ -99,15 +95,49 @@ export class AdminController {
     return this.adminService.getMonthOverMonthData(parseInt(months));
   }
 
-  @Get('analytics/industry-benchmarks')
-  @Roles('Admin')
-  async getIndustryBenchmarks() {
-    return this.adminService.getIndustryBenchmarks();
-  }
-
   @Get('analytics/vc-kpis')
   @Roles('Admin')
   async getVCKPIs() {
     return this.adminService.getVCKPIs();
+  }
+
+  // === BLOCKCHAIN ENDPOINTS ===
+  @Get('analytics/blockchain-metrics')
+  async getBlockchainMetrics() {
+    return this.adminService.blockchainService.getBlockchainMetrics();
+  }
+
+  @Get('analytics/blockchain-status')
+  async getBlockchainStatus() {
+    return this.adminService.blockchainService.getBlockchainStatus();
+  }
+
+  // === IOT ENDPOINTS ===
+  @Get('analytics/iot-metrics')
+  async getIoTMetrics() {
+    return this.adminService.iotService.getIoTMetrics();
+  }
+
+  // === MARKET ENDPOINTS ===
+  @Get('analytics/market-data')
+  async getMarketData() {
+    return this.adminService.marketService.getMarketData();
+  }
+
+  @Get('analytics/competitor-analysis')
+  async getCompetitorAnalysis() {
+    return this.adminService.marketService.getCompetitorAnalysis();
+  }
+
+  @Get('analytics/industry-benchmarks')
+  async getIndustryBenchmarks() {
+    return this.adminService.marketService.getIndustryBenchmarks();
+  }
+
+  // === EXPORT ENDPOINTS ===
+  @Get('analytics/export/:type')
+  @Roles('Admin')
+  async exportAnalyticsData(@Param('type') type: 'financial' | 'operational' | 'investor') {
+    return this.adminService.exportAnalyticsData(type);
   }
 }
