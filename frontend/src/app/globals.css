@@ -15,6 +15,149 @@
   --color-green-700: #047857;
 }
 
+/* Neumorphic Button Styles */
+.neumorphic-primary {
+  --line_color: #2563eb;
+  --back_color: #1e3a8a;
+  --shadow_light: rgba(255, 255, 255, 0.1);
+  --shadow_dark: rgba(0, 0, 0, 0.3);
+  background: var(--back_color);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.5s ease;
+}
+
+.neumorphic-secondary {
+  --line_color: #6b7280;
+  --back_color: #374151;
+  --shadow_light: rgba(255, 255, 255, 0.1);
+  --shadow_dark: rgba(0, 0, 0, 0.3);
+  background: var(--back_color);
+  color: #d1d5db;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.5s ease;
+}
+
+.neumorphic-success {
+  --line_color: #059669;
+  --back_color: #065f46;
+  --shadow_light: rgba(255, 255, 255, 0.1);
+  --shadow_dark: rgba(0, 0, 0, 0.3);
+  background: var(--back_color);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.5s ease;
+}
+
+.neumorphic-warning {
+  --line_color: #d97706;
+  --back_color: #92400e;
+  --shadow_light: rgba(255, 255, 255, 0.1);
+  --shadow_dark: rgba(0, 0, 0, 0.3);
+  background: var(--back_color);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.5s ease;
+}
+
+.neumorphic-error {
+  --line_color: #dc2626;
+  --back_color: #991b1b;
+  --shadow_light: rgba(255, 255, 255, 0.1);
+  --shadow_dark: rgba(0, 0, 0, 0.3);
+  background: var(--back_color);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(0, 0, 0, 0);
+  transition: all 0.5s ease;
+}
+
+.neumorphic-outline {
+  --line_color: #6b7280;
+  --back_color: transparent;
+  --shadow_light: rgba(255, 255, 255, 0.05);
+  --shadow_dark: rgba(0, 0, 0, 0.1);
+  background: var(--back_color);
+  color: #d1d5db;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px var(--shadow_dark),
+              -6px -6px 12px var(--shadow_light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.5s ease;
+}
+
+/* Hover effects for neumorphic buttons */
+.neumorphic-primary:hover,
+.neumorphic-secondary:hover,
+.neumorphic-success:hover,
+.neumorphic-warning:hover,
+.neumorphic-error:hover,
+.neumorphic-outline:hover {
+  box-shadow: inset 4px 4px 8px var(--shadow_dark),
+              inset -4px -4px 8px var(--shadow_light),
+              -0.5px -0.5px 0px rgba(255, 255, 255, 0.1),
+              0.5px 0.5px 0px rgba(0, 0, 0, 0.2),
+              0px 12px 10px -10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+  letter-spacing: 1px;
+}
+
+
+
+.button__text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transition: all 0.5s ease;
+}
+
+/* Removed animated draw elements for cleaner design */
+
+/* Removed hover animations for draw elements */
+
+/* Removed keyframe animations for draw elements */
+
+/* Disabled state */
+.neumorphic-primary:disabled,
+.neumorphic-secondary:disabled,
+.neumorphic-success:disabled,
+.neumorphic-warning:disabled,
+.neumorphic-error:disabled,
+.neumorphic-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 3px 3px 6px var(--shadow_dark),
+              -3px -3px 6px var(--shadow_light);
+}
+
+.neumorphic-primary:disabled:hover,
+.neumorphic-secondary:disabled:hover,
+.neumorphic-success:disabled:hover,
+.neumorphic-warning:disabled:hover,
+.neumorphic-error:disabled:hover,
+.neumorphic-outline:disabled:hover {
+  transform: none;
+  letter-spacing: normal;
+}
+
 /* Design System - CSS Custom Properties */
 :root {
   /* Gradient Colors for Animated Background */

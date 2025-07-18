@@ -31,18 +31,20 @@ export default function AlertsPage() {
         <div className="border-b border-white/10">
           <nav className="-mb-px flex space-x-8">
             {tabs.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                variant={activeTab === tab.id ? 'primary' : 'outline'}
+                size="sm"
+                className={`border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-400'
-                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+                    : 'border-transparent text-gray-200 hover:text-gray-100 hover:border-gray-200'
                 }`}
               >
                 <span className="mr-2">{tab.icon}</span>
                 {tab.name}
-              </button>
+              </Button>
             ))}
           </nav>
         </div>

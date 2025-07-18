@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
+import { OperatorRequestsSection } from '@/components/admin/OperatorRequestsSection';
+import { Button } from '@/components/ui/Button';
 
 interface DashboardStats {
   totalInvestors: number;
@@ -39,25 +41,25 @@ export default function AdminDashboardPage() {
     <main className="container-main">
       <div className="mb-8">
         <h1 className="section-header">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to the admin dashboard</p>
+        <p className="text-gray-200 mt-2">Welcome to the admin dashboard</p>
       </div>
       
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <h3 className="text-gray-400 text-sm mb-1">Total Capital Raised</h3>
+            <p className="text-gray-200 text-sm mb-1">Total Capital Raised</p>
             <p className="text-3xl font-bold">${stats.totalCapitalRaised.toLocaleString()}</p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <h3 className="text-gray-400 text-sm mb-1">Active Investors</h3>
+            <p className="text-gray-200 text-sm mb-1">Active Investors</p>
             <p className="text-3xl font-bold">{stats.totalInvestors}</p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <h3 className="text-gray-400 text-sm mb-1">Projects Seeking Funding</h3>
+            <p className="text-gray-200 text-sm mb-1">Projects Seeking Funding</p>
             <p className="text-3xl font-bold">{stats.projectsSeekingFunding}</p>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <h3 className="text-gray-400 text-sm mb-1">Operational Units</h3>
+            <p className="text-gray-200 text-sm mb-1">Operational Units</p>
             <p className="text-3xl font-bold">{stats.operationalUnits}</p>
           </div>
         </div>
@@ -66,25 +68,29 @@ export default function AdminDashboardPage() {
       <div className="mt-8">
         <h2 className="section-header">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button 
+          <Button 
             onClick={() => window.location.href = '/admin/analytics'}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            variant="primary"
           >
             📊 Analytics
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={() => window.location.href = '/admin/alerts'}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            variant="error"
           >
             🚨 Alerts
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={() => window.location.href = '/admin/projects/new'}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            variant="success"
           >
             + New Project
-          </button>
+          </Button>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <OperatorRequestsSection />
       </div>
     </main>
   );

@@ -108,8 +108,8 @@ const VCKPIs: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Investors</p>
-              <p className="text-2xl font-bold text-gray-900">{data.investorMetrics.totalInvestors}</p>
+                          <p className="text-sm font-medium text-gray-200">Total Investors</p>
+            <p className="text-2xl font-bold text-white">{data.investorMetrics.totalInvestors}</p>
             </div>
             <div className="p-2 bg-blue-100 rounded-lg">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +118,7 @@ const VCKPIs: React.FC = () => {
             </div>
           </div>
           <div className="mt-2">
-            <p className="text-xs text-gray-500">Growth Rate</p>
+            <p className="text-xs text-gray-200">Growth Rate</p>
             <p className="text-sm font-medium">{formatGrowth(data.investorMetrics.investorGrowthRate)}</p>
           </div>
         </div>
@@ -126,8 +126,8 @@ const VCKPIs: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Investments</p>
-              <p className="text-2xl font-bold text-gray-900">{data.investmentMetrics.totalInvestments}</p>
+                          <p className="text-sm font-medium text-gray-200">Total Investments</p>
+            <p className="text-2xl font-bold text-white">{data.investmentMetrics.totalInvestments}</p>
             </div>
             <div className="p-2 bg-green-100 rounded-lg">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ const VCKPIs: React.FC = () => {
             </div>
           </div>
           <div className="mt-2">
-            <p className="text-xs text-gray-500">Total Value</p>
+            <p className="text-xs text-gray-200">Total Value</p>
             <p className="text-sm font-medium">{formatCurrency(data.investmentMetrics.totalInvestmentAmount)}</p>
           </div>
         </div>
@@ -144,8 +144,8 @@ const VCKPIs: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Project Success Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{data.projectMetrics.projectSuccessRate.toFixed(1)}%</p>
+                          <p className="text-sm font-medium text-gray-200">Project Success Rate</p>
+            <p className="text-2xl font-bold text-white">{data.projectMetrics.projectSuccessRate.toFixed(1)}%</p>
             </div>
             <div className="p-2 bg-purple-100 rounded-lg">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +154,7 @@ const VCKPIs: React.FC = () => {
             </div>
           </div>
           <div className="mt-2">
-            <p className="text-xs text-gray-500">Operational Projects</p>
+            <p className="text-xs text-gray-200">Operational Projects</p>
             <p className="text-sm font-medium">{data.projectMetrics.operationalProjects}</p>
           </div>
         </div>
@@ -162,8 +162,8 @@ const VCKPIs: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Average ROI</p>
-              <p className="text-2xl font-bold text-gray-900">{data.platformMetrics.averageROI}%</p>
+                          <p className="text-sm font-medium text-gray-200">Average ROI</p>
+            <p className="text-2xl font-bold text-white">{data.platformMetrics.averageROI}%</p>
             </div>
             <div className="p-2 bg-orange-100 rounded-lg">
               <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ const VCKPIs: React.FC = () => {
             </div>
           </div>
           <div className="mt-2">
-            <p className="text-xs text-gray-500">Platform Uptime</p>
+            <p className="text-xs text-gray-200">Platform Uptime</p>
             <p className="text-sm font-medium">{data.platformMetrics.platformUptime}%</p>
           </div>
         </div>
@@ -182,45 +182,45 @@ const VCKPIs: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Investor Growth */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Investor Growth</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Investor Growth</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Investors</span>
-              <span className="font-semibold text-gray-900">{data.investorMetrics.totalInvestors}</span>
+                              <span className="text-gray-200">Total Investors</span>
+                <span className="font-semibold text-white">{data.investorMetrics.totalInvestors}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">New This Month</span>
+              <span className="text-gray-200">New This Month</span>
               <span className="font-semibold text-green-600">+{data.investorMetrics.newInvestorsThisMonth}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Growth Rate</span>
+              <span className="text-gray-200">Growth Rate</span>
               <span className="font-semibold">{formatGrowth(data.investorMetrics.investorGrowthRate)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Avg Investment</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(data.investorMetrics.averageInvestmentPerInvestor)}</span>
+              <span className="text-gray-200">Avg Investment</span>
+              <span className="font-semibold text-white">{formatCurrency(data.investorMetrics.averageInvestmentPerInvestor)}</span>
             </div>
           </div>
         </div>
 
         {/* Investment Activity */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Activity</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Investment Activity</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Investments</span>
-              <span className="font-semibold text-gray-900">{data.investmentMetrics.totalInvestments}</span>
+              <span className="text-gray-200">Total Investments</span>
+              <span className="font-semibold text-white">{data.investmentMetrics.totalInvestments}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">New This Month</span>
+              <span className="text-gray-200">New This Month</span>
               <span className="font-semibold text-green-600">+{data.investmentMetrics.newInvestmentsThisMonth}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Total Value</span>
-              <span className="font-semibold text-gray-900">{formatCurrency(data.investmentMetrics.totalInvestmentAmount)}</span>
+              <span className="text-gray-200">Total Value</span>
+              <span className="font-semibold text-white">{formatCurrency(data.investmentMetrics.totalInvestmentAmount)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Growth Rate</span>
+              <span className="text-gray-200">Growth Rate</span>
               <span className="font-semibold">{formatGrowth(data.investmentMetrics.investmentGrowthRate)}</span>
             </div>
           </div>

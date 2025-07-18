@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../ui/Button';
 
 interface Notification {
   id: string;
@@ -173,12 +174,14 @@ const RealTimeNotifications: React.FC = () => {
                         {formatTime(notification.timestamp)}
                       </span>
                       {notification.isNew && (
-                        <button
+                        <Button
                           onClick={() => markAsRead(notification.id)}
+                          variant="outline"
+                          size="sm"
                           className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                         >
                           Mark as read
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -195,12 +198,14 @@ const RealTimeNotifications: React.FC = () => {
             <span className="text-sm font-medium text-blue-800">
               {newNotificationsCount} new notification{newNotificationsCount !== 1 ? 's' : ''}
             </span>
-            <button
+            <Button
               onClick={() => setNotifications(prev => prev.map(n => ({ ...n, isNew: false })))}
+              variant="outline"
+              size="sm"
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
               Mark all as read
-            </button>
+            </Button>
           </div>
         </div>
       )}
