@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --color-white-5: rgba(255, 255, 255, 0.05);
+  --color-white-10: rgba(255, 255, 255, 0.1);
+  --color-white-20: rgba(255, 255, 255, 0.2);
+  --color-black-20: rgba(0, 0, 0, 0.2);
+  --color-gray-400: #9ca3af;
+  --color-gray-600: #4b5563;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-green-600: #059669;
+  --color-green-700: #047857;
+}
+
 /* Design System - CSS Custom Properties */
 :root {
   /* Gradient Colors for Animated Background */
@@ -206,24 +221,23 @@ h6 { font-size: 1rem; }
 
 /* Animations */
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.3s ease-out;
+  animation: slideUp 0.5s ease-out;
 }
 
 /* Hover Effects */
 .hover-lift {
-  transition: 200ms ease-in-out;
+  transition: transform 0.2s ease-in-out;
 }
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Animations */
+/* Keyframes */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -231,25 +245,25 @@ h6 { font-size: 1rem; }
 
 @keyframes slideUp {
   from { 
-    opacity: 0;
-    transform: translateY(20px);
+    opacity: 0; 
+    transform: translateY(20px); 
   }
   to { 
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 1; 
+    transform: translateY(0); 
   }
 }
 
-/* Gradient Utilities */
+/* Gradients */
 .gradient-accent {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--gradient-color-1), var(--gradient-color-2));
 }
 
 .gradient-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
 }
 
-/* Responsive Utilities */
+/* Responsive Design */
 @media (max-width: 768px) {
   .container-main {
     padding: 1rem;
@@ -260,54 +274,55 @@ h6 { font-size: 1rem; }
   h3 { font-size: 1.375rem; }
 }
 
-/* Custom Slider Styles */
+/* Slider Styles */
 .slider {
   -webkit-appearance: none;
-  appearance: none;
+  width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(to right, #10b981 0%, #10b981 var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) 100%);
+  background: rgba(255, 255, 255, 0.1);
   outline: none;
-  transition: background 0.2s ease;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
 
 .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
-  height: 24px;
-  width: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: #3b82f6;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  border: 2px solid white;
-  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
   transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .slider::-moz-range-thumb {
-  height: 24px;
-  width: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: #3b82f6;
   cursor: pointer;
-  border: 2px solid white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider::-moz-range-thumb:hover {
+  background: #2563eb;
   transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .slider::-moz-range-track {
+  width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(to right, #10b981 0%, #10b981 var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) var(--slider-progress, 0%), rgba(255, 255, 255, 0.2) 100%);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
 }
 

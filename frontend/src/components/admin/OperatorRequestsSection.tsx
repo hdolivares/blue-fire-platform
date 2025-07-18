@@ -76,7 +76,7 @@ export const OperatorRequestsSection = () => {
     }
   };
 
-    if (loading) {
+  if (loading) {
     return (
       <Card variant="frosted" className="p-6">
         <h2 className="section-header">Operator RFP Submissions</h2>

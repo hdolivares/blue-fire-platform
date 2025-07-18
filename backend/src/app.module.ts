@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { OperatorsModule } from './operators/operators.module';
 import { InvestmentsModule } from './investments/investments.module';
 import { InvestorsModule } from './investors/investors.module';
+import { AlertsModule } from './alerts/alerts.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
@@ -36,6 +37,7 @@ import { EmailModule } from './email/email.module';
     OperatorsModule,
     InvestmentsModule,
     InvestorsModule, // ✅ Now properly modularized
+    AlertsModule, // ✅ Alert and notification system
   ],
   controllers: [AppController], // ✅ Only root controller
   providers: [AppService],
