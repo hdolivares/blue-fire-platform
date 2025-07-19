@@ -206,14 +206,15 @@ export default function ProjectDetailPage() {
   return (
     <main className="container-main">
       {images.length > 0 ? (
-        <div className="rounded-2xl overflow-hidden mb-8 shadow-lg">
-          <Carousel showThumbs={false} autoPlay infiniteLoop showStatus={false}>
-            {images.map((url, index) => (
-              <div key={index} className="relative w-full h-96">
-                <Image src={url} alt={`${name} image ${index + 1}`} fill className="object-cover" />
+        <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
+          <div className="relative w-full h-full">
+            <Image src={images[0]} alt={`${name} image 1`} fill className="object-cover" />
+            {images.length > 1 && (
+              <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                {images.length} images
               </div>
-            ))}
-          </Carousel>
+            )}
+          </div>
         </div>
       ) : (
         <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
