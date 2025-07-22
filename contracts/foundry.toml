@@ -2,16 +2,16 @@
 src = "contracts"
 out = "out"
 libs = ["lib"]
-solc_version = "0.8.20"
+solc_version = "0.8.26"
 optimizer = true
 optimizer_runs = 20_000
 via_ir = true
 evm_version = "shanghai"
 
-[profile.default.model_checker]
-contracts = {}
-engine = "chc"
-timeout = 10000
+# [profile.default.model_checker]
+# contracts = {}
+# engine = "chc"
+# timeout = 10000
 
 [profile.ci]
 fuzz = { runs = 10000 }

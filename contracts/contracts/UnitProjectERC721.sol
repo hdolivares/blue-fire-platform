@@ -1,6 +1,6 @@
 // === File: contracts/UnitProjectERC721.sol ===
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -352,30 +352,36 @@ contract UnitProjectERC721 is IUnitProjectERC721, ERC721, ReentrancyGuard {
         uint256 tokenId,
         address auth
     ) internal override returns (address) {
-        address from = _ownerOf(tokenId);
+        // Get current owner safely (will be address(0) for minting)
+        address previousOwner;
+        try this.ownerOf(tokenId) returns (address owner) {
+            previousOwner = owner;
+        } catch {
+            previousOwner = address(0);
+        }
 
-        // Check transfer permissions (skip for minting/burning)
-        if (from != address(0) && to != address(0)) {
+        // Check transfer permissions BEFORE calling parent (skip for minting/burning)
+        if (previousOwner != address(0) && to != address(0)) {
             require(IBlueFireFactory(factory).transfersAllowed(projectId), "XFER_DISABLED");
         }
 
         // Call parent implementation
-        address previousOwner = super._update(to, tokenId, auth);
+        address returnedOwner = super._update(to, tokenId, auth);
 
         // Update investor mapping (Note: rewards travel with token)
-        if (from != address(0) && to != address(0)) {
+        if (previousOwner != address(0) && to != address(0)) {
             // Transfer: clear old mapping, set new mapping
-            investorToTokenId[from] = 0;
+            investorToTokenId[previousOwner] = 0;
             investorToTokenId[to] = tokenId;
-        } else if (to != address(0) && from == address(0)) {
+        } else if (to != address(0) && previousOwner == address(0)) {
             // Minting
             investorToTokenId[to] = tokenId;
-        } else if (from != address(0) && to == address(0)) {
+        } else if (previousOwner != address(0) && to == address(0)) {
             // Burning
-            investorToTokenId[from] = 0;
+            investorToTokenId[previousOwner] = 0;
         }
 
-        return previousOwner;
+        return returnedOwner;
     }
 
     /**
