@@ -1,6 +1,6 @@
 // === File: contracts/BlueFireFactory.sol ===
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -183,6 +183,9 @@ contract BlueFireFactory is IBlueFireFactory, Ownable, ReentrancyGuard {
 
         // Release escrow through project contract
         IUnitProjectERC721(projects[projectId].projectAddress).releaseEscrow();
+        
+        // Sync the project contract's state
+        IUnitProjectERC721(projects[projectId].projectAddress).setState(IUnitProjectERC721.ProjectState.OPERATIONAL);
 
         emit ProjectStateChanged(projectId, ProjectState.OPERATIONAL);
     }

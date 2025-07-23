@@ -20,13 +20,15 @@ contract FactoryTest is Test {
     event AliceChanged(uint256 indexed projectId, address indexed oldAlice, address indexed newAlice);
 
     function setUp() public {
-        vm.prank(admin);
+        vm.startPrank(admin);
         
         // Deploy implementation
         projectImplementation = new UnitProjectERC721();
         
         // Deploy factory
         factory = new BlueFireFactory(address(projectImplementation));
+        
+        vm.stopPrank();
     }
 
     function testCreateProject() public {
@@ -286,7 +288,7 @@ contract FactoryTest is Test {
     }
 
     function testGlobalPause() public {
-        vm.prank(admin);
+        vm.startPrank(admin);
         
         assertFalse(factory.isGloballyPaused(IBlueFireFactory.PauseType.FUNDING));
         
@@ -295,6 +297,8 @@ contract FactoryTest is Test {
         
         factory.setGlobalPause(IBlueFireFactory.PauseType.FUNDING, false);
         assertFalse(factory.isGloballyPaused(IBlueFireFactory.PauseType.FUNDING));
+        
+        vm.stopPrank();
     }
 
     function testViewFunctions() public {

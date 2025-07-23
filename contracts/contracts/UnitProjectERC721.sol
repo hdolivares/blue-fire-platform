@@ -128,6 +128,15 @@ contract UnitProjectERC721 is IUnitProjectERC721, ERC721, ReentrancyGuard {
         emit ProjectInitialized(_projectId, _name, _fundingCap);
     }
 
+    // Override ERC721 name and symbol functions for clone compatibility
+    function name() public pure override returns (string memory) {
+        return "BlueFireProject";
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "BFP";
+    }
+
     /**
      * @notice Fund the project and receive position NFT
      * @return tokenId The token ID minted for this investor
@@ -148,9 +157,10 @@ contract UnitProjectERC721 is IUnitProjectERC721, ERC721, ReentrancyGuard {
         // Check if investor already has a token
         tokenId = investorToTokenId[investor];
         
-        if (tokenId == 0) {
+        if (tokenId == 0 && balanceOf(investor) == 0) {
             // First time investor - mint new token
-            tokenId = _nextTokenId++;
+            tokenId = _nextTokenId;
+            _nextTokenId++;
             investorToTokenId[investor] = tokenId;
             _mint(investor, tokenId);
         }
@@ -221,7 +231,7 @@ contract UnitProjectERC721 is IUnitProjectERC721, ERC721, ReentrancyGuard {
     function claimAll() external nonReentrant notGloballyPaused(IBlueFireFactory.PauseType.CLAIMS) returns (uint256 totalAmount) {
         address investor = msg.sender;
         uint256 tokenId = investorToTokenId[investor];
-        require(tokenId != 0, "NO_TOKEN");
+        require(balanceOf(investor) > 0, "NO_TOKEN");
 
         totalAmount = pendingRewards(tokenId);
         require(totalAmount > 0, "NO_REWARDS");

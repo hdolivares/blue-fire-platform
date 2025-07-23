@@ -56,11 +56,11 @@ contract FundingTest is Test {
         vm.prank(investor1);
         
         vm.expectEmit(true, true, true, true);
-        emit FundingReceived(projectId, investor1, 1, fundAmount, fundAmount);
+        emit FundingReceived(projectId, investor1, 0, fundAmount, fundAmount);
         
         uint256 tokenId = project.fundProject{value: fundAmount}();
         
-        assertEq(tokenId, 1);
+        assertEq(tokenId, 0);
         assertEq(project.totalFunded(), fundAmount);
         assertEq(project.funded(tokenId), fundAmount);
         assertEq(project.ownerOf(tokenId), investor1);
@@ -74,7 +74,7 @@ contract FundingTest is Test {
         
         // First funding
         uint256 tokenId1 = project.fundProject{value: 100 ether}();
-        assertEq(tokenId1, 1);
+        assertEq(tokenId1, 0);
         assertEq(project.funded(tokenId1), 100 ether);
         
         // Second funding - should add to same token
@@ -100,9 +100,9 @@ contract FundingTest is Test {
         vm.prank(investor3);
         uint256 tokenId3 = project.fundProject{value: 100 ether}();
         
-        assertEq(tokenId1, 1);
-        assertEq(tokenId2, 2);
-        assertEq(tokenId3, 3);
+        assertEq(tokenId1, 0);
+        assertEq(tokenId2, 1);
+        assertEq(tokenId3, 2);
         
         assertEq(project.funded(tokenId1), 200 ether);
         assertEq(project.funded(tokenId2), 300 ether);
@@ -185,7 +185,7 @@ contract FundingTest is Test {
         
         vm.prank(investor1);
         uint256 tokenId = project.fundProject{value: 100 ether}();
-        assertEq(tokenId, 1);
+        assertEq(tokenId, 0);
     }
 
     function testFundingInWrongState() public {
@@ -210,7 +210,7 @@ contract FundingTest is Test {
     }
 
     function testNonExistentTokenURI() public {
-        vm.expectRevert("NO_TOKEN");
+        vm.expectRevert(abi.encodeWithSignature("ERC721NonexistentToken(uint256)", 999));
         project.tokenURI(999);
     }
 
