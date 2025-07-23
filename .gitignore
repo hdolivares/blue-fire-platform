@@ -138,6 +138,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-contracts/lib/
-contracts/cache/
-contracts/out/
+/contracts/lib
+/contracts/out
+/contracts/cache

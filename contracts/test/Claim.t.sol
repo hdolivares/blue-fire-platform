@@ -442,4 +442,196 @@ contract ClaimTest is Test {
         // Gas usage should be reasonable (less than 100k gas)
         assertTrue(gasUsed < 100000);
     }
+
+    function testComplexAsynchronousClaimScenario() public {
+        uint256 tokenId1 = project.investorToTokenId(investor1);
+        uint256 tokenId2 = project.investorToTokenId(investor2);
+        uint256 tokenId3 = project.investorToTokenId(investor3);
+        
+        // Clear initial revenue from setUp to start fresh
+        vm.prank(investor1);
+        project.claim(tokenId1);
+        vm.prank(investor2);
+        project.claim(tokenId2);
+        vm.prank(investor3);
+        project.claim(tokenId3);
+        
+        uint256 balance1Tracker = investor1.balance;
+        uint256 balance2Tracker = investor2.balance;
+        uint256 balance3Tracker = investor3.balance;
+        
+        // === Scenario: Complex asynchronous claiming pattern ===
+        
+        // Revenue 1: 120 ETH
+        vm.prank(alice);
+        project.payWaterRevenue{value: 120 ether}();
+        
+        // Only investor1 claims (investor2 & investor3 wait)
+        vm.prank(investor1);
+        uint256 claimed1a = project.claim(tokenId1);
+        assertEq(claimed1a, 60 ether); // 50% of 120 ETH
+        balance1Tracker += 60 ether;
+        assertEq(investor1.balance, balance1Tracker);
+        
+        // Verify others still have pending rewards
+        assertEq(project.pendingRewards(tokenId2), 36 ether); // 30% of 120 ETH
+        assertEq(project.pendingRewards(tokenId3), 24 ether); // 20% of 120 ETH
+        
+        // Revenue 2: 80 ETH (total now 200 ETH)
+        vm.prank(alice);
+        project.payWaterRevenue{value: 80 ether}();
+        
+        // Only investor2 claims (gets ALL their accumulated rewards)
+        vm.prank(investor2);
+        uint256 claimed2a = project.claim(tokenId2);
+        assertEq(claimed2a, 60 ether); // 30% of 200 ETH total
+        balance2Tracker += 60 ether;
+        assertEq(investor2.balance, balance2Tracker);
+        
+        // Verify pending rewards for others
+        assertEq(project.pendingRewards(tokenId1), 40 ether); // 50% of new 80 ETH only
+        assertEq(project.pendingRewards(tokenId3), 40 ether); // 20% of 200 ETH total
+        
+        // Revenue 3: 100 ETH (total now 300 ETH)  
+        vm.prank(alice);
+        project.payWaterRevenue{value: 100 ether}();
+        
+        // Now all three claim in different order
+        
+        // Investor3 claims first (gets everything accumulated)
+        vm.prank(investor3);
+        uint256 claimed3a = project.claim(tokenId3);
+        assertEq(claimed3a, 60 ether); // 20% of 300 ETH total
+        balance3Tracker += 60 ether;
+        assertEq(investor3.balance, balance3Tracker);
+        
+        // Investor1 claims next (gets new revenue only)
+        vm.prank(investor1);
+        uint256 claimed1b = project.claim(tokenId1);
+        assertEq(claimed1b, 90 ether); // 50% of (80 + 100) ETH = 50% of 180 ETH
+        balance1Tracker += 90 ether;
+        assertEq(investor1.balance, balance1Tracker);
+        
+        // Investor2 claims last (gets new revenue only)
+        vm.prank(investor2);
+        uint256 claimed2b = project.claim(tokenId2);
+        assertEq(claimed2b, 30 ether); // 30% of 100 ETH (new revenue only)
+        balance2Tracker += 30 ether;
+        assertEq(investor2.balance, balance2Tracker);
+        
+        // === Final Verification ===
+        
+        // All pending rewards should be zero
+        assertEq(project.pendingRewards(tokenId1), 0);
+        assertEq(project.pendingRewards(tokenId2), 0);
+        assertEq(project.pendingRewards(tokenId3), 0);
+        
+        // Total claimed should equal total revenue deposited (300 ETH)
+        uint256 totalClaimed = claimed1a + claimed1b + claimed2a + claimed2b + claimed3a;
+        assertEq(totalClaimed, 300 ether);
+        
+        // Verify proportional distribution across all claims
+        uint256 investor1Total = claimed1a + claimed1b; // 60 + 90 = 150 ETH (50%)
+        uint256 investor2Total = claimed2a + claimed2b; // 60 + 30 = 90 ETH (30%)
+        uint256 investor3Total = claimed3a; // 60 ETH (20%)
+        
+        assertEq(investor1Total, 150 ether); // 50% of 300 ETH
+        assertEq(investor2Total, 90 ether);  // 30% of 300 ETH
+        assertEq(investor3Total, 60 ether);  // 20% of 300 ETH
+        
+        // All investors get their exact proportional share when all revenue is claimed
+    }
+
+    function testMultipleRevenueMultipleClaimsAccuracy() public {
+        uint256 tokenId1 = project.investorToTokenId(investor1);
+        uint256 tokenId2 = project.investorToTokenId(investor2);
+        uint256 tokenId3 = project.investorToTokenId(investor3);
+        
+        // Clear initial setup
+        vm.prank(investor1);
+        project.claim(tokenId1);
+        vm.prank(investor2);
+        project.claim(tokenId2);
+        vm.prank(investor3);
+        project.claim(tokenId3);
+        
+        // Track total claims per investor
+        uint256 totalClaimed1 = 0;
+        uint256 totalClaimed2 = 0;
+        uint256 totalClaimed3 = 0;
+        uint256 totalRevenue = 0;
+        
+        // Pattern: Revenue -> Some claims -> Revenue -> Different claims -> etc.
+        
+        // Revenue batch 1: 60 ETH
+        vm.prank(alice);
+        project.payWaterRevenue{value: 60 ether}();
+        totalRevenue += 60 ether;
+        
+        // Only investor2 claims
+        vm.prank(investor2);
+        uint256 claim2a = project.claim(tokenId2);
+        totalClaimed2 += claim2a;
+        assertEq(claim2a, 18 ether); // 30% of 60 ETH
+        
+        // Revenue batch 2: 40 ETH (total: 100 ETH)
+        vm.prank(alice);
+        project.payWaterRevenue{value: 40 ether}();
+        totalRevenue += 40 ether;
+        
+        // Investor1 and 3 claim
+        vm.prank(investor1);
+        uint256 claim1a = project.claim(tokenId1);
+        totalClaimed1 += claim1a;
+        assertEq(claim1a, 50 ether); // 50% of 100 ETH
+        
+        vm.prank(investor3);
+        uint256 claim3a = project.claim(tokenId3);
+        totalClaimed3 += claim3a;
+        assertEq(claim3a, 20 ether); // 20% of 100 ETH
+        
+        // Investor2 claims remaining
+        vm.prank(investor2);
+        uint256 claim2b = project.claim(tokenId2);
+        totalClaimed2 += claim2b;
+        assertEq(claim2b, 12 ether); // 30% of 40 ETH (new revenue only)
+        
+        // Revenue batch 3: 200 ETH (total: 300 ETH)
+        vm.prank(alice);
+        project.payWaterRevenue{value: 200 ether}();
+        totalRevenue += 200 ether;
+        
+        // All claim
+        vm.prank(investor1);
+        uint256 claim1b = project.claim(tokenId1);
+        totalClaimed1 += claim1b;
+        assertEq(claim1b, 100 ether); // 50% of 200 ETH
+        
+        vm.prank(investor2);
+        uint256 claim2c = project.claim(tokenId2);
+        totalClaimed2 += claim2c;
+        assertEq(claim2c, 60 ether); // 30% of 200 ETH
+        
+        vm.prank(investor3);
+        uint256 claim3b = project.claim(tokenId3);
+        totalClaimed3 += claim3b;
+        assertEq(claim3b, 40 ether); // 20% of 200 ETH
+        
+        // === Final Verification ===
+        
+        // Each investor should have received their correct proportion
+        assertEq(totalClaimed1, 150 ether); // 50% of 300 ETH
+        assertEq(totalClaimed2, 90 ether);  // 30% of 300 ETH
+        assertEq(totalClaimed3, 60 ether);  // 20% of 300 ETH
+        
+        // Total should equal all revenue
+        uint256 grandTotal = totalClaimed1 + totalClaimed2 + totalClaimed3;
+        assertEq(grandTotal, totalRevenue);
+        assertEq(grandTotal, 300 ether);
+        
+        // No pending rewards
+        assertEq(project.pendingRewards(tokenId1), 0);
+        assertEq(project.pendingRewards(tokenId2), 0);
+        assertEq(project.pendingRewards(tokenId3), 0);
+    }
 } 
