@@ -18,7 +18,7 @@
 /* Neumorphic Button Styles */
 .neumorphic-primary {
   --line_color: #2563eb;
-  --back_color: #1e3a8a;
+  --back_color: #2449ae;
   --shadow_light: rgba(255, 255, 255, 0.1);
   --shadow_dark: rgba(0, 0, 0, 0.3);
   background: var(--back_color);
@@ -46,7 +46,7 @@
 
 .neumorphic-success {
   --line_color: #059669;
-  --back_color: #065f46;
+  --back_color: #0d906b;
   --shadow_light: rgba(255, 255, 255, 0.1);
   --shadow_dark: rgba(0, 0, 0, 0.3);
   background: var(--back_color);
