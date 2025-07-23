@@ -27,16 +27,49 @@ export class InvestmentsController {
     });
   }
 
-    /**
-   * @description Endpoint to get claimable rewards for a user and project.
+  /**
+   * @description Endpoint to get all user positions for a project.
    */
-  @Get(':projectId/claimable')
-  getClaimableRewards(
+  @Get(':projectId/positions')
+  async getUserPositions(
     @Request() req,
     @Param('projectId') projectId: string,
   ) {
-    // We need the user's wallet address, which we get from the user object
-    const userWalletAddress = req.user.walletAddress; 
-    return this.investmentsService.getClaimableRewards(projectId, userWalletAddress);
+    const userWalletAddress = req.user.walletAddress;
+    
+    // Get project info first to get the project address
+    const projectInfo = await this.investmentsService.getProjectInfo(Number(projectId));
+    
+    // Get user positions for this project
+    return this.investmentsService.getUserPositions(projectInfo.projectAddress, userWalletAddress);
+  }
+
+  /**
+   * @description Endpoint to get project information.
+   */
+  @Get(':projectId/info')
+  getProjectInfo(@Param('projectId') projectId: string) {
+    return this.investmentsService.getProjectInfo(Number(projectId));
+  }
+
+  /**
+   * @description Endpoint to get claimable rewards for a specific position.
+   */
+  @Get(':projectId/claimable/:tokenId')
+  async getClaimableRewards(
+    @Request() req,
+    @Param('projectId') projectId: string,
+    @Param('tokenId') tokenId: string,
+  ) {
+    const userWalletAddress = req.user.walletAddress;
+    
+    // Get project info first to get the project address
+    const projectInfo = await this.investmentsService.getProjectInfo(Number(projectId));
+    
+    return this.investmentsService.getClaimableRewards(
+      projectInfo.projectAddress, 
+      userWalletAddress, 
+      Number(tokenId)
+    );
   }
 }

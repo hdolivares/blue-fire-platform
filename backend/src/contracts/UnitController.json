@@ -1,9 +1,0 @@
-[
-  {
-    "name": "depositRevenue",
-    "type": "function",
-    "stateMutability": "payable",
-    "inputs": [],
-    "outputs": []
-  }
-]

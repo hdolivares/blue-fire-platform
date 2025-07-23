@@ -73,12 +73,29 @@ export class AdminService {
 
   async getTotalValueLocked() {
     // Integrate with real blockchain data
-    const blockchainMetrics = await this.blockchainService.getBlockchainMetrics();
+    const factoryInfo = await this.blockchainService.getFactoryInfo();
+    const projectCount = await this.blockchainService.getProjectCount();
+    
+    // Calculate TVL from projects
+    let totalValueLocked = 0;
+    for (let i = 0; i < projectCount; i++) {
+      try {
+        const projectInfo = await this.blockchainService.getProjectInfo(i);
+        totalValueLocked += parseFloat(projectInfo.totalFunded);
+      } catch (error) {
+        // Skip if project doesn't exist or error
+        console.warn(`Could not get project ${i} info:`, error.message);
+      }
+    }
     
     return {
-      tvl: blockchainMetrics.totalValueLocked,
+      tvl: totalValueLocked,
       projectsCount: await this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }).exec(),
-      blockchainData: blockchainMetrics,
+      blockchainData: {
+        factoryInfo,
+        projectCount,
+        totalValueLocked,
+      },
     };
   }
 
@@ -383,7 +400,7 @@ export class AdminService {
 
   async getVCKPIs() {
     // Integrate with blockchain data
-    const blockchainMetrics = await this.blockchainService.getBlockchainMetrics();
+    const factoryInfo = await this.blockchainService.getFactoryInfo();
     
     const totalInvestors = await this.userModel.countDocuments({ roles: 'Investor' }).exec();
     const totalInvestments = await this.investmentModel.countDocuments().exec();
@@ -432,11 +449,11 @@ export class AdminService {
         projectSuccessRate: (operationalProjects + seekingFundingProjects) > 0 ? (operationalProjects / (operationalProjects + seekingFundingProjects)) * 100 : 0,
       },
       platformMetrics: {
-        totalValueLocked: blockchainMetrics.totalValueLocked,
+        totalValueLocked: 0, // Will be calculated from projects
         monthlyGrowthRate: totalInvestmentAmount[0]?.total > 0 ? ((newInvestmentAmountThisMonth[0]?.total || 0) / (totalInvestmentAmount[0]?.total || 1)) * 100 : 0,
         averageROI: 12,
         platformUptime: 87,
-        blockchainMetrics, // Include blockchain data
+        factoryInfo, // Include factory data
       }
     };
   }

@@ -104,12 +104,18 @@ export class AdminController {
   // === BLOCKCHAIN ENDPOINTS ===
   @Get('analytics/blockchain-metrics')
   async getBlockchainMetrics() {
-    return this.adminService.blockchainService.getBlockchainMetrics();
+    return this.adminService.blockchainService.getFactoryInfo();
   }
 
   @Get('analytics/blockchain-status')
   async getBlockchainStatus() {
-    return this.adminService.blockchainService.getBlockchainStatus();
+    const isConnected = await this.adminService.blockchainService.checkConnection();
+    const factoryInfo = await this.adminService.blockchainService.getFactoryInfo();
+    
+    return {
+      isConnected,
+      factoryInfo,
+    };
   }
 
   // === IOT ENDPOINTS ===

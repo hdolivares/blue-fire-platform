@@ -1,273 +1,257 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ethers } from 'ethers';
+import * as path from 'path';
+import * as fs from 'fs';
 
-export interface BlockchainMetrics {
-  totalValueLocked: number;
-  totalTransactions: number;
-  activeInvestors: number;
-  averageInvestment: number;
-  platformRevenue: number;
-  gasUsed: number;
-  blockNumber: number;
+export interface BlockchainConfig {
+  rpcUrl: string;
+  factoryAddress: string;
+  chainId: number;
 }
 
-export interface ContractData {
-  contractAddress: string;
-  balance: number;
-  totalSupply: number;
-  ownerCount: number;
-  transactionCount: number;
+export interface ProjectInfo {
+  projectId: number;
+  projectAddress: string;
+  name: string;
+  fundingCap: string;
+  totalFunded: string;
+  state: number; // 0=SEEKING_FUNDING, 1=FUNDED, 2=OPERATIONAL, 3=CLOSED
+  beneficiary: string;
+  alice: string;
 }
 
-export interface InvestmentData {
-  investorAddress: string;
-  amount: number;
-  timestamp: Date;
-  projectId: string;
-  transactionHash: string;
+export interface InvestorPosition {
+  tokenId: number;
+  owner: string;
+  funded: string;
+  pendingRewards: string;
 }
 
 @Injectable()
 export class BlockchainService {
   private readonly logger = new Logger(BlockchainService.name);
-  private rskEndpoint: string;
-  private contractAddresses: {
-    stakingVault: string;
-    unitController: string;
-  };
+  private provider: ethers.JsonRpcProvider;
+  private factoryContract: ethers.Contract;
+  private config: BlockchainConfig;
 
   constructor(private configService: ConfigService) {
-    this.rskEndpoint = this.configService.get<string>('RSK_ENDPOINT') || 'https://public-node.rsk.co';
-    
-    this.contractAddresses = {
-      stakingVault: this.configService.get<string>('STAKING_VAULT_ADDRESS') || '',
-      unitController: this.configService.get<string>('UNIT_CONTROLLER_ADDRESS') || '',
+    this.initializeConfig();
+    this.setupProvider();
+    this.setupContracts();
+  }
+
+  private initializeConfig() {
+    this.config = {
+      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'http://localhost:8545',
+      factoryAddress: this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      chainId: this.configService.get<number>('BLOCKCHAIN_CHAIN_ID') || 31337, // localhost anvil default
     };
+
+    this.logger.log(`Blockchain config initialized:`);
+    this.logger.log(`RPC URL: ${this.config.rpcUrl}`);
+    this.logger.log(`Factory Address: ${this.config.factoryAddress}`);
+    this.logger.log(`Chain ID: ${this.config.chainId}`);
   }
 
-  /**
-   * Get real blockchain metrics
-   */
-  async getBlockchainMetrics(): Promise<BlockchainMetrics> {
+  private setupProvider() {
     try {
-      // For now, return enhanced simulated data
-      // In production, this would connect to real RSK blockchain
-      return this.getEnhancedSimulatedMetrics();
+      this.provider = new ethers.JsonRpcProvider(this.config.rpcUrl);
+      this.logger.log('Blockchain provider initialized successfully');
     } catch (error) {
-      this.logger.error('Error fetching blockchain metrics:', error);
-      return this.getFallbackMetrics();
+      this.logger.error('Failed to initialize blockchain provider:', error);
+      throw new Error(`Blockchain provider initialization failed: ${error.message}`);
     }
   }
 
-  /**
-   * Get enhanced simulated metrics with realistic blockchain data
-   */
-  private getEnhancedSimulatedMetrics(): BlockchainMetrics {
-    const baseTVL = 1250000; // $1.25M base
-    const growthFactor = 1 + (Math.random() * 0.1 - 0.05); // ±5% variation
-    const totalValueLocked = baseTVL * growthFactor;
-    
-    const baseTransactions = 847;
-    const transactionGrowth = Math.floor(Math.random() * 50) + baseTransactions;
-    
-    const baseInvestors = 156;
-    const newInvestors = Math.floor(Math.random() * 10);
-    const activeInvestors = baseInvestors + newInvestors;
-    
-    const averageInvestment = 8000 + (Math.random() * 2000 - 1000);
-    const platformRevenue = totalValueLocked * 0.005;
-    const gasUsed = 4500000 + Math.floor(Math.random() * 1000000);
-    const blockNumber = 12345678 + Math.floor(Math.random() * 1000);
-    
-    return {
-      totalValueLocked,
-      totalTransactions: transactionGrowth,
-      activeInvestors,
-      averageInvestment,
-      platformRevenue,
-      gasUsed,
-      blockNumber,
-    };
-  }
-
-  /**
-   * Get contract balance
-   */
-  private async getContractBalance(contractAddress: string): Promise<number> {
+  private setupContracts() {
     try {
-      // Simulate contract balance
-      return 500000 + (Math.random() * 200000);
-    } catch (error) {
-      this.logger.error(`Error getting balance for ${contractAddress}:`, error);
-      return 0;
-    }
-  }
-
-  /**
-   * Get contract transaction count
-   */
-  private async getContractTransactionCount(contractAddress: string): Promise<number> {
-    try {
-      // Simulate transaction count
-      return 400 + Math.floor(Math.random() * 100);
-    } catch (error) {
-      this.logger.error(`Error getting transaction count for ${contractAddress}:`, error);
-      return 0;
-    }
-  }
-
-  /**
-   * Get recent transactions
-   */
-  private async getRecentTransactions(limit: number = 100): Promise<InvestmentData[]> {
-    try {
-      const transactions: InvestmentData[] = [];
-      const now = Date.now();
-      
-      for (let i = 0; i < Math.min(limit, 20); i++) {
-        transactions.push({
-          investorAddress: `0x${Math.random().toString(16).slice(2, 42)}`,
-          amount: 1000 + (Math.random() * 15000),
-          timestamp: new Date(now - (i * 3600000)), // 1 hour intervals
-          projectId: `PROJ-${Math.floor(Math.random() * 1000)}`,
-          transactionHash: `0x${Math.random().toString(16).slice(2, 66)}`,
-        });
+      // Load Factory ABI
+      const factoryAbiPath = path.join(process.cwd(), 'src', 'contracts', 'BlueFireFactory.json');
+      if (!fs.existsSync(factoryAbiPath)) {
+        throw new Error(`Factory ABI file not found at: ${factoryAbiPath}`);
       }
+      const factoryAbi = JSON.parse(fs.readFileSync(factoryAbiPath, 'utf8'));
+
+      // Initialize Factory Contract
+      this.factoryContract = new ethers.Contract(
+        this.config.factoryAddress,
+        factoryAbi,
+        this.provider
+      );
+
+      this.logger.log('Factory contract initialized successfully');
+    } catch (error) {
+      this.logger.error('Failed to initialize contracts:', error);
+      throw new Error(`Contract initialization failed: ${error.message}`);
+    }
+  }
+
+  // === Factory Methods ===
+
+  async getProjectCount(): Promise<number> {
+    try {
+      const count = await this.factoryContract.projectCount();
+      return Number(count);
+    } catch (error) {
+      this.logger.error('Failed to get project count:', error);
+      throw error;
+    }
+  }
+
+  async getProjectAddress(projectId: number): Promise<string> {
+    try {
+      return await this.factoryContract.getProjectAddress(projectId);
+    } catch (error) {
+      this.logger.error(`Failed to get project address for ID ${projectId}:`, error);
+      throw error;
+    }
+  }
+
+  async getProjectInfo(projectId: number): Promise<ProjectInfo> {
+    try {
+      const projectAddress = await this.getProjectAddress(projectId);
+      const projectContract = await this.getProjectContract(projectAddress);
+
+      const [name, fundingCap, totalFunded, state, beneficiary, alice] = await Promise.all([
+        projectContract.name(),
+        projectContract.fundingCap(),
+        projectContract.totalFunded(),
+        projectContract.state(),
+        projectContract.escrowBeneficiary(),
+        projectContract.alice(),
+      ]);
+
+      return {
+        projectId,
+        projectAddress,
+        name,
+        fundingCap: ethers.formatEther(fundingCap),
+        totalFunded: ethers.formatEther(totalFunded),
+        state: Number(state),
+        beneficiary,
+        alice,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get project info for ID ${projectId}:`, error);
+      throw error;
+    }
+  }
+
+  // === Project Contract Methods ===
+
+  private async getProjectContract(projectAddress: string): Promise<ethers.Contract> {
+    const projectAbiPath = path.join(process.cwd(), 'src', 'contracts', 'UnitProjectERC721.json');
+    if (!fs.existsSync(projectAbiPath)) {
+      throw new Error(`Project ABI file not found at: ${projectAbiPath}`);
+    }
+    const projectAbi = JSON.parse(fs.readFileSync(projectAbiPath, 'utf8'));
+    
+    return new ethers.Contract(projectAddress, projectAbi, this.provider);
+  }
+
+  async getInvestorPosition(projectAddress: string, tokenId: number): Promise<InvestorPosition> {
+    try {
+      const projectContract = await this.getProjectContract(projectAddress);
+
+      const [owner, funded, pendingRewards] = await Promise.all([
+        projectContract.ownerOf(tokenId),
+        projectContract.funded(tokenId),
+        projectContract.pendingRewards(tokenId),
+      ]);
+
+      return {
+        tokenId,
+        owner,
+        funded: ethers.formatEther(funded),
+        pendingRewards: ethers.formatEther(pendingRewards),
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get investor position for token ${tokenId}:`, error);
+      throw error;
+    }
+  }
+
+  async getUserPositions(projectAddress: string, userAddress: string): Promise<InvestorPosition[]> {
+    try {
+      const projectContract = await this.getProjectContract(projectAddress);
+      const balance = await projectContract.balanceOf(userAddress);
       
-      return transactions;
+      const positions: InvestorPosition[] = [];
+      for (let i = 0; i < Number(balance); i++) {
+        const tokenId = await projectContract.tokenOfOwnerByIndex(userAddress, i);
+        const position = await this.getInvestorPosition(projectAddress, Number(tokenId));
+        positions.push(position);
+      }
+
+      return positions;
     } catch (error) {
-      this.logger.error('Error getting recent transactions:', error);
-      return [];
+      this.logger.error(`Failed to get user positions for ${userAddress}:`, error);
+      throw error;
     }
   }
 
-  /**
-   * Get recent gas usage
-   */
-  private async getRecentGasUsage(): Promise<number> {
+  // === Event Monitoring ===
+
+  async getProjectEvents(projectId: number, fromBlock: number = 0) {
     try {
-      return 4500000 + Math.floor(Math.random() * 1000000);
+      const projectAddress = await this.getProjectAddress(projectId);
+      const projectContract = await this.getProjectContract(projectAddress);
+
+      const fundingFilter = projectContract.filters.FundingReceived();
+      const revenueFilter = projectContract.filters.RevenueDeposited();
+      const claimFilter = projectContract.filters.RewardsClaimed();
+
+      const [fundingEvents, revenueEvents, claimEvents] = await Promise.all([
+        projectContract.queryFilter(fundingFilter, fromBlock),
+        projectContract.queryFilter(revenueFilter, fromBlock),
+        projectContract.queryFilter(claimFilter, fromBlock),
+      ]);
+
+      return {
+        funding: fundingEvents,
+        revenue: revenueEvents,
+        claims: claimEvents,
+      };
     } catch (error) {
-      this.logger.error('Error getting gas usage:', error);
-      return 0;
+      this.logger.error(`Failed to get project events for ID ${projectId}:`, error);
+      throw error;
     }
   }
 
-  /**
-   * Generate project ID from contract address
-   */
-  private generateProjectId(contractAddress: string): string {
-    // Simple hash to generate project ID
-    return `PROJ-${Math.floor(Math.random() * 1000)}`;
-  }
+  // === Connection Health ===
 
-  /**
-   * Get fallback metrics when blockchain is unavailable
-   */
-  private getFallbackMetrics(): BlockchainMetrics {
-    return {
-      totalValueLocked: 1250000, // $1.25M
-      totalTransactions: 847,
-      activeInvestors: 156,
-      averageInvestment: 8000,
-      platformRevenue: 6250,
-      gasUsed: 4500000,
-      blockNumber: 12345678,
-    };
-  }
-
-  /**
-   * Get real-time contract events
-   */
-  async getContractEvents(contractAddress: string, eventName: string, fromBlock: number = 0): Promise<any[]> {
+  async checkConnection(): Promise<boolean> {
     try {
-      // This would require ABI and contract instance
-      // For now, return simulated events
-      return this.getSimulatedEvents(contractAddress, eventName);
+      const blockNumber = await this.provider.getBlockNumber();
+      const network = await this.provider.getNetwork();
+      
+      this.logger.log(`Connected to blockchain:`);
+      this.logger.log(`Block Number: ${blockNumber}`);
+      this.logger.log(`Network: ${network.name} (${network.chainId})`);
+      
+      return true;
     } catch (error) {
-      this.logger.error('Error getting contract events:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get simulated contract events
-   */
-  private getSimulatedEvents(contractAddress: string, eventName: string): any[] {
-    const events: any[] = [];
-    const now = Date.now();
-    
-    for (let i = 0; i < 10; i++) {
-      events.push({
-        address: contractAddress,
-        event: eventName,
-        blockNumber: 12345678 - i,
-        timestamp: now - (i * 3600000), // 1 hour intervals
-        transactionHash: `0x${Math.random().toString(16).slice(2, 66)}`,
-        returnValues: {
-          investor: `0x${Math.random().toString(16).slice(2, 42)}`,
-          amount: (Math.random() * 10000).toFixed(2),
-          projectId: `PROJ-${Math.floor(Math.random() * 1000)}`,
-        },
-      });
-    }
-    
-    return events;
-  }
-
-  /**
-   * Validate transaction on blockchain
-   */
-  async validateTransaction(txHash: string): Promise<boolean> {
-    try {
-      // Simulate transaction validation
-      return Math.random() > 0.1; // 90% success rate
-    } catch (error) {
-      this.logger.error('Error validating transaction:', error);
+      this.logger.error('Blockchain connection failed:', error);
       return false;
     }
   }
 
-  /**
-   * Get gas price estimate
-   */
-  async getGasPrice(): Promise<string> {
+  async getFactoryInfo() {
     try {
-      // Simulate gas price
-      return (15 + Math.random() * 10).toFixed(2);
-    } catch (error) {
-      this.logger.error('Error getting gas price:', error);
-      return '20'; // Default gas price
-    }
-  }
-
-  /**
-   * Get real-time blockchain status
-   */
-  async getBlockchainStatus(): Promise<{
-    isConnected: boolean;
-    networkId: number;
-    latestBlock: number;
-    gasPrice: string;
-    peers: number;
-  }> {
-    try {
+      const admin = await this.factoryContract.admin();
+      const projectCount = await this.getProjectCount();
+      const implementation = await this.factoryContract.projectImplementation();
+      
       return {
-        isConnected: true,
-        networkId: 30, // RSK Mainnet
-        latestBlock: 12345678 + Math.floor(Math.random() * 1000),
-        gasPrice: await this.getGasPrice(),
-        peers: 15 + Math.floor(Math.random() * 10),
+        factoryAddress: this.config.factoryAddress,
+        admin,
+        projectCount,
+        implementation,
       };
     } catch (error) {
-      this.logger.error('Error getting blockchain status:', error);
-      return {
-        isConnected: false,
-        networkId: 0,
-        latestBlock: 0,
-        gasPrice: '0',
-        peers: 0,
-      };
+      this.logger.error('Failed to get factory info:', error);
+      throw error;
     }
   }
 } 
