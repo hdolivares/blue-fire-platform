@@ -11,4 +11,8 @@ export interface AssignedProject {
   avgTemperature: number;
   avgDailyWaterProduction: number;
   waterSoldUntil?: string;
+  // Blockchain integration fields
+  blockchainProjectId?: number;
+  blockchainAddress?: string;
+  deployedOnChain?: boolean;
 }

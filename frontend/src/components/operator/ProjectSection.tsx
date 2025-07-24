@@ -30,13 +30,17 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   const [daysToPurchase, setDaysToPurchase] = useState(7); 
   const [isProcessing, setIsProcessing] = useState(false);
   const [revenueAmount, setRevenueAmount] = useState('1.0'); // ETH amount
+  const [showRevenuePreview, setShowRevenuePreview] = useState(false);
+  const [validatingProject, setValidatingProject] = useState(false);
 
   // Web3 context
   const { isConnected, account, projects, depositRevenue, connectWallet } = useWeb3();
   const connectedAccount = isConnected ? account : null;
 
-  // Find on-chain project data
-  const onChainProject = projects.find(p => p.projectId.toString() === project._id);
+  // Find on-chain project data using blockchainProjectId
+  const onChainProject = project.blockchainProjectId 
+    ? projects.find(p => p.projectId === project.blockchainProjectId)
+    : null;
 
   // --- CONSTANTS FOR CALCULATION ---
   const PRICE_PER_LITER_USD = 0.10;
@@ -51,39 +55,86 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   const totalEthCost = totalUsdCost / ETH_USD_RATE;
   
   /**
-   * @function handleRevenueDeposit
-   * @description Handles depositing revenue to the project contract.
+   * @function validateRevenueDeposit
+   * @description Validates revenue deposit requirements and shows preview
    */
-  const handleRevenueDeposit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    
+  const validateRevenueDeposit = async () => {
     if (!connectedAccount) {
       toast.error('Please connect your wallet first');
-      return;
+      return false;
+    }
+
+    if (!project.deployedOnChain) {
+      toast.error('This project is not deployed on blockchain yet');
+      return false;
     }
 
     if (!onChainProject) {
-      toast.error('Project not found on-chain');
-      return;
+      toast.error('Loading project data from blockchain...');
+      return false;
     }
 
     if (!revenueAmount || parseFloat(revenueAmount) <= 0) {
-      toast.error('Please enter a valid revenue amount');
-      return;
+      toast.error('Please enter a valid revenue amount greater than 0');
+      return false;
+    }
+
+    if (parseFloat(revenueAmount) > 100) {
+      toast.error('Revenue amount seems unusually high. Please verify.');
+      return false;
+    }
+
+    // Check if user is the assigned operator (Alice)
+    if (onChainProject.alice && onChainProject.alice.toLowerCase() !== connectedAccount.toLowerCase()) {
+      toast.error('Only the assigned operator can deposit revenue');
+      return false;
     }
 
     if (onChainProject.state !== 2) { // 2 = OPERATIONAL
-      toast.error('Project must be operational to deposit revenue');
-      return;
+      const stateNames = ['SEEKING_FUNDING', 'FUNDED', 'OPERATIONAL', 'CLOSED'];
+      toast.error(`Project must be operational to deposit revenue. Current state: ${stateNames[onChainProject.state] || 'Unknown'}`);
+      return false;
     }
+
+    return true;
+  };
+
+  /**
+   * @function handleRevenuePreview
+   * @description Shows preview before confirming revenue deposit
+   */
+  const handleRevenuePreview = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    const isValid = await validateRevenueDeposit();
+    if (!isValid) return;
+
+    setShowRevenuePreview(true);
+  };
+
+  /**
+   * @function confirmRevenueDeposit
+   * @description Executes the actual revenue deposit after confirmation
+   */
+  const confirmRevenueDeposit = async () => {
+    if (!onChainProject) return;
     
     setIsProcessing(true);
-    const loadingToast = toast.loading('Depositing revenue...');
+    setShowRevenuePreview(false);
+    const loadingToast = toast.loading('Depositing revenue to smart contract...');
     
     try {
       await depositRevenue(onChainProject.projectAddress, revenueAmount);
       toast.dismiss(loadingToast);
-      toast.success(`Successfully deposited ${revenueAmount} ETH as revenue!`);
+      toast.success(`✅ Successfully deposited ${revenueAmount} ETH as revenue!`);
+      
+      // Show distribution info
+      setTimeout(() => {
+        toast.success('Revenue will be automatically distributed to all investors!', {
+          duration: 4000,
+        });
+      }, 1000);
+      
       setRevenueAmount('1.0'); // Reset form
     } catch (error: any) {
       console.error('Revenue deposit failed:', error);
@@ -95,8 +146,10 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
         toast.error('Only assigned operator can deposit revenue');
       } else if (error.message?.includes('NOT_OPERATIONAL')) {
         toast.error('Project must be operational to deposit revenue');
+      } else if (error.message?.includes('insufficient funds')) {
+        toast.error('Insufficient ETH balance for this transaction');
       } else {
-        toast.error('Failed to deposit revenue');
+        toast.error(`Failed to deposit revenue: ${error.message || 'Unknown error'}`);
       }
     } finally {
       setIsProcessing(false);
@@ -107,7 +160,8 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   const nextAvailableDate = project.waterSoldUntil ? new Date(project.waterSoldUntil).toLocaleDateString() : 'N/A';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 items-start">
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 items-start">
       {/* Column 1: Project Info */}
       <Card variant="frosted" className="lg:col-span-1 p-0 flex flex-col overflow-hidden h-full">
         <div className="relative w-full h-48">
@@ -150,7 +204,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             </div>
           </Card>
         ) : (
-          <form onSubmit={handleRevenueDeposit} className="space-y-6 flex flex-col flex-grow">
+          <form onSubmit={handleRevenuePreview} className="space-y-6 flex flex-col flex-grow">
             <div className="space-y-4">
               <div>
                 <label htmlFor="revenueAmount" className="block text-sm font-medium mb-1">
@@ -214,12 +268,14 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
               ) : (
                 <Button 
                   type="submit" 
-                  disabled={isProcessing || !onChainProject || onChainProject.state !== 2} 
+                  disabled={isProcessing || !onChainProject || onChainProject.state !== 2 || validatingProject} 
                   variant="primary" 
                   size="lg" 
                   className="w-full"
                 >
-                  {isProcessing ? 'Processing...' : `Deposit ${revenueAmount} ETH Revenue`}
+                  {isProcessing ? 'Processing...' : 
+                   validatingProject ? 'Validating...' : 
+                   `Preview Revenue Deposit (${revenueAmount} ETH)`}
                 </Button>
               )}
             </div>
@@ -236,5 +292,75 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
         />
       </div>
     </div>
+
+    {/* Revenue Deposit Preview Modal */}
+    {showRevenuePreview && onChainProject && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <Card variant="frosted" className="max-w-md w-full p-6">
+          <h3 className="text-xl font-bold mb-4">🎯 Revenue Deposit Preview</h3>
+          
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+              <span className="text-secondary">Project</span>
+              <span className="font-medium">{project.projectName}</span>
+            </div>
+            
+            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+              <span className="text-secondary">Revenue Amount</span>
+              <span className="font-bold text-green-400">{revenueAmount} ETH</span>
+            </div>
+            
+            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+              <span className="text-secondary">USD Value</span>
+              <span className="font-medium">≈ ${(parseFloat(revenueAmount) * ETH_USD_RATE).toFixed(2)}</span>
+            </div>
+            
+            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+              <span className="text-secondary">Project State</span>
+              <span className="font-medium text-green-400">
+                {onChainProject?.state === 2 ? 'OPERATIONAL ✅' : 'NOT OPERATIONAL ❌'}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+              <span className="text-secondary">Total Funded</span>
+              <span className="font-medium">{onChainProject?.totalFunded} ETH</span>
+            </div>
+          </div>
+
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+            <h4 className="text-sm font-medium mb-2">ℹ️ What happens next:</h4>
+            <ul className="text-xs text-secondary space-y-1">
+              <li>• Revenue will be deposited to the smart contract</li>
+              <li>• Funds will be automatically distributed to all investors</li>
+              <li>• Investors can claim their share immediately</li>
+              <li>• Transaction will be recorded on blockchain</li>
+            </ul>
+          </div>
+
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => setShowRevenuePreview(false)}
+              variant="outline" 
+              size="lg"
+              className="flex-1"
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmRevenueDeposit}
+              variant="primary" 
+              size="lg"
+              className="flex-1"
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Processing...' : `✅ Confirm Deposit`}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    )}
+  </>
   );
 }

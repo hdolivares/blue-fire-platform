@@ -1,3 +1,4 @@
+
 # Blue Fire Platform Integration Prompt
 
 ## Task

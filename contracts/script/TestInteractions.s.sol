@@ -26,18 +26,18 @@ contract TestInteractions is Script {
         console.log("=== TESTING BLUE FIRE PLATFORM INTERACTIONS ===\n");
         
         // Test 1: Investor funding flow
-        testInvestorFunding();
+        runInvestorFunding();
         
         // Test 2: Complete escrow release
-        testEscrowRelease();
+        runEscrowRelease();
         
         // Test 3: Revenue deposit and claiming
-        testRevenueAndClaims();
+        runRevenueAndClaims();
         
         console.log("\n=== ALL TESTS COMPLETED SUCCESSFULLY ===");
     }
     
-    function testInvestorFunding() public {
+    function runInvestorFunding() public {
         console.log("1. TESTING INVESTOR FUNDING FLOW");
         console.log("================================");
         
@@ -64,7 +64,7 @@ contract TestInteractions is Script {
         console.log("");
     }
     
-    function testEscrowRelease() public {
+    function runEscrowRelease() public {
         console.log("2. TESTING ESCROW RELEASE FLOW");
         console.log("==============================");
         
@@ -91,7 +91,7 @@ contract TestInteractions is Script {
         console.log("");
     }
     
-    function testRevenueAndClaims() public {
+    function runRevenueAndClaims() public {
         console.log("3. TESTING REVENUE DEPOSIT AND CLAIMS");
         console.log("=====================================");
         

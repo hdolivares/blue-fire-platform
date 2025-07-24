@@ -14,24 +14,73 @@ interface PortfolioCardProps {
 export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => {
   const { claimRewards, projects } = useWeb3();
   const [isClaiming, setIsClaiming] = useState(false);
+  const [showClaimPreview, setShowClaimPreview] = useState(false);
+  const [lastClaimAmount, setLastClaimAmount] = useState<string | null>(null);
 
   // Find project info from Web3 context
   const onChainProject = projects.find(p => p.projectId === position.projectId);
   const displayName = onChainProject?.name || projectName || `Project #${position.projectId}`;
 
-  const handleClaim = async () => {
+  /**
+   * @function validateClaim
+   * @description Validates claim requirements before showing preview
+   */
+  const validateClaim = (): boolean => {
     if (parseFloat(position.pendingRewards) <= 0) {
       toast.error('No rewards available to claim');
-      return;
+      return false;
     }
 
+    if (parseFloat(position.pendingRewards) < 0.0001) {
+      toast.error('Reward amount too small to claim (minimum 0.0001 ETH)');
+      return false;
+    }
+
+    if (!onChainProject) {
+      toast.error('Project data not loaded. Please refresh the page.');
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
+   * @function handleClaimPreview
+   * @description Shows claim preview before confirmation
+   */
+  const handleClaimPreview = () => {
+    const isValid = validateClaim();
+    if (!isValid) return;
+
+    setShowClaimPreview(true);
+  };
+
+  /**
+   * @function confirmClaim
+   * @description Executes the actual claim after confirmation
+   */
+  const confirmClaim = async () => {
     setIsClaiming(true);
-    const loadingToast = toast.loading('Claiming rewards...');
+    setShowClaimPreview(false);
+    const claimAmount = parseFloat(position.pendingRewards);
+    const loadingToast = toast.loading('Claiming rewards from smart contract...');
     
     try {
       await claimRewards(position.projectAddress, position.tokenId);
       toast.dismiss(loadingToast);
-      toast.success(`Successfully claimed ${parseFloat(position.pendingRewards).toFixed(4)} ETH!`);
+      
+      // Store last claim amount for display
+      setLastClaimAmount(claimAmount.toFixed(4));
+      
+      toast.success(`✅ Successfully claimed ${claimAmount.toFixed(4)} ETH!`);
+      
+      // Show additional success info
+      setTimeout(() => {
+        toast.success('Rewards have been transferred to your wallet!', {
+          duration: 3000,
+        });
+      }, 1000);
+      
     } catch (error: any) {
       console.error("Claim failed:", error);
       toast.dismiss(loadingToast);
@@ -40,8 +89,12 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
         toast.error('Transaction rejected by user');
       } else if (error.message?.includes('NO_REWARDS')) {
         toast.error('No rewards available to claim');
+      } else if (error.message?.includes('insufficient funds')) {
+        toast.error('Insufficient ETH for transaction fees');
+      } else if (error.message?.includes('execution reverted')) {
+        toast.error('Claim transaction failed. Please try again.');
       } else {
-        toast.error('Failed to claim rewards');
+        toast.error(`Claim failed: ${error.message || 'Unknown error'}`);
       }
     } finally {
       setIsClaiming(false);
@@ -89,13 +142,13 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
         </div>
         <div className="flex items-center">
           <Button 
-            onClick={handleClaim}
+            onClick={handleClaimPreview}
             disabled={!hasClaimable || isClaiming}
             variant={hasClaimable ? "primary" : "secondary"}
             size="sm"
             className="w-full"
           >
-            {isClaiming ? 'Claiming...' : hasClaimable ? 'Claim Rewards' : 'No Rewards'}
+            {isClaiming ? 'Claiming...' : hasClaimable ? 'Preview Claim' : 'No Rewards'}
           </Button>
         </div>
       </div>
@@ -116,6 +169,88 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
               <p className="font-bold">{onChainProject.fundingProgress.toFixed(1)}%</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Last Claim Info */}
+      {lastClaimAmount && (
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-secondary">Last Claim</span>
+            <span className="text-xs font-medium text-green-400">+{lastClaimAmount} ETH</span>
+          </div>
+        </div>
+      )}
+
+      {/* Claim Preview Modal */}
+      {showClaimPreview && onChainProject && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card variant="frosted" className="max-w-md w-full p-6">
+            <h3 className="text-xl font-bold mb-4">💰 Claim Rewards Preview</h3>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <span className="text-secondary">Project</span>
+                <span className="font-medium">{displayName}</span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <span className="text-secondary">Your NFT Token</span>
+                <span className="font-medium">#{position.tokenId}</span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <span className="text-secondary">Claimable Rewards</span>
+                <span className="font-bold text-green-400 text-lg">{parseFloat(position.pendingRewards).toFixed(4)} ETH</span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <span className="text-secondary">USD Value</span>
+                <span className="font-medium">≈ ${(parseFloat(position.pendingRewards) * 2000).toFixed(2)}</span>
+              </div>
+              
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <span className="text-secondary">Your Investment</span>
+                <span className="font-medium">{parseFloat(position.funded).toFixed(4)} ETH</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <span className="text-secondary">Your Share</span>
+                <span className="font-medium">{fundingSharePercentage.toFixed(3)}%</span>
+              </div>
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium mb-2">✅ What happens next:</h4>
+              <ul className="text-xs text-secondary space-y-1">
+                <li>• Rewards will be transferred to your wallet</li>
+                <li>• Transaction will be recorded on blockchain</li>
+                <li>• Your pending rewards will reset to 0</li>
+                <li>• Future revenue deposits will accumulate new rewards</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setShowClaimPreview(false)}
+                variant="outline" 
+                size="lg"
+                className="flex-1"
+                disabled={isClaiming}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={confirmClaim}
+                variant="primary" 
+                size="lg"
+                className="flex-1"
+                disabled={isClaiming}
+              >
+                {isClaiming ? 'Processing...' : `✅ Claim ${parseFloat(position.pendingRewards).toFixed(4)} ETH`}
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
     </Card>

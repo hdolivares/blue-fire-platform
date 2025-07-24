@@ -9,12 +9,14 @@ import MonthOverMonthReports from '@/components/admin/MonthOverMonthReports';
 import IndustryBenchmarks from '@/components/admin/IndustryBenchmarks';
 import VCKPIs from '@/components/admin/VCKPIs';
 import BlockchainMetrics from '@/components/admin/BlockchainMetrics';
+import { RevenueAnalytics } from '@/components/admin/RevenueAnalytics';
 
 const AnalyticsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('global-map');
 
   const tabs = [
     { id: 'global-map', name: 'Global Map', component: <GlobalMapView /> },
+    { id: 'revenue-analytics', name: 'Revenue Analytics', component: <RevenueAnalytics /> },
     { id: 'financial-reports', name: 'Financial Reports', component: <FinancialReports /> },
     { id: 'operational-health', name: 'Operational Health', component: <OperationalHealth /> },
     { id: 'blockchain-metrics', name: 'Blockchain Metrics', component: <BlockchainMetrics /> },
