@@ -1,3 +1,5 @@
+'use client';
+
 // In frontend/src/app/admin/projects/new/page.tsx
 import { CreateProjectForm } from "@/components/admin/CreateProjectForm";
 import Link from "next/link";
