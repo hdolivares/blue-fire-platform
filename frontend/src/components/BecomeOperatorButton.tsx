@@ -39,7 +39,8 @@ export const BecomeOperatorButton = ({ projectId, projectName, onRequestSubmitte
       onClick={handleSubmitRequest}
       disabled={isSubmitting}
       variant="warning"
-      className="flex items-center justify-center"
+      size="sm"
+      className="w-full flex items-center justify-center"
     >
       {isSubmitting ? (
         <>

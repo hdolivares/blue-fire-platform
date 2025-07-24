@@ -72,7 +72,7 @@ export const ProjectCard = ({ project }: { project: Project }) => {
   const fundingPercentage = goal > 0 ? (current / goal) * 100 : 0;
 
   const isOperator = hasRole(['Operator']);
-  const showBecomeOperatorButton = isOperator && project.status === 'SEEKING_FUNDING';
+  const showBecomeOperatorButton = isOperator; // Show on all projects for operators
 
   // Check if user has already applied for this project
   useEffect(() => {
@@ -115,19 +115,6 @@ export const ProjectCard = ({ project }: { project: Project }) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-600 hover:bg-yellow-700';
-      case 'APPROVED':
-        return 'bg-green-600 hover:bg-green-700';
-      case 'REJECTED':
-        return 'bg-red-600 hover:bg-red-700';
-      default:
-        return 'bg-gray-300 hover:bg-gray-400';
-    }
-  };
-
   return (
     <Card variant="frosted" hover className="flex flex-col justify-between overflow-hidden">
       {/* Image Section - Using a div with background image for robustness */}
@@ -167,29 +154,9 @@ export const ProjectCard = ({ project }: { project: Project }) => {
           </div>
           <p className="text-sm text-right mb-3">{fundingPercentage.toFixed(2)}% Funded</p>
           
-          {/* Show appropriate button based on application status */}
-          {showBecomeOperatorButton && !loading && (
-            <div className="mt-3">
-              {!hasApplied ? (
-                <BecomeOperatorButton 
-                  projectId={project._id} 
-                  projectName={name}
-                  onRequestSubmitted={() => setHasApplied(true)}
-                />
-              ) : (
-                <Badge 
-                  variant={requestStatus === 'APPROVED' ? 'approved' : requestStatus === 'REJECTED' ? 'rejected' : 'pending'}
-                  size="lg"
-                  className="w-full text-center py-2 opacity-75 cursor-not-allowed"
-                >
-                  {getStatusText(requestStatus || 'PENDING')}
-                </Badge>
-              )}
-            </div>
-          )}
-          
-          {/* Show view details link for non-operators or when not showing become operator button */}
-          {!showBecomeOperatorButton && (
+          {/* Buttons Section */}
+          <div className="space-y-2">
+            {/* View Details Button - Always show */}
             <Button 
               variant="primary"
               size="sm"
@@ -198,7 +165,29 @@ export const ProjectCard = ({ project }: { project: Project }) => {
             >
               View Details
             </Button>
-          )}
+            
+            {/* Become Operator Button - Show for operators */}
+            {showBecomeOperatorButton && !loading && (
+              <>
+                {!hasApplied ? (
+                  <BecomeOperatorButton 
+                    projectId={project._id} 
+                    projectName={name}
+                    onRequestSubmitted={() => setHasApplied(true)}
+                  />
+                ) : (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full opacity-75 cursor-not-allowed"
+                    disabled
+                  >
+                    {getStatusText(requestStatus || 'PENDING')}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Card>
