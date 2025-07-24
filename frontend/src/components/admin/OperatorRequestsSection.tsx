@@ -44,7 +44,7 @@ export const OperatorRequestsSection = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/operator-requests');
+      const response = await api.get('/operator-requests/pending');
       setRequests(response.data);
     } catch (error) {
       console.error('Failed to fetch operator requests:', error);
