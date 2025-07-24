@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import { ethers } from 'ethers';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 
-import { ethers } from 'ethers';
-import stakingVaultAbi from '@/contracts/StakingVault.json';
-import contractAddress from '@/contracts/contract-address.json';
+import { useWeb3 } from '@/context/Web3Context';
+import toast from 'react-hot-toast';
 
 import { Line } from 'react-chartjs-2';
 import {
@@ -71,6 +71,11 @@ interface Project {
   // Other fields that might exist
   avgHumidity?: number;
   avgTemperature?: number;
+  // Blockchain integration fields
+  blockchainProjectId?: number;
+  blockchainAddress?: string;
+  deployedOnChain?: boolean;
+  machineModel?: string;
 }
 /*
 interface PerformanceData {
@@ -87,15 +92,84 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const { id } = params;
   const [project, setProject] = useState<Project | null>(null);
-  // The new component handles its own data fetching
-  // const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
-  const [investmentAmount, setInvestmentAmount] = useState('1000');
+  const [investmentAmount, setInvestmentAmount] = useState('1.0'); // Changed to ETH
   const [percentage, setPercentage] = useState(0);
-  const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
   const [isInvesting, setIsInvesting] = useState(false);
+  const [onChainData, setOnChainData] = useState<any>(null);
+  const [loadingOnChain, setLoadingOnChain] = useState(false);
+  
+  // Use Web3 context
+  const { isConnected, account, fundProject, connectWallet, provider, factoryContract } = useWeb3();
+
+  // Fetch specific on-chain data for this project
+  const fetchOnChainData = useCallback(async () => {
+    if (!project?.blockchainProjectId || !provider || !factoryContract || !isConnected) {
+      return;
+    }
+
+    setLoadingOnChain(true);
+    try {
+      console.log('🔍 Fetching on-chain data for project #', project.blockchainProjectId);
+      
+      // Get project address
+      const projectAddress = await factoryContract.getProjectAddress(project.blockchainProjectId);
+      
+      // Get project info
+      const [name, location, model, fundingCap, totalFunded, beneficiary, state] = await factoryContract.getProjectInfo(project.blockchainProjectId);
+      
+      const fundingProgress = totalFunded > 0 ? (Number(totalFunded) / Number(fundingCap)) * 100 : 0;
+      
+      const chainData = {
+        projectId: project.blockchainProjectId,
+        projectAddress,
+        name,
+        location,
+        model,
+        fundingCap: ethers.formatEther(fundingCap),
+        totalFunded: ethers.formatEther(totalFunded),
+        beneficiary,
+        state: Number(state), // 0=SEEKING_FUNDING, 1=FUNDED, 2=OPERATIONAL, 3=CLOSED
+        fundingProgress
+      };
+      
+      console.log('✅ On-chain data fetched:', chainData);
+      setOnChainData(chainData);
+    } catch (error) {
+      console.error('❌ Failed to fetch on-chain data:', error);
+    } finally {
+      setLoadingOnChain(false);
+    }
+  }, [project?.blockchainProjectId, provider, factoryContract, isConnected]);
+
+  // Debug logging for project structure
+  useEffect(() => {
+    if (project) {
+      console.log('🔍 Project Data Structure:', {
+        databaseId: id,
+        databaseProject: {
+          name: project.name || project.projectName,
+          blockchainProjectId: project.blockchainProjectId,
+          blockchainAddress: project.blockchainAddress,
+          deployedOnChain: project.deployedOnChain,
+          status: project.status,
+          fundingGoal: project.fundingGoal || project.goalAmount,
+        },
+        calculatedFunding: {
+          goal: goal,
+          current: current,
+          progress: fundingProgress.toFixed(1) + '%',
+        },
+        readyToInvest: project.deployedOnChain && project.status === 'SEEKING_FUNDING',
+        onChainDataLoaded: !!onChainData,
+      });
+    }
+  }, [project, onChainData, id]);
+  
+  const connectedAccount = isConnected ? account : null;
 
   useEffect(() => {
     if (id) {
+      // Fetch off-chain project data from backend
       axios.get(`http://localhost:3001/projects/${id}`)
         .then(response => setProject(response.data))
         .catch(error => console.error('Failed to fetch project details:', error));
@@ -109,15 +183,27 @@ export default function ProjectDetailPage() {
     }
   }, [id]);
 
+  // Fetch on-chain data when project and wallet are ready
+  useEffect(() => {
+    if (project?.deployedOnChain && project?.blockchainProjectId && isConnected) {
+      console.log('🔄 Fetching on-chain data for connected wallet');
+      fetchOnChainData();
+    }
+  }, [project?.deployedOnChain, project?.blockchainProjectId, isConnected, fetchOnChainData]);
+
   // Safely access properties for backward compatibility
   const name = project?.name ?? project?.projectName ?? 'Untitled Project';
-  const goal = project?.goalAmount ?? project?.fundingGoal ?? 0;
-  const current = project?.currentAmount ?? project?.currentFunding ?? 0;
   const mainImage = project?.mainImage ?? project?.imageUrl ?? '';
   const images = project?.images ?? project?.imageUrls ?? [];
+  
+  // Use database project data as primary source, enhance with blockchain data if available
+  const goal = project?.fundingGoal ?? project?.goalAmount ?? 0;
+  const current = onChainData ? parseFloat(onChainData.totalFunded) : (project?.currentFunding ?? 0);
+  const fundingProgress = goal > 0 ? (current / goal) * 100 : 0;
+  const projectState = project?.deployedOnChain ? (onChainData?.state ?? 0) : undefined; // 0 = SEEKING_FUNDING
 
   useEffect(() => {
-    if (project && goal > 0) {
+    if (goal > 0) {
       const amount = parseFloat(investmentAmount);
       if (!isNaN(amount) && amount >= 0) {
         setPercentage((amount / goal) * 100);
@@ -125,48 +211,84 @@ export default function ProjectDetailPage() {
         setPercentage(0);
       }
     }
-  }, [investmentAmount, project, goal]);
+  }, [investmentAmount, goal]);
   
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPercentage = parseFloat(e.target.value);
     setPercentage(newPercentage);
-    if (project) {
+    if (goal > 0) {
       const newAmount = (newPercentage / 100) * goal;
-      setInvestmentAmount(newAmount.toFixed(0));
-    }
-  };
-  
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
-        setConnectedAccount(address);
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-      }
-    } else {
-      alert('Please install a browser wallet like MetaMask.');
+      setInvestmentAmount(newAmount.toFixed(3)); // 3 decimal places for ETH
     }
   };
 
   const handleInvestment = async () => {
-    if (!connectedAccount || !investmentAmount || !id) return;
+    console.log('🔍 Investment Validation Debug:', {
+      connectedAccount,
+      investmentAmount,
+      id,
+      onChainData,
+      projectState,
+      hasOnChainData: !!onChainData,
+      isConnected,
+      account
+    });
+
+    // More specific validation messages
+    if (!isConnected || !account) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!investmentAmount || parseFloat(investmentAmount) <= 0) {
+      toast.error('Please enter a valid investment amount greater than 0');
+      return;
+    }
+
+    if (!id) {
+      toast.error('Project ID not found');
+      return;
+    }
+
+    // Check basic project requirements
+    if (!project?.deployedOnChain) {
+      toast.error('This project is not deployed on blockchain yet');
+      return;
+    }
+
+    if (!project?.blockchainProjectId) {
+      toast.error('Project blockchain linking is missing. Please contact admin.');
+      return;
+    }
+
+    // Check project status - use blockchain data if available, otherwise database status
+    const isSeekingFunding = onChainData 
+      ? (onChainData.state === 0) // 0 = SEEKING_FUNDING on blockchain
+      : (project.status === 'SEEKING_FUNDING'); // Database status as fallback
+
+    if (!isSeekingFunding) {
+      toast.error('This project is not currently seeking funding');
+      return;
+    }
+
     setIsInvesting(true);
+    const loadingToast = toast.loading('Sending investment transaction...');
+    
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress.StakingVault, stakingVaultAbi, signer);
-      const priceInCrypto = Number(investmentAmount) * 0.0005;
-      const amountToSend = ethers.parseEther(priceInCrypto.toString());
-      const tx = await contract.stake(id.toString(), { value: amountToSend });
-      alert('Transaction sent! Waiting for confirmation...');
-      await tx.wait();
-      alert('Investment successful!');
-    } catch (error) {
+      await fundProject(project.blockchainProjectId, investmentAmount);
+      toast.dismiss(loadingToast);
+      toast.success('Investment successful! You received an NFT position token.');
+    } catch (error: any) {
       console.error('Investment failed:', error);
-      alert('Investment transaction failed.');
+      toast.dismiss(loadingToast);
+      
+      if (error.code === 4001) {
+        toast.error('Transaction rejected by user');
+      } else if (error.message?.includes('CAP')) {
+        toast.error('Investment would exceed funding cap');
+      } else {
+        toast.error('Investment transaction failed');
+      }
     } finally {
       setIsInvesting(false);
     }
@@ -236,24 +358,116 @@ export default function ProjectDetailPage() {
       
       <div className="flex items-center space-x-2 mb-2">
         <span className="text-lg text-secondary">Status:</span>
-        <Badge variant={project.status === 'OPERATIONAL' ? 'success' : 'pending'} size="md">{formatStatus(project.status)}</Badge>
+        <Badge 
+          variant={projectState === 2 ? 'success' : projectState === 1 ? 'warning' : 'pending'} 
+          size="md"
+        >
+          {projectState === 0 ? 'SEEKING FUNDING' : 
+           projectState === 1 ? 'FUNDED' : 
+           projectState === 2 ? 'OPERATIONAL' : 
+           projectState === 3 ? 'CLOSED' : 
+           formatStatus(project.status)}
+        </Badge>
       </div>
+
+      {/* Blockchain linking status */}
+      {project && (
+        <Card variant="frosted" className="p-4 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-medium">Blockchain Integration</h3>
+              <div className="flex items-center gap-4 mt-2 text-xs">
+                <span className={`flex items-center gap-1 ${project.deployedOnChain ? 'text-green-400' : 'text-gray-400'}`}>
+                  {project.deployedOnChain ? '✅' : '⏳'} 
+                  {project.deployedOnChain ? 'Deployed' : 'Not deployed'}
+                </span>
+                {project.blockchainProjectId && (
+                  <span className="text-blue-400">
+                    🆔 Blockchain ID: #{project.blockchainProjectId}
+                  </span>
+                )}
+                {project.blockchainAddress && project.blockchainAddress !== 'TBD' && (
+                  <span className="text-purple-400">
+                    📍 Contract: {project.blockchainAddress.slice(0, 8)}...
+                  </span>
+                )}
+              </div>
+            </div>
+            <Button 
+              onClick={fetchOnChainData} 
+              variant="outline" 
+              size="sm"
+              className="text-xs"
+            >
+              🔄 Refresh
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Project funding info */}
+      {project && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card variant="frosted" className="p-4 text-center">
+            <p className="text-xs text-secondary">Funding Goal</p>
+            <p className="text-lg font-bold">{goal.toFixed(2)} ETH</p>
+            <p className="text-xs text-gray-400">Database</p>
+          </Card>
+          <Card variant="frosted" className="p-4 text-center">
+            <p className="text-xs text-secondary">Total Funded</p>
+            <p className="text-lg font-bold">{current.toFixed(2)} ETH</p>
+            <p className="text-xs text-gray-400">{onChainData ? 'Live' : 'Database'}</p>
+          </Card>
+          <Card variant="frosted" className="p-4 text-center">
+            <p className="text-xs text-secondary">Progress</p>
+            <p className="text-lg font-bold">{fundingProgress.toFixed(1)}%</p>
+            <p className="text-xs text-gray-400">Calculated</p>
+          </Card>
+          <Card variant="frosted" className="p-4 text-center">
+            <p className="text-xs text-secondary">Blockchain ID</p>
+            <p className="text-lg font-bold">#{project.blockchainProjectId || 'TBD'}</p>
+            <p className="text-xs text-gray-400">Database</p>
+          </Card>
+        </div>
+      )}
 
       {/* --- New Project Status Info Component --- */}
       <ProjectStatusInfo status={project.status} />
 
-      {project.status === 'SEEKING_FUNDING' && (
+      {project?.deployedOnChain && project?.status === 'SEEKING_FUNDING' && (
         <Card variant="frosted" className="p-6 my-8">
           <h2 className="section-header">Invest in this Project</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
               <div>
-                <label htmlFor="investment" className="block text-sm font-medium mb-1">Investment Amount (USD)</label>
-                <StyledInput id="investment" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} placeholder="e.g., 1000"/>
+                <label htmlFor="investment" className="block text-sm font-medium mb-1">Investment Amount (ETH)</label>
+                <StyledInput 
+                  id="investment" 
+                  type="number" 
+                  step="0.001"
+                  min="0"
+                  value={investmentAmount} 
+                  onChange={(e) => setInvestmentAmount(e.target.value)} 
+                  placeholder="e.g., 1.0"
+                />
+                <p className="text-xs text-secondary mt-1">
+                  Min: 0.001 ETH • Max: {goal > 0 ? (goal - current).toFixed(3) : '∞'} ETH
+                </p>
               </div>
               <div>
-                <label htmlFor="percentage" className="block text-sm font-medium mb-1">Ownership Percentage ({percentage > 100 ? 100 : percentage.toFixed(2)}%)</label>
-                <input id="percentage" type="range" min="0" max="100" value={percentage} onChange={handleSliderChange} className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"/>
+                <label htmlFor="percentage" className="block text-sm font-medium mb-1">
+                  Funding Percentage ({percentage > 100 ? 100 : percentage.toFixed(3)}%)
+                </label>
+                <input 
+                  id="percentage" 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  step="0.1"
+                  value={percentage} 
+                  onChange={handleSliderChange} 
+                  className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
               
               {!connectedAccount ? (
@@ -264,9 +478,16 @@ export default function ProjectDetailPage() {
                 <>
                   <Card variant="default" className="text-center p-3 bg-green-500/20 border border-green-500">
                     <p className="text-sm">Wallet Connected</p>
+                    <p className="text-xs font-mono">{connectedAccount?.slice(0,6)}...{connectedAccount?.slice(-4)}</p>
                   </Card>
-                  <Button onClick={handleInvestment} disabled={!investmentAmount || isInvesting} variant="primary" size="lg" className="w-full">
-                    {isInvesting ? 'Processing...' : 'Invest Now'}
+                  <Button 
+                    onClick={handleInvestment} 
+                    disabled={!investmentAmount || isInvesting || parseFloat(investmentAmount) <= 0} 
+                    variant="primary" 
+                    size="lg" 
+                    className="w-full"
+                  >
+                    {isInvesting ? 'Processing...' : `Invest ${investmentAmount} ETH`}
                   </Button>
                 </>
               )}
@@ -274,10 +495,18 @@ export default function ProjectDetailPage() {
             
             <Card variant="default" className="bg-sky-500/20 p-6 flex flex-col items-center justify-center text-center">
                 <p className="text-secondary">Funding Progress</p>
-                <p className="text-4xl font-bold my-2">${current.toLocaleString()} / <span className="text-2xl text-secondary">${goal.toLocaleString()}</span></p>
-                <div className="w-full bg-white/10 rounded-full h-4">
-                  <div className="bg-gradient-accent h-4 rounded-full" style={{ width: `${fundingPercentage}%` }}></div>
+                <p className="text-4xl font-bold my-2">
+                  {current.toFixed(3)} ETH / <span className="text-2xl text-secondary">{goal.toFixed(3)} ETH</span>
+                </p>
+                <div className="w-full bg-white/10 rounded-full h-4 mb-2">
+                  <div 
+                    className="bg-gradient-accent h-4 rounded-full transition-all duration-300" 
+                    style={{ width: `${Math.min(fundingProgress, 100)}%` }}
+                  ></div>
                 </div>
+                <p className="text-sm text-secondary">
+                  {(goal - current).toFixed(3)} ETH remaining
+                </p>
             </Card>
           </div>
         </Card>

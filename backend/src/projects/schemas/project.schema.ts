@@ -59,6 +59,19 @@ export class Project extends Document {
   
   @Prop({ type: Types.ObjectId, ref: 'User' })
   operator: User;
+
+  // Blockchain integration fields
+  @Prop()
+  blockchainProjectId?: number; // On-chain project ID for association
+
+  @Prop()
+  blockchainAddress?: string; // On-chain project contract address
+
+  @Prop()
+  deployedOnChain?: boolean; // Whether project is deployed on blockchain
+
+  @Prop()
+  machineModel?: string; // Machine model for blockchain deployment
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

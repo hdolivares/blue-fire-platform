@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-
-import unitControllerAbi from '@/contracts/UnitController.json';
+import { useWeb3 } from '@/context/Web3Context';
 import { GlowingButton } from '@/components/GlowingButton';
 import { BookingCalendar } from '@/components/BookingCalendar';
 import { StyledInput } from '@/components/StyledInput';
@@ -30,12 +28,19 @@ const formatStatus = (status: string = '') => {
 export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   // --- STATE MANAGEMENT for this specific project section ---
   const [daysToPurchase, setDaysToPurchase] = useState(7); 
-  const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [revenueAmount, setRevenueAmount] = useState('1.0'); // ETH amount
+
+  // Web3 context
+  const { isConnected, account, projects, depositRevenue, connectWallet } = useWeb3();
+  const connectedAccount = isConnected ? account : null;
+
+  // Find on-chain project data
+  const onChainProject = projects.find(p => p.projectId.toString() === project._id);
 
   // --- CONSTANTS FOR CALCULATION ---
   const PRICE_PER_LITER_USD = 0.10;
-  const USD_TO_RBTC_RATE = 0.000035;
+  const ETH_USD_RATE = 2000; // Approximate ETH price - in production, get from API
   const MIN_DAYS = 7;
   const MAX_DAYS = 45;
 
@@ -43,55 +48,56 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   // These calculations are based on the project data and the slider value.
   const dailyUsdCost = project.avgDailyWaterProduction * PRICE_PER_LITER_USD;
   const totalUsdCost = dailyUsdCost * daysToPurchase;
-  const totalRbtcCost = totalUsdCost * USD_TO_RBTC_RATE;
+  const totalEthCost = totalUsdCost / ETH_USD_RATE;
   
   /**
-   * @function connectWallet
-   * @description Connects to the user's browser wallet and updates the state.
+   * @function handleRevenueDeposit
+   * @description Handles depositing revenue to the project contract.
    */
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        setConnectedAccount(await signer.getAddress());
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        toast.error("Failed to connect wallet.");
-      }
-    } else {
-      toast.error('Please install a browser wallet like MetaMask.');
-    }
-  };
-
-  /**
-   * @function handlePurchaseWater
-   * @description Handles the final submission, sending the calculated RBTC amount to the smart contract.
-   */
-  const handlePurchaseWater = async (event: React.FormEvent) => {
+  const handleRevenueDeposit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!project.unitControllerAddress || totalRbtcCost <= 0) {
-      return toast.error("Project not loaded or amount is invalid.");
+    
+    if (!connectedAccount) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!onChainProject) {
+      toast.error('Project not found on-chain');
+      return;
+    }
+
+    if (!revenueAmount || parseFloat(revenueAmount) <= 0) {
+      toast.error('Please enter a valid revenue amount');
+      return;
+    }
+
+    if (onChainProject.state !== 2) { // 2 = OPERATIONAL
+      toast.error('Project must be operational to deposit revenue');
+      return;
     }
     
     setIsProcessing(true);
-    const loadingToast = toast.loading('Sending transaction...');
+    const loadingToast = toast.loading('Depositing revenue...');
+    
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(project.unitControllerAddress, unitControllerAbi, signer);
-      const amountToSend = ethers.parseEther(totalRbtcCost.toFixed(18));
-      const tx = await contract.depositRevenue({ value: amountToSend });
-      
-      toast.loading('Waiting for confirmation...', { id: loadingToast });
-      await tx.wait();
-      
+      await depositRevenue(onChainProject.projectAddress, revenueAmount);
       toast.dismiss(loadingToast);
-      toast.success('Deposit successful!');
-    } catch (error) {
-      console.error('Purchase failed:', error);
+      toast.success(`Successfully deposited ${revenueAmount} ETH as revenue!`);
+      setRevenueAmount('1.0'); // Reset form
+    } catch (error: any) {
+      console.error('Revenue deposit failed:', error);
       toast.dismiss(loadingToast);
-      toast.error('Transaction failed or was rejected.');
+      
+      if (error.code === 4001) {
+        toast.error('Transaction rejected by user');
+      } else if (error.message?.includes('NOT_ALICE')) {
+        toast.error('Only assigned operator can deposit revenue');
+      } else if (error.message?.includes('NOT_OPERATIONAL')) {
+        toast.error('Project must be operational to deposit revenue');
+      } else {
+        toast.error('Failed to deposit revenue');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -144,37 +150,76 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             </div>
           </Card>
         ) : (
-          <form onSubmit={handlePurchaseWater} className="space-y-6 flex flex-col flex-grow">
+          <form onSubmit={handleRevenueDeposit} className="space-y-6 flex flex-col flex-grow">
             <div className="space-y-4">
+              <div>
+                <label htmlFor="revenueAmount" className="block text-sm font-medium mb-1">
+                  Revenue Amount (ETH)
+                </label>
+                <input
+                  id="revenueAmount"
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                  value={revenueAmount}
+                  onChange={(e) => setRevenueAmount(e.target.value)}
+                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="1.0"
+                />
+                <p className="text-xs text-secondary mt-1">
+                  Revenue from water sales to distribute to investors
+                </p>
+              </div>
+              
               <Slider
                 min={MIN_DAYS}
                 max={MAX_DAYS}
                 value={daysToPurchase}
                 onChange={setDaysToPurchase}
-                label="Days to Purchase:"
+                label="Production Period (Info):"
                 showValue={true}
               />
             </div>
             
-            <Card variant="default" className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-6 text-center border border-blue-500/20">
-              <p className="text-secondary text-sm mb-2">Total Estimated Cost</p>
-              <p className="text-4xl font-bold text-white mb-1">${totalUsdCost.toFixed(2)}</p>
-              <p className="text-lg text-secondary">USD</p>
+            <Card variant="default" className="bg-gradient-to-r from-green-500/10 to-blue-500/10 p-6 text-center border border-green-500/20">
+              <p className="text-secondary text-sm mb-2">Revenue Deposit</p>
+              <p className="text-4xl font-bold text-white mb-1">{parseFloat(revenueAmount || '0').toFixed(4)} ETH</p>
+              <p className="text-lg text-secondary">Water Sales Revenue</p>
               <div className="mt-3 pt-3 border-t border-white/10">
-                <p className="text-sm text-secondary">≈ {totalRbtcCost.toFixed(6)} RBTC</p>
+                <p className="text-sm text-secondary">≈ ${(parseFloat(revenueAmount || '0') * ETH_USD_RATE).toFixed(2)} USD</p>
               </div>
             </Card>
+            
+            {onChainProject && (
+              <Card variant="default" className="bg-blue-500/10 p-4 border border-blue-500/20">
+                <p className="text-xs text-secondary mb-2">Project Status</p>
+                <p className="text-sm font-medium">
+                  State: {onChainProject.state === 0 ? 'SEEKING_FUNDING' : 
+                          onChainProject.state === 1 ? 'FUNDED' : 
+                          onChainProject.state === 2 ? 'OPERATIONAL' : 'CLOSED'}
+                </p>
+                <p className="text-xs text-secondary">
+                  Only OPERATIONAL projects can receive revenue deposits
+                </p>
+              </Card>
+            )}
             
             <div className="mt-auto pt-6">
               {!connectedAccount ? (
                 <div className="w-full">
                   <GlowingButton onClick={connectWallet}>
-                    Connect Wallet to Purchase
+                    Connect Wallet to Deposit Revenue
                   </GlowingButton>
                 </div>
               ) : (
-                <Button type="submit" disabled={isProcessing} variant="primary" size="lg" className="w-full">
-                  {isProcessing ? 'Processing...' : `Purchase ${daysToPurchase} Days`}
+                <Button 
+                  type="submit" 
+                  disabled={isProcessing || !onChainProject || onChainProject.state !== 2} 
+                  variant="primary" 
+                  size="lg" 
+                  className="w-full"
+                >
+                  {isProcessing ? 'Processing...' : `Deposit ${revenueAmount} ETH Revenue`}
                 </Button>
               )}
             </div>

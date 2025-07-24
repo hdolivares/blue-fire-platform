@@ -1,6 +1,7 @@
 // In frontend/src/components/Header.tsx
 import Link from "next/link";
 import { UserMenu } from "./UserMenu";
+import { WalletControls } from "./WalletControls";
 import { Card } from "./ui/Card";
 
 export const Header = () => {
@@ -11,7 +12,11 @@ export const Header = () => {
           <Link href="/dashboard" className="text-xl font-bold">
             Blue Fire
           </Link>
-          <UserMenu />
+          
+          <div className="flex items-center gap-4">
+            <WalletControls />
+            <UserMenu />
+          </div>
         </div>
       </Card>
     </header>

@@ -5,6 +5,7 @@ import { ProjectsService } from './projects.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from './schemas/project.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { BlockchainService } from '../services/blockchain.service';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
     CloudinaryModule,
   ],
   controllers: [ProjectsController],
-  providers: [ProjectsService],
-  exports: [MongooseModule], // <-- Add this line
+  providers: [ProjectsService, BlockchainService],
+  exports: [MongooseModule, ProjectsService], // Export ProjectsService for other modules
 })
 export class ProjectsModule {}

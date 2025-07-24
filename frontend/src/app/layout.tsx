@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { Web3Provider } from "@/context/Web3Context";
 import { AnimatedGradientProvider } from "@/components/AnimatedGradientProvider";
 import { Header } from "@/components/Header";
 import { Toaster } from "react-hot-toast";
@@ -23,12 +24,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
         <AuthProvider>
-          <ClientLoadingOverlay />
-          {/* <ClientAdminBar /> */}
-          <AnimatedGradientProvider />
-          <Header />
-          <Toaster position="top-center" />
-          {children}
+          <Web3Provider>
+            <ClientLoadingOverlay />
+            {/* <ClientAdminBar /> */}
+            <AnimatedGradientProvider />
+            <Header />
+            <Toaster position="top-center" />
+            {children}
+          </Web3Provider>
         </AuthProvider>
       </body>
     </html>

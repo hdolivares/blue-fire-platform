@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Listbox } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { ethers } from 'ethers';
+import { useWeb3 } from '@/context/Web3Context';
 
 import { StyledInput } from './StyledInput';
 import { GlowingButton } from './GlowingButton';
@@ -27,29 +27,12 @@ export const RegistrationForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [country, setCountry] = useState('');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  /**
-   * @function connectWallet
-   * @description Connects to the user's browser wallet and sets the address state.
-   */
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        setWalletAddress(await signer.getAddress());
-        toast.success("Wallet connected successfully!");
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        toast.error("Failed to connect wallet.");
-      }
-    } else {
-      toast.error('Please install a browser wallet like MetaMask.');
-    }
-  };
+  // Use Web3 context for wallet connection
+  const { isConnected, account, connectWallet } = useWeb3();
+  const walletAddress = isConnected ? account : null;
 
   /**
    * @function handleSubmit
