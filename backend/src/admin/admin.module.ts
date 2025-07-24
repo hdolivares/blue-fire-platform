@@ -7,6 +7,7 @@ import { Project, ProjectSchema } from '../projects/schemas/project.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { Investment, InvestmentSchema } from '../investments/schemas/investment.schema';
 import { PerformanceData, PerformanceDataSchema } from '../performance/schemas/performance-data.schema';
+import { OperatorRequest, OperatorRequestSchema } from '../operators/schemas/operator-request.schema';
 import { BlockchainService } from '../services/blockchain.service';
 import { IoTService } from '../services/iot.service';
 import { MarketService } from '../services/market.service';
@@ -18,6 +19,7 @@ import { MarketService } from '../services/market.service';
       { name: User.name, schema: UserSchema },
       { name: Investment.name, schema: InvestmentSchema },
       { name: PerformanceData.name, schema: PerformanceDataSchema },
+      { name: OperatorRequest.name, schema: OperatorRequestSchema },
     ]),
   ],
   controllers: [AdminController],

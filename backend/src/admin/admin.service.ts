@@ -6,6 +6,7 @@ import { Project } from '../projects/schemas/project.schema';
 import { User } from '../users/schemas/user.schema';
 import { Investment } from '../investments/schemas/investment.schema';
 import { PerformanceData } from '../performance/schemas/performance-data.schema';
+import { OperatorRequest } from '../operators/schemas/operator-request.schema';
 import { BlockchainService } from '../services/blockchain.service';
 import { IoTService } from '../services/iot.service';
 import { MarketService } from '../services/market.service';
@@ -41,6 +42,7 @@ export class AdminService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Investment.name) private investmentModel: Model<Investment>,
     @InjectModel(PerformanceData.name) private performanceModel: Model<PerformanceData>,
+    @InjectModel(OperatorRequest.name) private operatorRequestModel: Model<OperatorRequest>,
     public blockchainService: BlockchainService,
     public iotService: IoTService,
     public marketService: MarketService,
@@ -660,8 +662,14 @@ export class AdminService {
   }
 
   async getPendingOperatorRequests() {
-    // For now, return empty array since we removed the operator request model
-    // In a real implementation, you would have this model
-    return [];
+    const requests = await this.operatorRequestModel
+      .find()
+      .populate('operator', 'firstName lastName email')
+      .populate('project', 'projectName status location')
+      .populate('reviewedBy', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .exec();
+    
+    return requests;
   }
 }
