@@ -14,6 +14,7 @@ export const CreateProjectForm = () => {
   const { user, token } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [deploymentStep, setDeploymentStep] = useState('');
+  const [images, setImages] = useState<FileList | null>(null);
   
   // Form state - Enhanced for dual system
   const [formData, setFormData] = useState({
@@ -23,9 +24,9 @@ export const CreateProjectForm = () => {
     fundingCap: '10.0', // ETH
     beneficiary: account || '',
     // Backend fields
-    goalAmount: 10000, // USD equivalent for database
-    avgHumidity: 75,
-    avgTemperature: 25,
+    goalAmount: '10000', // USD equivalent for database (now editable)
+    avgHumidity: '75', // Now editable
+    avgTemperature: '25', // Now editable
     deployToBlockchain: true,
   });
 
@@ -41,13 +42,29 @@ export const CreateProjectForm = () => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.name || !formData.location || !formData.model || !formData.fundingCap) {
+    if (!formData.name || !formData.location || !formData.model || !formData.fundingCap || 
+        !formData.goalAmount || !formData.avgHumidity || !formData.avgTemperature) {
       toast.error('Please fill in all required fields');
       return;
     }
 
     if (parseFloat(formData.fundingCap) <= 0) {
       toast.error('Funding cap must be greater than 0');
+      return;
+    }
+
+    if (parseFloat(formData.goalAmount) <= 0) {
+      toast.error('Goal amount must be greater than 0');
+      return;
+    }
+
+    if (parseFloat(formData.avgHumidity) < 0 || parseFloat(formData.avgHumidity) > 100) {
+      toast.error('Humidity must be between 0 and 100%');
+      return;
+    }
+
+    if (parseFloat(formData.avgTemperature) < -50 || parseFloat(formData.avgTemperature) > 60) {
+      toast.error('Temperature must be between -50°C and 60°C');
       return;
     }
 
@@ -66,25 +83,33 @@ export const CreateProjectForm = () => {
       toast.dismiss(loadingToast);
       const dbToast = toast.loading('Creating project in database...');
 
-      const backendData = {
-        name: formData.name,
-        projectName: formData.name, // For backward compatibility
-        location: formData.location,
-        machineModel: formData.model,
-        goalAmount: formData.goalAmount,
-        fundingGoal: formData.goalAmount, // For backward compatibility  
-        avgHumidity: formData.avgHumidity,
-        avgTemperature: formData.avgTemperature,
-        status: 'SEEKING_FUNDING',
-        deployToBlockchain: formData.deployToBlockchain,
-        fundingCap: formData.fundingCap, // For blockchain deployment
-        beneficiary: formData.beneficiary,
-      };
+      const backendData = new FormData();
+      
+      // Add text fields
+      backendData.append('name', formData.name);
+      backendData.append('projectName', formData.name); // For backward compatibility
+      backendData.append('location', formData.location);
+      backendData.append('machineModel', formData.model);
+      backendData.append('goalAmount', formData.goalAmount);
+      backendData.append('fundingGoal', formData.goalAmount); // For backward compatibility
+      backendData.append('avgHumidity', formData.avgHumidity);
+      backendData.append('avgTemperature', formData.avgTemperature);
+      backendData.append('status', 'SEEKING_FUNDING');
+      backendData.append('deployToBlockchain', formData.deployToBlockchain.toString());
+      backendData.append('fundingCap', formData.fundingCap); // For blockchain deployment
+      backendData.append('beneficiary', formData.beneficiary);
+      
+      // Add images if selected
+      if (images) {
+        for (let i = 0; i < images.length; i++) {
+          backendData.append('images', images[i]);
+        }
+      }
 
       const response = await axios.post('http://localhost:3001/projects', backendData, {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
       });
 
@@ -98,7 +123,7 @@ export const CreateProjectForm = () => {
         const blockchainToast = toast.loading('Deploying to blockchain...');
 
         try {
-          const blockchainResult = await createProject(
+          await createProject(
             formData.name,
             formData.location,
             formData.model,
@@ -148,18 +173,19 @@ export const CreateProjectForm = () => {
         toast.success('✅ Project created in database (blockchain deployment skipped)');
       }
 
-      // Reset form
-      setFormData({
-        name: '',
-        location: '',
-        model: 'AquaGen-3000',
-        fundingCap: '10.0',
-        beneficiary: account || '',
-        goalAmount: 10000,
-        avgHumidity: 75,
-        avgTemperature: 25,
-        deployToBlockchain: true,
-      });
+              // Reset form
+        setFormData({
+          name: '',
+          location: '',
+          model: 'AquaGen-3000',
+          fundingCap: '10.0',
+          beneficiary: account || '',
+          goalAmount: '10000',
+          avgHumidity: '75',
+          avgTemperature: '25',
+          deployToBlockchain: true,
+        });
+        setImages(null);
 
       // Refresh projects list
       if (refreshProjects) {
@@ -265,23 +291,97 @@ export const CreateProjectForm = () => {
           />
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="fundingCap" className="block text-sm font-medium mb-1">
+              Funding Cap (ETH) *
+            </label>
+            <StyledInput
+              id="fundingCap"
+              name="fundingCap"
+              type="number"
+              step="0.1"
+              min="0.1"
+              value={formData.fundingCap}
+              onChange={handleChange}
+              placeholder="10.0"
+              required
+            />
+            <p className="text-xs text-secondary mt-1">
+              Blockchain funding limit
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="goalAmount" className="block text-sm font-medium mb-1">
+              Goal Amount (USD) *
+            </label>
+            <StyledInput
+              id="goalAmount"
+              name="goalAmount"
+              type="number"
+              min="1"
+              value={formData.goalAmount}
+              onChange={handleChange}
+              placeholder="10000"
+              required
+            />
+            <p className="text-xs text-secondary mt-1">
+              Database goal for tracking
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="avgHumidity" className="block text-sm font-medium mb-1">
+              Avg. Humidity (%) *
+            </label>
+            <StyledInput
+              id="avgHumidity"
+              name="avgHumidity"
+              type="number"
+              min="0"
+              max="100"
+              value={formData.avgHumidity}
+              onChange={handleChange}
+              placeholder="75"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="avgTemperature" className="block text-sm font-medium mb-1">
+              Avg. Temperature (°C) *
+            </label>
+            <StyledInput
+              id="avgTemperature"
+              name="avgTemperature"
+              type="number"
+              min="-50"
+              max="60"
+              value={formData.avgTemperature}
+              onChange={handleChange}
+              placeholder="25"
+              required
+            />
+          </div>
+        </div>
+
         <div>
-          <label htmlFor="fundingCap" className="block text-sm font-medium mb-1">
-            Funding Cap (ETH) *
+          <label htmlFor="images" className="block text-sm font-medium mb-1">
+            Project Images (Optional)
           </label>
-          <StyledInput
-            id="fundingCap"
-            name="fundingCap"
-            type="number"
-            step="0.1"
-            min="0.1"
-            value={formData.fundingCap}
-            onChange={handleChange}
-            placeholder="100.0"
-            required
+          <input 
+            id="images" 
+            type="file" 
+            multiple
+            accept="image/*"
+            className="mt-1 block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+            onChange={(e) => setImages(e.target.files)}
           />
           <p className="text-xs text-secondary mt-1">
-            Total amount needed to fund this project
+            Upload multiple images for project carousel (JPG, PNG, GIF)
           </p>
         </div>
 
@@ -329,11 +429,13 @@ export const CreateProjectForm = () => {
       <div className="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
         <h3 className="text-sm font-medium mb-2">ℹ️ Enhanced Project Creation</h3>
         <ul className="text-xs text-secondary space-y-1">
-          <li>• Projects are stored in database AND deployed on blockchain</li>
-          <li>• Database stores metadata, images, and operator assignments</li>
-          <li>• Blockchain handles funding, investments, and revenue distribution</li>
-          <li>• Projects are automatically linked between both systems</li>
-          <li>• Investors can fund projects and receive NFT position tokens</li>
+          <li>• <strong>Dual System:</strong> Projects stored in database AND deployed on blockchain</li>
+          <li>• <strong>Database:</strong> Metadata, images, environmental data, operator assignments</li>
+          <li>• <strong>Blockchain:</strong> Funding, investments, revenue distribution via smart contracts</li>
+          <li>• <strong>Image Upload:</strong> Multiple project images for carousel display</li>
+          <li>• <strong>Environmental Data:</strong> Humidity and temperature tracking</li>
+          <li>• <strong>Auto-Linking:</strong> Projects automatically linked between both systems</li>
+          <li>• <strong>NFT Positions:</strong> Investors receive ERC-721 tokens representing their investment</li>
         </ul>
       </div>
     </Card>
