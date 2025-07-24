@@ -17,8 +17,8 @@ export class User {
   @Prop({ required: true })
   country: string;
 
-  @Prop({ required: true, unique: true })
-  walletAddress: string;
+  @Prop({ unique: true, sparse: true }) // Made optional, sparse index allows multiple null values
+  walletAddress?: string;
 
   @Prop({ required: true, select: false }) // select: false hides it from default queries
   password!: string;

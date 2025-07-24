@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Listbox } from '@headlessui/react';
 import toast from 'react-hot-toast';
-import { ethers } from 'ethers';
 
 import { StyledInput } from './StyledInput';
-import { GlowingButton } from './GlowingButton';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import api from '@/lib/axios';
@@ -27,29 +25,8 @@ export const RegistrationForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [country, setCountry] = useState('');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [isRegistering, setIsRegistering] = useState(false);
-
-  /**
-   * @function connectWallet
-   * @description Connects to the user's browser wallet and sets the address state.
-   */
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        setWalletAddress(await signer.getAddress());
-        toast.success("Wallet connected successfully!");
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        toast.error("Failed to connect wallet.");
-      }
-    } else {
-      toast.error('Please install a browser wallet like MetaMask.');
-    }
-  };
 
   /**
    * @function handleSubmit
@@ -57,9 +34,6 @@ export const RegistrationForm = () => {
    */
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!walletAddress) {
-      return toast.error("Please connect your wallet to register.");
-    }
     
     setIsRegistering(true);
     const loadingToast = toast.loading('Creating your account...');
@@ -70,7 +44,6 @@ export const RegistrationForm = () => {
       email: email.toLowerCase(), // Convert to lowercase for consistency
       password, 
       country, 
-      walletAddress,
       roles: [selectedRole],
     };
 
@@ -82,7 +55,7 @@ export const RegistrationForm = () => {
     } catch (error: any) {
       toast.dismiss(loadingToast);
       console.error('Registration failed:', error);
-      const errorMessage = error.response?.data?.message || 'Registration failed. The email or wallet may already be in use.';
+      const errorMessage = error.response?.data?.message || 'Registration failed. The email may already be in use.';
       toast.error(errorMessage);
     } finally {
       setIsRegistering(false);
@@ -141,22 +114,9 @@ export const RegistrationForm = () => {
           </Listbox>
         </div>
 
-        <div className="pt-2">
-          {walletAddress ? (
-            <div className="text-center p-3 rounded-lg bg-green-500/20 border border-green-500">
-              <p className="text-sm">Wallet Connected:</p>
-              <p className="font-mono text-xs break-all">{walletAddress}</p>
-            </div>
-          ) : (
-            <GlowingButton onClick={connectWallet}>
-              Connect Wallet
-            </GlowingButton>
-          )}
-        </div>
-
         <Button
           type="submit"
-          disabled={!walletAddress || isRegistering}
+          disabled={isRegistering}
           variant="primary"
           size="lg"
           className="w-full mt-6"
