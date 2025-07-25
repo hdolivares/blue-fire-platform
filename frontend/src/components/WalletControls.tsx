@@ -1,7 +1,7 @@
 'use client';
 
 import { useWeb3 } from '@/context/Web3Context';
-import { GlowingButton } from './GlowingButton';
+import { Button } from './ui/Button';
 
 export const WalletControls = () => {
   const { 
@@ -21,40 +21,54 @@ export const WalletControls = () => {
 
   if (!isConnected) {
     return (
-      <GlowingButton onClick={connectWallet}>
+      <Button 
+        onClick={connectWallet}
+        variant="primary"
+        size="sm"
+        className="font-bold"
+      >
         🦊 Connect Wallet
-      </GlowingButton>
+      </Button>
     );
   }
 
   return (
     <div className="flex items-center gap-3">
-      {/* Wallet Info */}
-      <div className="flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full ${isWrongNetwork ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
-        <span className="text-sm font-mono">{formatAddress(account!)}</span>
-        <span className="text-xs text-gray-400">({chainId})</span>
-      </div>
+      {/* Wallet Address Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="font-mono cursor-default"
+        onClick={() => {}} // No action needed, just for styling consistency
+      >
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isWrongNetwork ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
+          <span>{formatAddress(account!)}</span>
+          <span className="text-xs opacity-70">({chainId})</span>
+        </div>
+      </Button>
 
       {/* Control Buttons */}
       <div className="flex gap-2">
         {isWrongNetwork && (
-          <button
+          <Button
             onClick={switchToAnvilNetwork}
-            className="px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-700 rounded transition-colors font-medium"
-            title="Switch to Localhost Network"
+            variant="warning"
+            size="sm"
+            className="font-bold"
           >
             🔄 Switch Network
-          </button>
+          </Button>
         )}
         
-        <button
+        <Button
           onClick={disconnectWallet}
-          className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 rounded transition-colors font-medium"
-          title="Disconnect Wallet"
+          variant="error"
+          size="sm"
+          className="font-bold"
         >
           🔌 Disconnect
-        </button>
+        </Button>
       </div>
     </div>
   );

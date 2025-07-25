@@ -4,6 +4,8 @@ import { createContext, useState, useContext, ReactNode, useEffect } from 'react
 
 interface User {
   _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
   roles: string[];
 }
@@ -32,7 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(storedToken);
       try {
         const payload = JSON.parse(atob(storedToken.split('.')[1]));
-        setUser({ _id: payload.sub, email: payload.email, roles: payload.roles });
+        setUser({ 
+          _id: payload.sub, 
+          firstName: payload.firstName || '',
+          lastName: payload.lastName || '',
+          email: payload.email, 
+          roles: payload.roles 
+        });
       } catch (e) {
         console.error("Failed to decode token on load", e);
         localStorage.removeItem('token');
@@ -45,7 +53,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(newToken);
     try {
       const payload = JSON.parse(atob(newToken.split('.')[1]));
-      setUser({ _id: payload.sub, email: payload.email, roles: payload.roles });
+      setUser({ 
+        _id: payload.sub, 
+        firstName: payload.firstName || '',
+        lastName: payload.lastName || '',
+        email: payload.email, 
+        roles: payload.roles 
+      });
       localStorage.setItem('token', newToken); // Use same key as axios interceptor
     } catch (e) {
       console.error("Failed to decode token", e);

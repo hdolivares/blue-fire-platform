@@ -9,12 +9,16 @@ export const Header = () => {
     <header className="sticky top-0 z-50">
       <Card variant="frosted" className="rounded-none border-b border-white/10">
         <div className="container mx-auto flex items-center justify-between p-4">
-          <Link href="/dashboard" className="text-xl font-bold">
-            Blue Fire
-          </Link>
-          
-          <div className="flex items-center gap-4">
+          {/* Left side: Logo and Wallet Controls */}
+          <div className="flex items-center gap-6">
+            <Link href="/dashboard" className="text-xl font-bold">
+              Blue Fire
+            </Link>
             <WalletControls />
+          </div>
+          
+          {/* Right side: User Menu */}
+          <div className="flex items-center">
             <UserMenu />
           </div>
         </div>

@@ -17,7 +17,16 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user.toObject();
-      return result;
+      // Ensure all fields are included
+      return {
+        _id: result._id,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        email: result.email,
+        roles: result.roles,
+        walletAddress: result.walletAddress,
+        country: result.country
+      };
     }
     return null;
   }
@@ -41,7 +50,26 @@ export class AuthService {
   }
 
 async login(user: any) {
-  const payload = { email: user.email, sub: user._id, roles: user.roles, walletAddress: user.walletAddress };
+  console.log('Login - User object received:', {
+    _id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    roles: user.roles,
+    walletAddress: user.walletAddress
+  });
+  
+  const payload = { 
+    email: user.email, 
+    sub: user._id, 
+    roles: user.roles, 
+    walletAddress: user.walletAddress,
+    firstName: user.firstName,
+    lastName: user.lastName
+  };
+  
+  console.log('Login - JWT payload:', payload);
+  
   return {
     access_token: this.jwtService.sign(payload),
     user: user,

@@ -13,6 +13,7 @@
   --color-red-700: #b91c1c;
   --color-green-600: #059669;
   --color-green-700: #047857;
+  --color-teal-500: #00bcff;
 }
 
 /* Neumorphic Button Styles */
@@ -74,8 +75,8 @@
 
 .neumorphic-error {
   --line_color: #dc2626;
-  --back_color: #991b1b;
-  --shadow_light: rgba(255, 255, 255, 0.1);
+  --back_color: #ee404082;
+  --shadow_light: rgba(255, 255, 255, 0.15);
   --shadow_dark: rgba(0, 0, 0, 0.3);
   background: var(--back_color);
   color: #ffffff;
@@ -467,6 +468,10 @@ h6 { font-size: 1rem; }
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   border: none;
+}
+
+.text-user-header-menu {
+  color: #267dff;
 }
 
 /* DayPicker styles are now handled in BookingCalendar.module.css for better specificity */
