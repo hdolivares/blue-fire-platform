@@ -380,31 +380,64 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   };
 
   const refreshUserPositions = useCallback(async () => {
-    if (!account || projects.length === 0) return;
+    console.log(`🔍 refreshUserPositions called - Account: ${account}, Projects: ${projects.length}`);
+    
+    if (!account || projects.length === 0) {
+      console.log(`⏭️ Skipping refresh: account=${!!account}, projects=${projects.length}`);
+      return;
+    }
 
     try {
       const positionPromises = projects.map(async (project) => {
+        console.log(`🔍 Checking project ${project.projectId} (${project.projectAddress}) for positions...`);
         const projectContract = new ethers.Contract(project.projectAddress, UnitProjectERC721ABI, provider);
         
         try {
-          const balance = await projectContract.balanceOf(account);
-          const positions: UserPosition[] = [];
-
-          for (let i = 0; i < Number(balance); i++) {
-            const tokenId = await projectContract.tokenOfOwnerByIndex(account, i);
-            const funded = await projectContract.funded(tokenId);
-            const pendingRewards = await projectContract.pendingRewards(tokenId);
-
-            positions.push({
-              tokenId: Number(tokenId),
-              projectId: project.projectId,
-              projectAddress: project.projectAddress,
-              funded: ethers.formatEther(funded),
-              pendingRewards: ethers.formatEther(pendingRewards),
-            });
+          // Get the user's token ID for this project
+          const tokenId = await projectContract.investorToTokenId(account);
+          
+          // If tokenId is 0, user has no position (investorToTokenId returns 0 for no mapping)
+          // But we need to check if token 0 is actually owned by user (since token IDs start from 0)
+          if (Number(tokenId) === 0) {
+            // Check if user actually owns token 0
+            try {
+              const owner = await projectContract.ownerOf(0);
+              if (owner.toLowerCase() !== account.toLowerCase()) {
+                return []; // Token 0 exists but not owned by user, so no position
+              }
+              // User owns token 0, continue processing
+            } catch (error) {
+              return []; // Token 0 doesn't exist, so no position
+            }
           }
 
-          return positions;
+          // Verify ownership (safety check for non-zero tokens)
+          if (Number(tokenId) > 0) {
+            const owner = await projectContract.ownerOf(tokenId);
+            if (owner.toLowerCase() !== account.toLowerCase()) {
+              console.warn(`Token ${tokenId} owner mismatch for project ${project.projectId}`);
+              return [];
+            }
+          }
+
+          // Get position details
+          const funded = await projectContract.funded(tokenId);
+          const pendingRewards = await projectContract.pendingRewards(tokenId);
+
+          // Only return position if there's actual funding
+          if (Number(funded) === 0) {
+            return []; // No funding means no real position
+          }
+
+          console.log(`🎯 Found position for project ${project.projectId}: Token ${tokenId}, ${ethers.formatEther(funded)} ETH`);
+
+          return [{
+            tokenId: Number(tokenId),
+            projectId: project.projectId,
+            projectAddress: project.projectAddress,
+            funded: ethers.formatEther(funded),
+            pendingRewards: ethers.formatEther(pendingRewards),
+          }];
         } catch (error) {
           console.error(`Failed to get positions for project ${project.projectId}:`, error);
           return [];
@@ -414,10 +447,67 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       const allPositions = await Promise.all(positionPromises);
       const flatPositions = allPositions.flat();
       setUserPositions(flatPositions);
+      
+      console.log(`📊 Found ${flatPositions.length} positions for account ${account}`);
     } catch (error) {
       console.error('Failed to refresh user positions:', error);
     }
   }, [account, projects, provider]);
+
+  // Auto-refresh user positions when projects load
+  useEffect(() => {
+    if (account && projects.length > 0) {
+      console.log(`🎯 Projects loaded (${projects.length}), refreshing user positions...`);
+      refreshUserPositions();
+    }
+  }, [account, projects.length]); // refreshUserPositions is useCallback, so stable
+
+  // Helper function to log investment in backend database (for analytics only)
+  const logInvestmentInBackend = async (blockchainProjectId: number, ethAmount: string) => {
+    try {
+      console.log(`💰 Logging investment of ${ethAmount} ETH for project ${blockchainProjectId}...`);
+      
+      // Find the database project ID by blockchain project ID
+      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const databaseProject = response.data;
+      
+      if (!databaseProject) {
+        console.warn(`⚠️ No database project found for blockchain ID ${blockchainProjectId}`);
+        return;
+      }
+
+      // Convert ETH amount to USD (using same rate as backend: 2000 USD/ETH)
+      const ethToUsdRate = 2000;
+      const usdAmount = parseFloat(ethAmount) * ethToUsdRate;
+
+      // Get auth token for API call
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn(`⚠️ No auth token found, cannot log investment`);
+        return;
+      }
+
+      // Call backend investment logging endpoint
+      await axios.post(
+        'http://127.0.0.1:3001/investments',
+        {
+          projectId: databaseProject._id,
+          amount: usdAmount
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log(`✅ Investment logged in backend: ${ethAmount} ETH ($${usdAmount}) for project ${databaseProject._id}`);
+    } catch (error) {
+      console.error(`❌ Failed to log investment in backend:`, error);
+      // This is non-critical - just for analytics
+    }
+  };
 
   // Helper function to sync project data with backend after blockchain transactions
   const syncProjectWithBackend = async (
@@ -463,6 +553,11 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await projectContract.fundProject({ value: ethers.parseEther(amount) });
     await tx.wait();
+    
+    // Log investment in backend database for analytics (don't block on failure)
+    logInvestmentInBackend(projectId, amount).catch((err: any) => 
+      console.warn('Failed to log investment in backend:', err)
+    );
     
     // Sync with backend after successful investment
     await syncProjectWithBackend(projectId, 'investment');

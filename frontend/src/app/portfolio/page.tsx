@@ -7,15 +7,17 @@ import { Card } from '@/components/ui/Card';
 import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 
 export default function PortfolioPage() {
-  const { isConnected, account, userPositions, refreshUserPositions, refreshProjects } = useWeb3();
+  const { isConnected, account, userPositions, projects, refreshUserPositions, refreshProjects } = useWeb3();
 
   useEffect(() => {
+    console.log('📊 Portfolio useEffect triggered:', { isConnected, account, projectsCount: projects.length });
     if (isConnected && account) {
       // Refresh data when component mounts
+      console.log('🔄 Triggering portfolio data refresh...');
       refreshProjects();
       refreshUserPositions();
     }
-  }, [isConnected, account]);
+  }, [isConnected, account]); // Removed function refs - they're useCallback so stable
 
   if (!isConnected) {
     return (
@@ -74,6 +76,35 @@ export default function PortfolioPage() {
           </div>
         </Card>
       )}
+
+      {/* Debug Info */}
+      <Card variant="frosted" className="p-6 mb-6">
+        <h2 className="text-lg font-bold mb-4">🔍 Debug Portfolio Data</h2>
+        <div className="space-y-2 text-sm">
+          <p><strong>Connected Account:</strong> {account}</p>
+          <p><strong>Is Connected:</strong> {isConnected ? '✅ Yes' : '❌ No'}</p>
+          <p><strong>User Positions Found:</strong> {userPositions.length}</p>
+          <p><strong>Projects Available:</strong> {projects.length}</p>
+          {userPositions.length > 0 && (
+            <div>
+              <strong>Positions:</strong>
+              <pre className="text-xs mt-2 p-2 bg-black/20 rounded">
+                {JSON.stringify(userPositions, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
+        <button 
+          onClick={() => {
+            console.log('🔄 Manual refresh triggered');
+            refreshProjects();
+            refreshUserPositions();
+          }}
+          className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+        >
+          🔄 Manual Refresh
+        </button>
+      </Card>
 
       {/* Individual Positions */}
       <div className="space-y-6">
