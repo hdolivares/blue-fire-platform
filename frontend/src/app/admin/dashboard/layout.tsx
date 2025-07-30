@@ -15,8 +15,8 @@ const Sidebar = () => {
           </Link>
         </Card>
         <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">
-          <Link href="/dashboard">
-            View Projects
+          <Link href="/admin/projects">
+            Manage Projects
           </Link>
         </Card>
         <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">

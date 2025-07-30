@@ -72,6 +72,19 @@ export class Project extends Document {
 
   @Prop()
   machineModel?: string; // Machine model for blockchain deployment
+
+  // Sync tracking fields
+  @Prop()
+  currentFundingETH?: number; // Current funding in ETH from blockchain
+
+  @Prop()
+  blockchainState?: number; // Current blockchain state (0-3)
+
+  @Prop()
+  fundingProgress?: number; // Funding progress percentage from blockchain
+
+  @Prop({ default: Date.now })
+  lastSyncAt?: Date; // Last time this project was synced with blockchain
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

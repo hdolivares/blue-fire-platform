@@ -43,7 +43,7 @@ export class BlockchainService {
 
   private initializeConfig() {
     this.config = {
-      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'http://localhost:8545',
+      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'http://127.0.0.1:8545',
       factoryAddress: this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       chainId: this.configService.get<number>('BLOCKCHAIN_CHAIN_ID') || 31337, // localhost anvil default
     };
@@ -110,27 +110,22 @@ export class BlockchainService {
 
   async getProjectInfo(projectId: number): Promise<ProjectInfo> {
     try {
-      const projectAddress = await this.getProjectAddress(projectId);
-      const projectContract = await this.getProjectContract(projectAddress);
-
-      const [name, fundingCap, totalFunded, state, beneficiary, alice] = await Promise.all([
-        projectContract.name(),
-        projectContract.fundingCap(),
-        projectContract.totalFunded(),
-        projectContract.state(),
-        projectContract.escrowBeneficiary(),
-        projectContract.alice(),
-      ]);
+      // Get project metadata from Factory contract
+      const factoryProjectData = await this.factoryContract.getProject(projectId);
+      
+      // Get funding data from the specific project contract
+      const projectContract = await this.getProjectContract(factoryProjectData.projectAddress);
+      const totalFunded = await projectContract.totalFunded();
 
       return {
         projectId,
-        projectAddress,
-        name,
-        fundingCap: ethers.formatEther(fundingCap),
+        projectAddress: factoryProjectData.projectAddress,
+        name: factoryProjectData.name,
+        fundingCap: ethers.formatEther(factoryProjectData.fundingCap),
         totalFunded: ethers.formatEther(totalFunded),
-        state: Number(state),
-        beneficiary,
-        alice,
+        state: Number(factoryProjectData.state),
+        beneficiary: factoryProjectData.escrowBeneficiary,
+        alice: factoryProjectData.aliceOperator,
       };
     } catch (error) {
       this.logger.error(`Failed to get project info for ID ${projectId}:`, error);

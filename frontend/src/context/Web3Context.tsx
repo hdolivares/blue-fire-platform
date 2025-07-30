@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 // Import contract ABIs
 import BlueFireFactoryABI from '@/contracts/BlueFireFactory.json';
@@ -420,6 +421,35 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   }, [account, projects, provider]);
 
+  // Helper function to sync project data with backend after blockchain transactions
+  const syncProjectWithBackend = async (
+    blockchainProjectId: number,
+    transactionType: 'investment' | 'revenue' | 'state_change'
+  ) => {
+    try {
+      console.log(`🔄 Syncing project ${blockchainProjectId} with backend after ${transactionType}...`);
+      
+      // Find the database project ID by blockchain project ID
+      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const databaseProject = response.data;
+      
+      if (!databaseProject) {
+        console.warn(`⚠️ No database project found for blockchain ID ${blockchainProjectId}`);
+        return;
+      }
+
+      // Trigger sync with backend
+      await axios.post(`http://localhost:3001/projects/${databaseProject._id}/sync-after-transaction`, {
+        transactionType
+      });
+
+      console.log(`✅ Project ${blockchainProjectId} synced with backend successfully`);
+    } catch (error) {
+      console.error(`❌ Failed to sync project ${blockchainProjectId} with backend:`, error);
+      // Don't throw error - sync failure shouldn't break the transaction flow
+    }
+  };
+
   const getProjectContract = (projectAddress: string): ethers.Contract | null => {
     if (!signer) return null;
     return new ethers.Contract(projectAddress, UnitProjectERC721ABI, signer);
@@ -435,6 +465,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await projectContract.fundProject({ value: ethers.parseEther(amount) });
     await tx.wait();
+    
+    // Sync with backend after successful investment
+    await syncProjectWithBackend(projectId, 'investment');
     
     // Refresh data after successful transaction
     await refreshProjects();
@@ -462,6 +495,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await projectContract.payWaterRevenue({ value: ethers.parseEther(amount) });
     await tx.wait();
+    
+    // Find project ID for sync (we have address, need to find ID)
+    const matchingProject = projects.find(p => p.projectAddress.toLowerCase() === projectAddress.toLowerCase());
+    if (matchingProject) {
+      await syncProjectWithBackend(matchingProject.projectId, 'revenue');
+    }
     
     // Refresh data after revenue deposit
     await refreshProjects();
@@ -495,6 +534,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     const tx = await factoryContract.setAlice(projectId, aliceAddress);
     await tx.wait();
     
+    // Sync with backend after setting Alice
+    await syncProjectWithBackend(projectId, 'state_change');
+    
     return tx;
   };
 
@@ -504,6 +546,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     const tx = await factoryContract.approveEscrowRelease(projectId);
     await tx.wait();
     
+    // Sync with backend after approving escrow release
+    await syncProjectWithBackend(projectId, 'state_change');
+    
     return tx;
   };
 
@@ -512,6 +557,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await factoryContract.releaseEscrow(projectId);
     await tx.wait();
+    
+    // Sync with backend after escrow release
+    await syncProjectWithBackend(projectId, 'state_change');
     
     // Refresh projects after escrow release
     await refreshProjects();

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ProjectStatusInfo } from '@/components/ProjectStatusInfo';
 import { PerformanceChart } from '@/components/PerformanceChart';
+import { ProjectManagement } from '@/components/admin/ProjectManagement';
 
 // Should match backend enums
 type ProjectStatus = 
@@ -29,9 +30,18 @@ interface Operator {
 
 interface Project {
   _id: string;
+  name: string;
   projectName: string;
   status: ProjectStatus;
-  operator: Operator | null;
+  blockchainProjectId?: number;
+  blockchainAddress?: string;
+  deployedOnChain?: boolean;
+  operator?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 const formatStatus = (status: string = '') => {
@@ -146,7 +156,14 @@ export default function AdminProjectDetailPage() {
             </Button>
           </div>
         </div>
-      </Card>
+              </Card>
+
+      <div className="mt-8">
+        <ProjectManagement 
+          project={project} 
+          onProjectUpdate={fetchProjectAndOperators}
+        />
+      </div>
 
       {project.status === 'OPERATIONAL' && id && (
         <div className="mt-8">

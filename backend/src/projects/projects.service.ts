@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Project } from './schemas/project.schema';
+import { Project, ProjectStatus } from './schemas/project.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { BlockchainService } from '../services/blockchain.service';
 
@@ -134,5 +134,146 @@ export class ProjectsService {
       .populate('operator')
       .sort({ createdAt: -1 })
       .exec();
+  }
+
+  /**
+   * Sync a single project's data from blockchain to database
+   */
+  async syncProjectFromBlockchain(projectId: string): Promise<Project> {
+    console.log(`🔄 Syncing project ${projectId} from blockchain...`);
+    
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    if (!project.blockchainProjectId) {
+      console.log('⚠️ Project has no blockchain ID, skipping sync');
+      return project;
+    }
+
+    try {
+      // Get current blockchain data
+      const blockchainData = await this.blockchainService.getProjectInfo(project.blockchainProjectId);
+      
+      // Calculate current funding in USD (approximate)
+      const currentFundingETH = parseFloat(blockchainData.totalFunded);
+      const ethToUsdRate = 2000; // Should be fetched from API in production
+      const currentFundingUSD = currentFundingETH * ethToUsdRate;
+      
+      // Determine project status based on blockchain state AND funding progress
+      let newStatus = project.status;
+      
+      // Check if funding goal has been reached, regardless of blockchain state
+      const fundingGoalMet = currentFundingUSD >= project.goalAmount;
+      
+      switch (blockchainData.state) {
+        case 0: // SEEKING_FUNDING
+          if (fundingGoalMet) {
+            // Goal met but blockchain hasn't transitioned yet - move to funded
+            newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
+            console.log(`📈 Project ${projectId}: Goal met (${currentFundingUSD} >= ${project.goalAmount}), updating status to FUNDED_ORDER_PLACED`);
+          } else {
+            newStatus = ProjectStatus.SEEKING_FUNDING;
+          }
+          break;
+        case 1: // FUNDED
+          newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
+          break;
+        case 2: // OPERATIONAL
+          newStatus = ProjectStatus.OPERATIONAL;
+          break;
+        case 3: // CLOSED
+          newStatus = ProjectStatus.OPERATIONAL; // Keep as operational since no CLOSED in enum
+          break;
+        default:
+          console.warn(`Unknown blockchain state: ${blockchainData.state}, keeping current status: ${project.status}`);
+      }
+
+      // Update project with blockchain data
+      const updatedProject = await this.projectModel.findByIdAndUpdate(
+        projectId,
+        {
+          $set: {
+            // Update both current amount fields for compatibility
+            currentAmount: currentFundingUSD,
+            currentFunding: currentFundingUSD,
+            currentFundingETH: currentFundingETH,
+            status: newStatus,
+            blockchainState: blockchainData.state,
+            lastSyncAt: new Date(),
+          }
+        },
+        { new: true }
+      );
+
+      if (!updatedProject) {
+        throw new NotFoundException(`Project ${projectId} not found after update`);
+      }
+
+      console.log(`✅ Project ${projectId} synced successfully:`, {
+        status: `${project.status} → ${newStatus}`,
+        currentFundingETH,
+        currentFundingUSD,
+        blockchainState: blockchainData.state,
+        fundingGoalMet: fundingGoalMet,
+        goalAmount: project.goalAmount,
+      });
+
+      return updatedProject;
+    } catch (error) {
+      console.error(`❌ Failed to sync project ${projectId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Sync multiple projects from blockchain to database
+   */
+  async syncAllProjectsFromBlockchain(): Promise<{ synced: number; errors: number }> {
+    console.log('🔄 Syncing all projects from blockchain...');
+    
+    const projects = await this.projectModel.find({ 
+      blockchainProjectId: { $exists: true, $ne: null },
+      deployedOnChain: true 
+    });
+
+    let synced = 0;
+    let errors = 0;
+
+    for (const project of projects) {
+      try {
+        await this.syncProjectFromBlockchain(String(project._id));
+        synced++;
+      } catch (error) {
+        console.error(`Failed to sync project ${String(project._id)}:`, error);
+        errors++;
+      }
+    }
+
+    console.log(`✅ Bulk sync completed: ${synced} synced, ${errors} errors`);
+    return { synced, errors };
+  }
+
+  /**
+   * Sync specific project after successful blockchain transaction
+   */
+  async syncProjectAfterTransaction(
+    projectId: string, 
+    transactionType: 'investment' | 'revenue' | 'state_change'
+  ): Promise<Project> {
+    console.log(`🔄 Post-transaction sync for project ${projectId} (${transactionType})`);
+    
+    // Wait a moment for blockchain to update
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    return this.syncProjectFromBlockchain(projectId);
+  }
+
+  /**
+   * Find project by blockchain project ID for quick sync operations
+   */
+  async findByBlockchainProjectId(blockchainProjectId: number): Promise<Project | null> {
+    return this.projectModel.findOne({ blockchainProjectId }).exec();
   }
 }
