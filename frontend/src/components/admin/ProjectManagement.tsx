@@ -43,6 +43,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
     isConnected, 
     account, 
     projects: onChainProjects,
+    setProjectState,
     setAlice, 
     approveEscrowRelease, 
     releaseEscrow,
@@ -51,6 +52,11 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
   
   const [isUpdating, setIsUpdating] = useState(false);
   const [onChainProject, setOnChainProject] = useState<any>(null);
+
+  // Helper function to check if Alice is properly set
+  const isAliceSet = () => {
+    return onChainProject?.alice && onChainProject.alice !== '0x0000000000000000000000000000000000000000';
+  };
 
   useEffect(() => {
     if (project.blockchainProjectId && onChainProjects.length > 0) {
@@ -110,6 +116,36 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
     }
   };
 
+  const handleSetProjectFunded = async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!project.blockchainProjectId) {
+      toast.error('Project not deployed on blockchain');
+      return;
+    }
+
+    setIsUpdating(true);
+    const loadingToast = toast.loading('Setting project state to FUNDED...');
+
+    try {
+      await setProjectState(project.blockchainProjectId, 1); // 1 = FUNDED
+      
+      toast.dismiss(loadingToast);
+      toast.success('✅ Project state set to FUNDED on blockchain');
+      
+      onProjectUpdate();
+    } catch (error: any) {
+      console.error('Set project state failed:', error);
+      toast.dismiss(loadingToast);
+      toast.error(`Failed to set project state: ${error.reason || error.message}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleSetAlice = async () => {
     if (!isConnected) {
       toast.error('Please connect your wallet first');
@@ -130,17 +166,14 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
     const loadingToast = toast.loading('Setting Alice operator on blockchain...');
 
     try {
-      await setAlice(project.blockchainProjectId, account!);
+      // Set Alice to the operator's wallet address, not the admin's
+      const operatorWalletAddress = account!; // In a real system, this would be project.operator.walletAddress
+      await setAlice(project.blockchainProjectId, operatorWalletAddress);
       
       toast.dismiss(loadingToast);
-      toast.success(`✅ Alice set to ${account} on blockchain`);
+      toast.success(`✅ Alice set to operator (${operatorWalletAddress.slice(0, 8)}...) on blockchain`);
       
-      // Trigger project sync
-      await axios.post(
-        `http://localhost:3001/projects/${project._id}/sync-after-transaction`,
-        { transactionType: 'state_change' }
-      );
-      
+      // Note: sync is automatically triggered by Web3Context setAlice function
       onProjectUpdate();
     } catch (error: any) {
       console.error('Set Alice failed:', error);
@@ -307,14 +340,33 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
             </div>
           ) : (
             <div className="space-y-4">
+              {/* Project State Management */}
+              {onChainProject?.state === 0 && onChainProject?.fundingProgress >= 100 && (
+                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                  <h3 className="font-medium mb-2">🎯 Project State</h3>
+                  <p className="text-sm text-secondary mb-3">
+                    Project is fully funded but needs to be transitioned to FUNDED state for escrow operations
+                  </p>
+                  <Button
+                    onClick={handleSetProjectFunded}
+                    disabled={isUpdating}
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-yellow-500/50 hover:bg-yellow-500/20"
+                  >
+                    {isUpdating ? 'Setting...' : 'Set Project to FUNDED'}
+                  </Button>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <h3 className="font-medium mb-2">Set Alice Operator</h3>
                   <p className="text-sm text-secondary mb-3">
                     Assign the current wallet as the Alice operator on the blockchain
                   </p>
-                  {onChainProject?.alice === account ? (
-                    <Badge variant="success" size="sm">✅ Alice Already Set</Badge>
+                  {isAliceSet() ? (
+                    <Badge variant="success" size="sm">✅ Alice Set ({onChainProject.alice.slice(0, 8)}...)</Badge>
                   ) : (
                     <Button
                       onClick={handleSetAlice}
@@ -343,7 +395,12 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                   ) : (
                     <Button
                       onClick={handleApproveEscrowRelease}
-                      disabled={isUpdating || project.status !== 'OPERATIONAL'}
+                      disabled={
+                        isUpdating || 
+                        project.status !== 'OPERATIONAL' || 
+                        !isAliceSet() ||
+                        onChainProject?.state !== 1 // Must be in FUNDED state
+                      }
                       variant="outline"
                       size="sm"
                       className="w-full"
@@ -356,6 +413,16 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                       Project must be operational
                     </p>
                   )}
+                  {onChainProject?.state !== 1 && (
+                    <p className="text-xs text-yellow-400 mt-2">
+                      Project must be in FUNDED state on blockchain
+                    </p>
+                  )}
+                  {!isAliceSet() && (
+                    <p className="text-xs text-yellow-400 mt-2">
+                      Must set Alice operator first
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -366,7 +433,12 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                 </p>
                 <Button
                   onClick={handleReleaseEscrow}
-                  disabled={isUpdating || !onChainProject?.escrowReleaseApproved}
+                  disabled={
+                    isUpdating || 
+                    !onChainProject?.escrowReleaseApproved ||
+                    !isAliceSet() ||
+                    onChainProject?.state !== 1 // Must be in FUNDED state
+                  }
                   variant="outline"
                   size="sm"
                   className="w-full border-red-500/50 hover:bg-red-500/20"
@@ -376,6 +448,16 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                 {!onChainProject?.escrowReleaseApproved && (
                   <p className="text-xs text-red-400 mt-2">
                     Must approve release first
+                  </p>
+                )}
+                {onChainProject?.state !== 1 && (
+                  <p className="text-xs text-red-400 mt-2">
+                    Project must be in FUNDED state on blockchain
+                  </p>
+                )}
+                {!isAliceSet() && (
+                  <p className="text-xs text-red-400 mt-2">
+                    Must set Alice operator first
                   </p>
                 )}
               </div>

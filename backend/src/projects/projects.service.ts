@@ -167,27 +167,39 @@ export class ProjectsService {
       // Check if funding goal has been reached, regardless of blockchain state
       const fundingGoalMet = currentFundingUSD >= project.goalAmount;
       
-      switch (blockchainData.state) {
-        case 0: // SEEKING_FUNDING
-          if (fundingGoalMet) {
-            // Goal met but blockchain hasn't transitioned yet - move to funded
+      // Only auto-update status if current status is not manually progressed beyond blockchain state
+      const isManuallyProgressed = (
+        project.status === ProjectStatus.OPERATIONAL && blockchainData.state < 2
+      ) || (
+        [ProjectStatus.FUNDED_MACHINE_SHIPPED, ProjectStatus.FUNDED_INSTALLATION_PHASE].includes(project.status as any) && blockchainData.state < 2
+      );
+      
+      if (!isManuallyProgressed) {
+        switch (blockchainData.state) {
+          case 0: // SEEKING_FUNDING
+            if (fundingGoalMet) {
+              // Goal met but blockchain hasn't transitioned yet - move to funded
+              newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
+              console.log(`📈 Project ${projectId}: Goal met (${currentFundingUSD} >= ${project.goalAmount}), updating status to FUNDED_ORDER_PLACED`);
+            } else {
+              newStatus = ProjectStatus.SEEKING_FUNDING;
+            }
+            break;
+          case 1: // FUNDED
             newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
-            console.log(`📈 Project ${projectId}: Goal met (${currentFundingUSD} >= ${project.goalAmount}), updating status to FUNDED_ORDER_PLACED`);
-          } else {
-            newStatus = ProjectStatus.SEEKING_FUNDING;
-          }
-          break;
-        case 1: // FUNDED
-          newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
-          break;
-        case 2: // OPERATIONAL
-          newStatus = ProjectStatus.OPERATIONAL;
-          break;
-        case 3: // CLOSED
-          newStatus = ProjectStatus.OPERATIONAL; // Keep as operational since no CLOSED in enum
-          break;
-        default:
-          console.warn(`Unknown blockchain state: ${blockchainData.state}, keeping current status: ${project.status}`);
+            break;
+          case 2: // OPERATIONAL
+            newStatus = ProjectStatus.OPERATIONAL;
+            break;
+          case 3: // CLOSED
+            newStatus = ProjectStatus.OPERATIONAL; // Keep as operational since no CLOSED in enum
+            break;
+          default:
+            console.warn(`Unknown blockchain state: ${blockchainData.state}, keeping current status: ${project.status}`);
+        }
+      } else {
+        console.log(`🔒 Project ${projectId}: Preserving manually progressed status ${project.status} (blockchain state: ${blockchainData.state})`);
+        newStatus = project.status; // Keep existing status if manually progressed
       }
 
       // Update project with blockchain data

@@ -21,6 +21,7 @@ export interface ProjectInfo {
   beneficiary: string;
   alice: string;
   fundingProgress: number;
+  escrowReleaseApproved: boolean;
 }
 
 export interface UserPosition {
@@ -61,6 +62,7 @@ export interface Web3ContextType {
   
   // Admin functions
   createProject: (name: string, location: string, model: string, fundingCap: string, beneficiary: string) => Promise<any>;
+  setProjectState: (projectId: number, state: number) => Promise<any>;
   setAlice: (projectId: number, aliceAddress: string) => Promise<any>;
   approveEscrowRelease: (projectId: number) => Promise<any>;
   releaseEscrow: (projectId: number) => Promise<any>;
@@ -353,31 +355,27 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const getProjectInfo = async (projectId: number): Promise<ProjectInfo> => {
     if (!factoryContract) throw new Error('Factory contract not available');
 
-    const projectAddress = await factoryContract.getProjectAddress(projectId);
-    const projectContract = new ethers.Contract(projectAddress, UnitProjectERC721ABI, provider);
+    // Get project metadata from Factory contract (correct approach)
+    const factoryProjectData = await factoryContract.getProject(projectId);
+    
+    // Get funding data from the specific project contract
+    const projectContract = new ethers.Contract(factoryProjectData.projectAddress, UnitProjectERC721ABI, provider);
+    const totalFunded = await projectContract.totalFunded();
 
-    const [name, fundingCap, totalFunded, state, beneficiary, alice] = await Promise.all([
-      projectContract.name(),
-      projectContract.fundingCap(),
-      projectContract.totalFunded(),
-      projectContract.state(),
-      projectContract.escrowBeneficiary(),
-      projectContract.alice(),
-    ]);
-
-    const fundingCapNum = parseFloat(ethers.formatEther(fundingCap));
+    const fundingCapNum = parseFloat(ethers.formatEther(factoryProjectData.fundingCap));
     const totalFundedNum = parseFloat(ethers.formatEther(totalFunded));
 
     return {
       projectId,
-      projectAddress,
-      name,
-      fundingCap: ethers.formatEther(fundingCap),
+      projectAddress: factoryProjectData.projectAddress,
+      name: factoryProjectData.name,
+      fundingCap: ethers.formatEther(factoryProjectData.fundingCap),
       totalFunded: ethers.formatEther(totalFunded),
-      state: Number(state),
-      beneficiary,
-      alice,
+      state: Number(factoryProjectData.state),
+      beneficiary: factoryProjectData.escrowBeneficiary,
+      alice: factoryProjectData.aliceOperator, // 🎯 This is the correct Alice field!
       fundingProgress: fundingCapNum > 0 ? (totalFundedNum / fundingCapNum) * 100 : 0,
+      escrowReleaseApproved: factoryProjectData.escrowReleaseApproved, // ✅ Now reading escrow status
     };
   };
 
@@ -528,6 +526,21 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     return tx;
   };
 
+  const setProjectState = async (projectId: number, state: number) => {
+    if (!factoryContract) throw new Error('Factory contract not available');
+
+    const tx = await factoryContract.setProjectState(projectId, state);
+    await tx.wait();
+    
+    // Sync with backend after state change
+    await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
+    
+    return tx;
+  };
+
   const setAlice = async (projectId: number, aliceAddress: string) => {
     if (!factoryContract) throw new Error('Factory contract not available');
 
@@ -536,6 +549,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     
     // Sync with backend after setting Alice
     await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
     
     return tx;
   };
@@ -548,6 +564,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     
     // Sync with backend after approving escrow release
     await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
     
     return tx;
   };
@@ -597,6 +616,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     
     // Admin functions
     createProject,
+    setProjectState,
     setAlice,
     approveEscrowRelease,
     releaseEscrow,
