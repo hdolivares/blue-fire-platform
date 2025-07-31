@@ -35,6 +35,17 @@ export class AdminController {
     return this.adminService.getInvestorStats();
   }
 
+  // === PROJECT ENDPOINTS ===
+  @Get('projects')
+  getAllProjects() {
+    return this.adminService.getAllProjects();
+  }
+
+  @Get('project-stats')
+  getProjectStats() {
+    return this.adminService.getProjectStats();
+  }
+
   // === OPERATOR ENDPOINTS ===
   @Patch('projects/:projectId/assign-operator')
   assignOperator(
@@ -42,6 +53,14 @@ export class AdminController {
     @Body('operatorId') operatorId: string,
   ) {
     return this.adminService.assignOperatorToProject(projectId, operatorId);
+  }
+
+  @Patch('projects/:projectId/status')
+  updateProjectStatus(
+    @Param('projectId') projectId: string,
+    @Body('status') status: string,
+  ) {
+    return this.adminService.updateProjectStatus(projectId, status);
   }
 
   @Get('operator-requests')

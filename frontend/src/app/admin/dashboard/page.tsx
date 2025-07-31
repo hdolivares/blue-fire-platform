@@ -67,7 +67,13 @@ export default function AdminDashboardPage() {
 
       <div className="mt-8">
         <h2 className="section-header">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Button 
+            onClick={() => window.location.href = '/admin/projects'}
+            variant="outline"
+          >
+            📋 View Projects
+          </Button>
           <Button 
             onClick={() => window.location.href = '/admin/analytics'}
             variant="primary"

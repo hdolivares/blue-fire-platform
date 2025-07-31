@@ -33,6 +33,19 @@ export class ProjectsController {
     return this.projectsService.findAll();
   }
 
+  // Specific routes MUST come before generic parameter routes
+  @Public()
+  @Get('blockchain-id/:blockchainId')
+  getByBlockchainProjectId(@Param('blockchainId') blockchainId: string) {
+    return this.projectsService.findByBlockchainProjectId(Number(blockchainId));
+  }
+
+  @Public()
+  @Get('enhanced/all')
+  getEnhancedProjects() {
+    return this.projectsService.getProjectsWithBlockchainInfo();
+  }
+
   @Public()
   @Get(':id')
   getProjectById(@Param('id') id: string) {
@@ -58,9 +71,24 @@ export class ProjectsController {
     return this.projectsService.findByBlockchainId(Number(blockchainId));
   }
 
+  @Roles('Admin')
+  @Post(':id/sync')
+  syncProjectFromBlockchain(@Param('id') id: string) {
+    return this.projectsService.syncProjectFromBlockchain(id);
+  }
+
+  @Roles('Admin')
+  @Post('sync/all')
+  syncAllProjectsFromBlockchain() {
+    return this.projectsService.syncAllProjectsFromBlockchain();
+  }
+
   @Public()
-  @Get('enhanced/all')
-  getEnhancedProjects() {
-    return this.projectsService.getProjectsWithBlockchainInfo();
+  @Post(':id/sync-after-transaction')
+  syncProjectAfterTransaction(
+    @Param('id') id: string,
+    @Body() body: { transactionType: 'investment' | 'revenue' | 'state_change' }
+  ) {
+    return this.projectsService.syncProjectAfterTransaction(id, body.transactionType);
   }
 }

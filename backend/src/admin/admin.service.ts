@@ -661,6 +661,25 @@ export class AdminService {
     return project.save();
   }
 
+  async updateProjectStatus(projectId: string, status: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      throw new BadRequestException('Project not found');
+    }
+
+    // Validate status is one of the allowed values
+    const validStatuses = ['SEEKING_FUNDING', 'FUNDED_ORDER_PLACED', 'FUNDED_MACHINE_SHIPPED', 'FUNDED_INSTALLATION_PHASE', 'OPERATIONAL'];
+    if (!validStatuses.includes(status)) {
+      throw new BadRequestException(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    project.status = status as any;
+    const updatedProject = await project.save();
+    
+    console.log(`✅ Admin updated project ${projectId} status to ${status}`);
+    return updatedProject;
+  }
+
   async getPendingOperatorRequests() {
     const requests = await this.operatorRequestModel
       .find()
@@ -671,5 +690,50 @@ export class AdminService {
       .exec();
     
     return requests;
+  }
+
+  async getAllProjects() {
+    const projects = await this.projectModel
+      .find()
+      .populate('operator', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .exec();
+    
+    return projects;
+  }
+
+  async getProjectStats() {
+    const [
+      totalProjects,
+      seekingFundingProjects,
+      fundedProjects,
+      operationalProjects,
+      totalFundingGoal,
+      totalCurrentFunding,
+    ] = await Promise.all([
+      this.projectModel.countDocuments(),
+      this.projectModel.countDocuments({ status: 'SEEKING_FUNDING' }),
+      this.projectModel.countDocuments({ 
+        status: { $in: ['FUNDED_ORDER_PLACED', 'FUNDED_MACHINE_SHIPPED', 'FUNDED_INSTALLATION_PHASE'] }
+      }),
+      this.projectModel.countDocuments({ status: 'OPERATIONAL' }),
+      this.projectModel.aggregate([
+        { $group: { _id: null, total: { $sum: '$goalAmount' } } }
+      ]),
+      this.projectModel.aggregate([
+        { $group: { _id: null, total: { $sum: '$currentAmount' } } }
+      ]),
+    ]);
+
+    return {
+      totalProjects,
+      seekingFundingProjects,
+      fundedProjects,
+      operationalProjects,
+      totalFundingGoal: totalFundingGoal[0]?.total || 0,
+      totalCurrentFunding: totalCurrentFunding[0]?.total || 0,
+      fundingProgress: totalFundingGoal[0]?.total ? 
+        (totalCurrentFunding[0]?.total || 0) / totalFundingGoal[0].total * 100 : 0,
+    };
   }
 }

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 // Import contract ABIs
 import BlueFireFactoryABI from '@/contracts/BlueFireFactory.json';
@@ -20,6 +21,7 @@ export interface ProjectInfo {
   beneficiary: string;
   alice: string;
   fundingProgress: number;
+  escrowReleaseApproved: boolean;
 }
 
 export interface UserPosition {
@@ -60,6 +62,7 @@ export interface Web3ContextType {
   
   // Admin functions
   createProject: (name: string, location: string, model: string, fundingCap: string, beneficiary: string) => Promise<any>;
+  setProjectState: (projectId: number, state: number) => Promise<any>;
   setAlice: (projectId: number, aliceAddress: string) => Promise<any>;
   approveEscrowRelease: (projectId: number) => Promise<any>;
   releaseEscrow: (projectId: number) => Promise<any>;
@@ -352,60 +355,89 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const getProjectInfo = async (projectId: number): Promise<ProjectInfo> => {
     if (!factoryContract) throw new Error('Factory contract not available');
 
-    const projectAddress = await factoryContract.getProjectAddress(projectId);
-    const projectContract = new ethers.Contract(projectAddress, UnitProjectERC721ABI, provider);
+    // Get project metadata from Factory contract (correct approach)
+    const factoryProjectData = await factoryContract.getProject(projectId);
+    
+    // Get funding data from the specific project contract
+    const projectContract = new ethers.Contract(factoryProjectData.projectAddress, UnitProjectERC721ABI, provider);
+    const totalFunded = await projectContract.totalFunded();
 
-    const [name, fundingCap, totalFunded, state, beneficiary, alice] = await Promise.all([
-      projectContract.name(),
-      projectContract.fundingCap(),
-      projectContract.totalFunded(),
-      projectContract.state(),
-      projectContract.escrowBeneficiary(),
-      projectContract.alice(),
-    ]);
-
-    const fundingCapNum = parseFloat(ethers.formatEther(fundingCap));
+    const fundingCapNum = parseFloat(ethers.formatEther(factoryProjectData.fundingCap));
     const totalFundedNum = parseFloat(ethers.formatEther(totalFunded));
 
     return {
       projectId,
-      projectAddress,
-      name,
-      fundingCap: ethers.formatEther(fundingCap),
+      projectAddress: factoryProjectData.projectAddress,
+      name: factoryProjectData.name,
+      fundingCap: ethers.formatEther(factoryProjectData.fundingCap),
       totalFunded: ethers.formatEther(totalFunded),
-      state: Number(state),
-      beneficiary,
-      alice,
+      state: Number(factoryProjectData.state),
+      beneficiary: factoryProjectData.escrowBeneficiary,
+      alice: factoryProjectData.aliceOperator, // 🎯 This is the correct Alice field!
       fundingProgress: fundingCapNum > 0 ? (totalFundedNum / fundingCapNum) * 100 : 0,
+      escrowReleaseApproved: factoryProjectData.escrowReleaseApproved, // ✅ Now reading escrow status
     };
   };
 
   const refreshUserPositions = useCallback(async () => {
-    if (!account || projects.length === 0) return;
+    console.log(`🔍 refreshUserPositions called - Account: ${account}, Projects: ${projects.length}`);
+    
+    if (!account || projects.length === 0) {
+      console.log(`⏭️ Skipping refresh: account=${!!account}, projects=${projects.length}`);
+      return;
+    }
 
     try {
       const positionPromises = projects.map(async (project) => {
+        console.log(`🔍 Checking project ${project.projectId} (${project.projectAddress}) for positions...`);
         const projectContract = new ethers.Contract(project.projectAddress, UnitProjectERC721ABI, provider);
         
         try {
-          const balance = await projectContract.balanceOf(account);
-          const positions: UserPosition[] = [];
-
-          for (let i = 0; i < Number(balance); i++) {
-            const tokenId = await projectContract.tokenOfOwnerByIndex(account, i);
-            const funded = await projectContract.funded(tokenId);
-            const pendingRewards = await projectContract.pendingRewards(tokenId);
-
-            positions.push({
-              tokenId: Number(tokenId),
-              projectId: project.projectId,
-              projectAddress: project.projectAddress,
-              funded: ethers.formatEther(funded),
-              pendingRewards: ethers.formatEther(pendingRewards),
-            });
+          // Get the user's token ID for this project
+          const tokenId = await projectContract.investorToTokenId(account);
+          
+          // If tokenId is 0, user has no position (investorToTokenId returns 0 for no mapping)
+          // But we need to check if token 0 is actually owned by user (since token IDs start from 0)
+          if (Number(tokenId) === 0) {
+            // Check if user actually owns token 0
+            try {
+              const owner = await projectContract.ownerOf(0);
+              if (owner.toLowerCase() !== account.toLowerCase()) {
+                return []; // Token 0 exists but not owned by user, so no position
+              }
+              // User owns token 0, continue processing
+            } catch (error) {
+              return []; // Token 0 doesn't exist, so no position
+            }
           }
 
-          return positions;
+          // Verify ownership (safety check for non-zero tokens)
+          if (Number(tokenId) > 0) {
+            const owner = await projectContract.ownerOf(tokenId);
+            if (owner.toLowerCase() !== account.toLowerCase()) {
+              console.warn(`Token ${tokenId} owner mismatch for project ${project.projectId}`);
+              return [];
+            }
+          }
+
+          // Get position details
+          const funded = await projectContract.funded(tokenId);
+          const pendingRewards = await projectContract.pendingRewards(tokenId);
+
+          // Only return position if there's actual funding
+          if (Number(funded) === 0) {
+            return []; // No funding means no real position
+          }
+
+          console.log(`🎯 Found position for project ${project.projectId}: Token ${tokenId}, ${ethers.formatEther(funded)} ETH`);
+
+          return [{
+            tokenId: Number(tokenId),
+            projectId: project.projectId,
+            projectAddress: project.projectAddress,
+            funded: ethers.formatEther(funded),
+            pendingRewards: ethers.formatEther(pendingRewards),
+          }];
         } catch (error) {
           console.error(`Failed to get positions for project ${project.projectId}:`, error);
           return [];
@@ -415,10 +447,96 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       const allPositions = await Promise.all(positionPromises);
       const flatPositions = allPositions.flat();
       setUserPositions(flatPositions);
+      
+      console.log(`📊 Found ${flatPositions.length} positions for account ${account}`);
     } catch (error) {
       console.error('Failed to refresh user positions:', error);
     }
   }, [account, projects, provider]);
+
+  // Auto-refresh user positions when projects load
+  useEffect(() => {
+    if (account && projects.length > 0) {
+      console.log(`🎯 Projects loaded (${projects.length}), refreshing user positions...`);
+      refreshUserPositions();
+    }
+  }, [account, projects.length]); // refreshUserPositions is useCallback, so stable
+
+  // Helper function to log investment in backend database (for analytics only)
+  const logInvestmentInBackend = async (blockchainProjectId: number, ethAmount: string) => {
+    try {
+      console.log(`💰 Logging investment of ${ethAmount} ETH for project ${blockchainProjectId}...`);
+      
+      // Find the database project ID by blockchain project ID
+      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const databaseProject = response.data;
+      
+      if (!databaseProject) {
+        console.warn(`⚠️ No database project found for blockchain ID ${blockchainProjectId}`);
+        return;
+      }
+
+      // Convert ETH amount to USD (using same rate as backend: 2000 USD/ETH)
+      const ethToUsdRate = 2000;
+      const usdAmount = parseFloat(ethAmount) * ethToUsdRate;
+
+      // Get auth token for API call
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn(`⚠️ No auth token found, cannot log investment`);
+        return;
+      }
+
+      // Call backend investment logging endpoint
+      await axios.post(
+        'http://127.0.0.1:3001/investments',
+        {
+          projectId: databaseProject._id,
+          amount: usdAmount
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log(`✅ Investment logged in backend: ${ethAmount} ETH ($${usdAmount}) for project ${databaseProject._id}`);
+    } catch (error) {
+      console.error(`❌ Failed to log investment in backend:`, error);
+      // This is non-critical - just for analytics
+    }
+  };
+
+  // Helper function to sync project data with backend after blockchain transactions
+  const syncProjectWithBackend = async (
+    blockchainProjectId: number,
+    transactionType: 'investment' | 'revenue' | 'state_change'
+  ) => {
+    try {
+      console.log(`🔄 Syncing project ${blockchainProjectId} with backend after ${transactionType}...`);
+      
+      // Find the database project ID by blockchain project ID
+      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const databaseProject = response.data;
+      
+      if (!databaseProject) {
+        console.warn(`⚠️ No database project found for blockchain ID ${blockchainProjectId}`);
+        return;
+      }
+
+      // Trigger sync with backend
+      await axios.post(`http://localhost:3001/projects/${databaseProject._id}/sync-after-transaction`, {
+        transactionType
+      });
+
+      console.log(`✅ Project ${blockchainProjectId} synced with backend successfully`);
+    } catch (error) {
+      console.error(`❌ Failed to sync project ${blockchainProjectId} with backend:`, error);
+      // Don't throw error - sync failure shouldn't break the transaction flow
+    }
+  };
 
   const getProjectContract = (projectAddress: string): ethers.Contract | null => {
     if (!signer) return null;
@@ -435,6 +553,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await projectContract.fundProject({ value: ethers.parseEther(amount) });
     await tx.wait();
+    
+    // Log investment in backend database for analytics (don't block on failure)
+    logInvestmentInBackend(projectId, amount).catch((err: any) => 
+      console.warn('Failed to log investment in backend:', err)
+    );
+    
+    // Sync with backend after successful investment
+    await syncProjectWithBackend(projectId, 'investment');
     
     // Refresh data after successful transaction
     await refreshProjects();
@@ -463,6 +589,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     const tx = await projectContract.payWaterRevenue({ value: ethers.parseEther(amount) });
     await tx.wait();
     
+    // Find project ID for sync (we have address, need to find ID)
+    const matchingProject = projects.find(p => p.projectAddress.toLowerCase() === projectAddress.toLowerCase());
+    if (matchingProject) {
+      await syncProjectWithBackend(matchingProject.projectId, 'revenue');
+    }
+    
     // Refresh data after revenue deposit
     await refreshProjects();
     await refreshUserPositions();
@@ -489,11 +621,32 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     return tx;
   };
 
+  const setProjectState = async (projectId: number, state: number) => {
+    if (!factoryContract) throw new Error('Factory contract not available');
+
+    const tx = await factoryContract.setProjectState(projectId, state);
+    await tx.wait();
+    
+    // Sync with backend after state change
+    await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
+    
+    return tx;
+  };
+
   const setAlice = async (projectId: number, aliceAddress: string) => {
     if (!factoryContract) throw new Error('Factory contract not available');
 
     const tx = await factoryContract.setAlice(projectId, aliceAddress);
     await tx.wait();
+    
+    // Sync with backend after setting Alice
+    await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
     
     return tx;
   };
@@ -504,6 +657,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     const tx = await factoryContract.approveEscrowRelease(projectId);
     await tx.wait();
     
+    // Sync with backend after approving escrow release
+    await syncProjectWithBackend(projectId, 'state_change');
+    
+    // Refresh projects to update onChainProject data
+    await refreshProjects();
+    
     return tx;
   };
 
@@ -512,6 +671,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     const tx = await factoryContract.releaseEscrow(projectId);
     await tx.wait();
+    
+    // Sync with backend after escrow release
+    await syncProjectWithBackend(projectId, 'state_change');
     
     // Refresh projects after escrow release
     await refreshProjects();
@@ -549,6 +711,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     
     // Admin functions
     createProject,
+    setProjectState,
     setAlice,
     approveEscrowRelease,
     releaseEscrow,
