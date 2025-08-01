@@ -53,7 +53,7 @@ export const ConnectWalletButton = ({ onAccountChanged }: ConnectWalletButtonPro
             onClick={switchToAnvilNetwork}
             className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded transition-colors font-medium"
           >
-            🔄 Switch to Localhost Network
+            🔄 Switch to RSK Testnet
           </button>
         </div>
       );

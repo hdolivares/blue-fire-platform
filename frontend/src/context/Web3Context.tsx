@@ -50,7 +50,7 @@ export interface Web3ContextType {
   // Actions
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
-  switchToAnvilNetwork: () => Promise<void>;
+  switchToAnvilNetwork: () => Promise<void>; // Now switches to RSK Testnet
   refreshProjects: () => Promise<void>;
   refreshUserPositions: () => Promise<void>;
   
@@ -73,9 +73,9 @@ const Web3Context = createContext<Web3ContextType | undefined>(undefined);
 // Default configuration
 const DEFAULT_CONFIG = {
   factoryAddress: contractAddresses.BlueFireFactory,
-  supportedChainId: 31337, // Anvil localhost (preferred)
-  acceptedLocalChainIds: [31337, 1337, 42], // Accept common localhost chain IDs
-  rpcUrl: 'http://localhost:8545',
+  supportedChainId: 31, // RSK Testnet
+  acceptedLocalChainIds: [31], // RSK Testnet only
+  rpcUrl: 'https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T',
 };
 
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
@@ -143,9 +143,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     setChainId(newChainId);
     
     if (!DEFAULT_CONFIG.acceptedLocalChainIds.includes(newChainId)) {
-      toast.error(`Wrong network! Please switch to a localhost network (supported: ${DEFAULT_CONFIG.acceptedLocalChainIds.join(', ')})`);
+      toast.error(`Wrong network! Please switch to RSK Testnet (Chain ID: ${DEFAULT_CONFIG.supportedChainId})`);
     } else if (newChainId !== DEFAULT_CONFIG.supportedChainId) {
-      toast.success(`Connected to localhost chain ${newChainId} (works but ${DEFAULT_CONFIG.supportedChainId} is preferred)`);
+      toast.success(`Connected to chain ${newChainId} (supported)`);
     }
   };
 
@@ -174,14 +174,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       
       // Check if we're on an accepted network
       if (!isAcceptedNetwork) {
-        toast.error(`Wrong network detected! Current: ${currentChainId}. Please switch to a localhost network (${DEFAULT_CONFIG.acceptedLocalChainIds.join(', ')})`);
+        toast.error(`Wrong network detected! Current: ${currentChainId}. Please switch to RSK Testnet (Chain ID: ${DEFAULT_CONFIG.supportedChainId})`);
         setChainId(currentChainId); // Still set the chain ID for debugging
         return; // Don't proceed with unsupported network
       }
       
-      // Warn if not on preferred network but continue
-      if (!isPreferredNetwork) {
-        toast.success(`Connected to localhost chain ${currentChainId} (works, but chain ${DEFAULT_CONFIG.supportedChainId} is preferred for Anvil)`);
+      // Success message for correct network
+      if (isPreferredNetwork) {
+        toast.success(`✅ Connected to RSK Testnet (Chain ID: ${currentChainId})`);
       }
       
       // Setup factory contract
@@ -218,7 +218,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
     try {
       // First try to add/switch to Anvil network
-      await addAnvilNetwork();
+              await addRSKTestnetNetwork();
       
       // Request account access
       await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -233,14 +233,14 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addAnvilNetwork = async () => {
+  const addRSKTestnetNetwork = async () => {
     try {
-      // Try to switch to Anvil network first (31337)
+      // Try to switch to RSK Testnet first (31)
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x7a69' }], // 31337 in hex
+        params: [{ chainId: '0x1f' }], // 31 in hex
       });
-      console.log('✅ Switched to existing Anvil network (31337)');
+      console.log('✅ Switched to existing RSK Testnet (31)');
     } catch (switchError: any) {
       console.log('Switch error:', switchError);
       
@@ -250,20 +250,20 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: '0x7a69', // 31337 in hex
-              chainName: 'Anvil Local (31337)',
+              chainId: '0x1f', // 31 in hex
+              chainName: 'RSK Testnet',
               nativeCurrency: {
-                name: 'Ethereum',
-                symbol: 'ETH',
+                name: 'Testnet RSK BTC',
+                symbol: 'tRBTC',
                 decimals: 18,
               },
-              rpcUrls: ['http://localhost:8545'],
-              blockExplorerUrls: null,
+              rpcUrls: ['https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T'],
+              blockExplorerUrls: ['https://explorer.testnet.rsk.co'],
             }],
           });
-          console.log('✅ Added new Anvil network (31337)');
+          console.log('✅ Added new RSK Testnet (31)');
         } catch (addError: any) {
-          console.error('Failed to add Anvil network:', addError);
+                      console.error('Failed to add RSK Testnet:', addError);
           
           // If network with same RPC exists (-32603), try switching to localhost networks
           if (addError.code === -32603) {
@@ -699,7 +699,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     // Actions
     connectWallet,
     disconnectWallet,
-    switchToAnvilNetwork: addAnvilNetwork,
+    switchToAnvilNetwork: addRSKTestnetNetwork,
     refreshProjects,
     refreshUserPositions,
     

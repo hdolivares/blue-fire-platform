@@ -43,9 +43,9 @@ export class BlockchainService {
 
   private initializeConfig() {
     this.config = {
-      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'http://127.0.0.1:8545',
-      factoryAddress: this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      chainId: this.configService.get<number>('BLOCKCHAIN_CHAIN_ID') || 31337, // localhost anvil default
+      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T',
+      factoryAddress: this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0x9f715843A5bcF6d8afBa99FAed3d8F5634a3310b',
+      chainId: this.configService.get<number>('BLOCKCHAIN_CHAIN_ID') || 31, // RSK testnet default
     };
 
     this.logger.log(`Blockchain config initialized:`);
