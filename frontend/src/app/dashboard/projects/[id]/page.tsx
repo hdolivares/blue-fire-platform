@@ -92,7 +92,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const { id } = params;
   const [project, setProject] = useState<Project | null>(null);
-  const [investmentAmount, setInvestmentAmount] = useState('1.0'); // Changed to ETH
+  const [investmentAmount, setInvestmentAmount] = useState('0.0001'); // Changed to RBTC
   const [percentage, setPercentage] = useState(0);
   const [isInvesting, setIsInvesting] = useState(false);
   const [onChainData, setOnChainData] = useState<any>(null);
@@ -260,7 +260,7 @@ export default function ProjectDetailPage() {
     setPercentage(newPercentage);
     if (goal > 0) {
       const newAmount = (newPercentage / 100) * goal;
-      setInvestmentAmount(newAmount.toFixed(3)); // 3 decimal places for ETH
+      setInvestmentAmount(newAmount.toFixed(4)); // 4 decimal places for RBTC
     }
   };
 
@@ -282,8 +282,8 @@ export default function ProjectDetailPage() {
       return;
     }
 
-    if (!investmentAmount || parseFloat(investmentAmount) <= 0) {
-      toast.error('Please enter a valid investment amount greater than 0');
+    if (!investmentAmount || parseFloat(investmentAmount) < 0.0001) {
+      toast.error('Please enter a valid investment amount. Minimum: 0.0001 RBTC');
       return;
     }
 
@@ -493,18 +493,18 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
               <div>
-                <label htmlFor="investment" className="block text-sm font-medium mb-1">Investment Amount (ETH)</label>
+                <label htmlFor="investment" className="block text-sm font-medium mb-1">Investment Amount (RBTC)</label>
                 <StyledInput 
                   id="investment" 
                   type="number" 
-                  step="0.001"
-                  min="0"
+                  step="0.0001"
+                  min="0.0001"
                   value={investmentAmount} 
                   onChange={(e) => setInvestmentAmount(e.target.value)} 
-                  placeholder="e.g., 1.0"
+                  placeholder="e.g., 0.0001"
                 />
                 <p className="text-xs text-secondary mt-1">
-                  Min: 0.001 ETH • Max: {goal > 0 ? (goal - current).toFixed(3) : '∞'} ETH
+                  Min: 0.0001 RBTC • Max: {goal > 0 ? (goal - current).toFixed(4) : '∞'} RBTC
                 </p>
               </div>
               <div>
@@ -535,12 +535,12 @@ export default function ProjectDetailPage() {
                   </Card>
                   <Button 
                     onClick={handleInvestment} 
-                    disabled={!investmentAmount || isInvesting || parseFloat(investmentAmount) <= 0} 
+                    disabled={!investmentAmount || isInvesting || parseFloat(investmentAmount) < 0.0001} 
                     variant="primary" 
                     size="lg" 
                     className="w-full"
                   >
-                    {isInvesting ? 'Processing...' : `Invest ${investmentAmount} ETH`}
+                    {isInvesting ? 'Processing...' : `Invest ${investmentAmount} RBTC`}
                   </Button>
                 </>
               )}

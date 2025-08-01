@@ -70,8 +70,8 @@ export const RevenueAnalytics = () => {
     });
   };
 
-  const formatEth = (amount: number) => amount.toFixed(4);
-  const formatUsd = (ethAmount: number) => (ethAmount * 2000).toFixed(2); // Approximate ETH price
+  const formatRbtc = (amount: number) => amount.toFixed(4);
+  const formatUsd = (rbtcAmount: number) => (rbtcAmount * 2000).toFixed(2); // Approximate BTC price
 
   if (!isConnected) {
     return (
@@ -103,13 +103,13 @@ export const RevenueAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card variant="default" className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
           <p className="text-sm text-secondary mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-green-400">{formatEth(revenueStats.totalRevenue)} ETH</p>
+          <p className="text-2xl font-bold text-green-400">{formatRbtc(revenueStats.totalRevenue)} RBTC</p>
           <p className="text-xs text-secondary">≈ ${formatUsd(revenueStats.totalRevenue)} USD</p>
         </Card>
 
         <Card variant="default" className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
           <p className="text-sm text-secondary mb-1">Pending Claims</p>
-          <p className="text-2xl font-bold text-blue-400">{formatEth(revenueStats.totalClaims)} ETH</p>
+          <p className="text-2xl font-bold text-blue-400">{formatRbtc(revenueStats.totalClaims)} RBTC</p>
           <p className="text-xs text-secondary">≈ ${formatUsd(revenueStats.totalClaims)} USD</p>
         </Card>
 
@@ -121,7 +121,7 @@ export const RevenueAnalytics = () => {
 
         <Card variant="default" className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
           <p className="text-sm text-secondary mb-1">Avg Revenue</p>
-          <p className="text-2xl font-bold text-orange-400">{formatEth(revenueStats.avgRevenuePerProject)} ETH</p>
+          <p className="text-2xl font-bold text-orange-400">{formatRbtc(revenueStats.avgRevenuePerProject)} RBTC</p>
           <p className="text-xs text-secondary">Per Project</p>
         </Card>
       </div>
@@ -158,7 +158,7 @@ export const RevenueAnalytics = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-green-400">{formatEth(parseFloat(project.totalFunded || '0'))} ETH</p>
+                    <p className="font-bold text-green-400">{formatRbtc(parseFloat(project.totalFunded || '0'))} RBTC</p>
                     <p className="text-xs text-secondary">≈ ${formatUsd(parseFloat(project.totalFunded || '0'))} USD</p>
                   </div>
                 </div>

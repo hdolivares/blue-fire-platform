@@ -463,9 +463,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   }, [account, projects.length]); // refreshUserPositions is useCallback, so stable
 
   // Helper function to log investment in backend database (for analytics only)
-  const logInvestmentInBackend = async (blockchainProjectId: number, ethAmount: string) => {
+  const logInvestmentInBackend = async (blockchainProjectId: number, rbtcAmount: string) => {
     try {
-      console.log(`💰 Logging investment of ${ethAmount} ETH for project ${blockchainProjectId}...`);
+      console.log(`💰 Logging investment of ${rbtcAmount} RBTC for project ${blockchainProjectId}...`);
       
       // Find the database project ID by blockchain project ID
       const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
@@ -476,9 +476,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Convert ETH amount to USD (using same rate as backend: 2000 USD/ETH)
-      const ethToUsdRate = 2000;
-      const usdAmount = parseFloat(ethAmount) * ethToUsdRate;
+      // Convert RBTC amount to USD (using same rate as backend: 2000 USD/RBTC, approximate BTC price)
+      const rbtcToUsdRate = 100000;
+      const usdAmount = parseFloat(rbtcAmount) * rbtcToUsdRate;
 
       // Get auth token for API call
       const token = localStorage.getItem('token');
@@ -502,7 +502,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         }
       );
 
-      console.log(`✅ Investment logged in backend: ${ethAmount} ETH ($${usdAmount}) for project ${databaseProject._id}`);
+      console.log(`✅ Investment logged in backend: ${rbtcAmount} RBTC ($${usdAmount}) for project ${databaseProject._id}`);
     } catch (error) {
       console.error(`❌ Failed to log investment in backend:`, error);
       // This is non-critical - just for analytics

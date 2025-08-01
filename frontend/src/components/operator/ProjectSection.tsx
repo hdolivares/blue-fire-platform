@@ -29,7 +29,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
   // --- STATE MANAGEMENT for this specific project section ---
   const [daysToPurchase, setDaysToPurchase] = useState(7); 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [revenueAmount, setRevenueAmount] = useState('1.0'); // ETH amount
+  const [revenueAmount, setRevenueAmount] = useState('0.0001'); // RBTC amount
   const [showRevenuePreview, setShowRevenuePreview] = useState(false);
   const [validatingProject, setValidatingProject] = useState(false);
 
@@ -44,7 +44,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
 
   // --- CONSTANTS FOR CALCULATION ---
   const PRICE_PER_LITER_USD = 0.10;
-  const ETH_USD_RATE = 2000; // Approximate ETH price - in production, get from API
+  const ETH_USD_RATE = 100000; // Approximate ETH price - in production, get from API
   const MIN_DAYS = 7;
   const MAX_DAYS = 45;
 
@@ -126,7 +126,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
     try {
       await depositRevenue(onChainProject.projectAddress, revenueAmount);
       toast.dismiss(loadingToast);
-      toast.success(`✅ Successfully deposited ${revenueAmount} ETH as revenue!`);
+      toast.success(`✅ Successfully deposited ${revenueAmount} RBTC as revenue!`);
       
       // Show distribution info
       setTimeout(() => {
@@ -208,13 +208,13 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="revenueAmount" className="block text-sm font-medium mb-1">
-                  Revenue Amount (ETH)
+                  Revenue Amount (RBTC)
                 </label>
                 <input
                   id="revenueAmount"
                   type="number"
-                  step="0.001"
-                  min="0.001"
+                  step="0.0001"
+                  min="0.0001"
                   value={revenueAmount}
                   onChange={(e) => setRevenueAmount(e.target.value)}
                   className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -237,7 +237,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             
             <Card variant="default" className="bg-gradient-to-r from-green-500/10 to-blue-500/10 p-6 text-center border border-green-500/20">
               <p className="text-secondary text-sm mb-2">Revenue Deposit</p>
-              <p className="text-4xl font-bold text-white mb-1">{parseFloat(revenueAmount || '0').toFixed(4)} ETH</p>
+                              <p className="text-4xl font-bold text-white mb-1">{parseFloat(revenueAmount || '0').toFixed(4)} RBTC</p>
               <p className="text-lg text-secondary">Water Sales Revenue</p>
               <div className="mt-3 pt-3 border-t border-white/10">
                 <p className="text-sm text-secondary">≈ ${(parseFloat(revenueAmount || '0') * ETH_USD_RATE).toFixed(2)} USD</p>
@@ -275,7 +275,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
                 >
                   {isProcessing ? 'Processing...' : 
                    validatingProject ? 'Validating...' : 
-                   `Preview Revenue Deposit (${revenueAmount} ETH)`}
+                   `Preview Revenue Deposit (${revenueAmount} RBTC)`}
                 </Button>
               )}
             </div>
@@ -307,7 +307,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             
             <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
               <span className="text-secondary">Revenue Amount</span>
-              <span className="font-bold text-green-400">{revenueAmount} ETH</span>
+                              <span className="font-bold text-green-400">{revenueAmount} RBTC</span>
             </div>
             
             <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">

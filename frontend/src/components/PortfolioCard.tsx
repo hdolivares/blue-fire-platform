@@ -32,7 +32,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
     }
 
     if (parseFloat(position.pendingRewards) < 0.0001) {
-      toast.error('Reward amount too small to claim (minimum 0.0001 ETH)');
+      toast.error('Reward amount too small to claim (minimum 0.0001 RBTC)');
       return false;
     }
 
@@ -72,7 +72,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
       // Store last claim amount for display
       setLastClaimAmount(claimAmount.toFixed(4));
       
-      toast.success(`✅ Successfully claimed ${claimAmount.toFixed(4)} ETH!`);
+      toast.success(`✅ Successfully claimed ${claimAmount.toFixed(4)} RBTC!`);
       
       // Show additional success info
       setTimeout(() => {
@@ -177,7 +177,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
         <div className="mt-4 pt-4 border-t border-white/10">
           <div className="flex items-center justify-between">
             <span className="text-xs text-secondary">Last Claim</span>
-            <span className="text-xs font-medium text-green-400">+{lastClaimAmount} ETH</span>
+            <span className="text-xs font-medium text-green-400">+{lastClaimAmount} RBTC</span>
           </div>
         </div>
       )}

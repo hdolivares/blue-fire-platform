@@ -21,7 +21,7 @@ export const CreateProjectForm = () => {
     name: '',
     location: '',
     model: 'AquaGen-3000',
-    fundingCap: '10.0', // ETH
+    fundingCap: '1.0', // RBTC
     beneficiary: account || '',
     // Backend fields
     goalAmount: '10000', // USD equivalent for database (now editable)
@@ -48,8 +48,8 @@ export const CreateProjectForm = () => {
       return;
     }
 
-    if (parseFloat(formData.fundingCap) <= 0) {
-      toast.error('Funding cap must be greater than 0');
+    if (parseFloat(formData.fundingCap) < 0.0001) {
+      toast.error('Funding cap must be at least 0.0001 RBTC');
       return;
     }
 
@@ -178,7 +178,7 @@ export const CreateProjectForm = () => {
           name: '',
           location: '',
           model: 'AquaGen-3000',
-          fundingCap: '10.0',
+          fundingCap: '1.0',
           beneficiary: account || '',
           goalAmount: '10000',
           avgHumidity: '75',
@@ -294,17 +294,17 @@ export const CreateProjectForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="fundingCap" className="block text-sm font-medium mb-1">
-              Funding Cap (ETH) *
+              Funding Cap (RBTC) *
             </label>
             <StyledInput
               id="fundingCap"
               name="fundingCap"
               type="number"
-              step="0.1"
-              min="0.1"
+              step="0.0001"
+              min="0.0001"
               value={formData.fundingCap}
               onChange={handleChange}
-              placeholder="10.0"
+              placeholder="1.0"
               required
             />
             <p className="text-xs text-secondary mt-1">
