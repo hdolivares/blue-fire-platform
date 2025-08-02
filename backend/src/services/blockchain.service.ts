@@ -4,6 +4,9 @@ import { ethers } from 'ethers';
 import * as path from 'path';
 import * as fs from 'fs';
 
+// Import RPC configuration
+import { RPC_URL } from '../config/blockchain';
+
 export interface BlockchainConfig {
   rpcUrl: string;
   factoryAddress: string;
@@ -43,7 +46,7 @@ export class BlockchainService {
 
   private initializeConfig() {
     this.config = {
-      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || 'https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T',
+      rpcUrl: this.configService.get<string>('BLOCKCHAIN_RPC_URL') || RPC_URL,
       factoryAddress: this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0x9f715843A5bcF6d8afBa99FAed3d8F5634a3310b',
       chainId: this.configService.get<number>('BLOCKCHAIN_CHAIN_ID') || 31, // RSK testnet default
     };

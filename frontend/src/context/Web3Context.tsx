@@ -10,6 +10,9 @@ import BlueFireFactoryABI from '@/contracts/BlueFireFactory.json';
 import UnitProjectERC721ABI from '@/contracts/UnitProjectERC721.json';
 import contractAddresses from '@/contracts/contract-address.json';
 
+// Import RPC configuration
+import { RPC_URL } from '@/config/blockchain';
+
 // Types
 export interface ProjectInfo {
   projectId: number;
@@ -75,7 +78,7 @@ const DEFAULT_CONFIG = {
   factoryAddress: contractAddresses.BlueFireFactory,
   supportedChainId: 31, // RSK Testnet
   acceptedLocalChainIds: [31], // RSK Testnet only
-  rpcUrl: 'https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T',
+  rpcUrl: RPC_URL, // Now configurable via environment variables
 };
 
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
@@ -257,7 +260,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
                 symbol: 'tRBTC',
                 decimals: 18,
               },
-              rpcUrls: ['https://rpc.testnet.rootstock.io/pcUMq8MauxoiT8suuCGXZaB8DA2vYD-T'],
+              rpcUrls: [RPC_URL],
               blockExplorerUrls: ['https://explorer.testnet.rsk.co'],
             }],
           });

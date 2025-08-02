@@ -21,10 +21,10 @@ export const CreateProjectForm = () => {
     name: '',
     location: '',
     model: 'AquaGen-3000',
-    fundingCap: '1.0', // RBTC
+    fundingCap: '0.0001', // RBTC
     beneficiary: account || '',
     // Backend fields
-    goalAmount: '10000', // USD equivalent for database (now editable)
+    goalAmount: '1', // USD equivalent for database (now editable)
     avgHumidity: '75', // Now editable
     avgTemperature: '25', // Now editable
     deployToBlockchain: true,
@@ -178,9 +178,9 @@ export const CreateProjectForm = () => {
           name: '',
           location: '',
           model: 'AquaGen-3000',
-          fundingCap: '1.0',
+          fundingCap: '0.0001',
           beneficiary: account || '',
-          goalAmount: '10000',
+          goalAmount: '1',
           avgHumidity: '75',
           avgTemperature: '25',
           deployToBlockchain: true,
@@ -304,7 +304,7 @@ export const CreateProjectForm = () => {
               min="0.0001"
               value={formData.fundingCap}
               onChange={handleChange}
-              placeholder="1.0"
+              placeholder="0.0001"
               required
             />
             <p className="text-xs text-secondary mt-1">
@@ -323,7 +323,7 @@ export const CreateProjectForm = () => {
               min="1"
               value={formData.goalAmount}
               onChange={handleChange}
-              placeholder="10000"
+              placeholder="1"
               required
             />
             <p className="text-xs text-secondary mt-1">

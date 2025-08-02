@@ -158,7 +158,7 @@ export class ProjectsService {
       
       // Calculate current funding in USD (approximate)
       const currentFundingETH = parseFloat(blockchainData.totalFunded);
-      const ethToUsdRate = 2000; // Should be fetched from API in production
+      const ethToUsdRate = 100000; // Should be fetched from API in production
       const currentFundingUSD = currentFundingETH * ethToUsdRate;
       
       // Determine project status based on blockchain state AND funding progress
