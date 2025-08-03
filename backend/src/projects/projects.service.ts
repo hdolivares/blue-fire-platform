@@ -189,7 +189,13 @@ export class ProjectsService {
             newStatus = ProjectStatus.FUNDED_ORDER_PLACED;
             break;
           case 2: // OPERATIONAL
-            newStatus = ProjectStatus.OPERATIONAL;
+            // Don't auto-progress to OPERATIONAL from funded states
+            // Keep current status unless already at OPERATIONAL
+            if (project.status === ProjectStatus.OPERATIONAL) {
+              newStatus = ProjectStatus.OPERATIONAL;
+            } else {
+              newStatus = project.status; // Keep current manual progression
+            }
             break;
           case 3: // CLOSED
             newStatus = ProjectStatus.OPERATIONAL; // Keep as operational since no CLOSED in enum

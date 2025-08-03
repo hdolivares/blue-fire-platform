@@ -376,9 +376,9 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                  <h3 className="font-medium mb-2">Set Alice Operator</h3>
+                  <h3 className="font-medium mb-2">Set "Alice" Operator</h3>
                   <p className="text-sm text-secondary mb-3">
-                    Assign the current wallet as the Alice operator on the blockchain
+                    Assign the current wallet as the "Alice" operator on the blockchain
                   </p>
                   {isAliceSet() ? (
                     <Badge variant="success" size="sm">✅ Alice Set ({onChainProject.alice.slice(0, 8)}...)</Badge>
@@ -403,7 +403,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                 <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
                   <h3 className="font-medium mb-2">Approve Escrow Release</h3>
                   <p className="text-sm text-secondary mb-3">
-                    Approve the release of escrowed funds to the operator
+                    Approve the release of escrowed funds to the beneficiary (default is admin)
                   </p>
                   {onChainProject?.escrowReleaseApproved ? (
                     <Badge variant="success" size="sm">✅ Release Approved</Badge>
@@ -444,7 +444,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
               <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
                 <h3 className="font-medium mb-2">⚠️ Release Escrow</h3>
                 <p className="text-sm text-secondary mb-3">
-                  Release escrowed funds to the operator. This action is irreversible.
+                  Release escrowed funds to the beneficiary (default is admin). This action is irreversible.
                 </p>
                 <Button
                   onClick={handleReleaseEscrow}
