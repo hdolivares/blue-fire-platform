@@ -83,7 +83,14 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
 
   const canProgressStatus = (currentStatus: ProjectStatus): boolean => {
     // Can only progress if project is funded (not SEEKING_FUNDING)
-    return currentStatus !== 'SEEKING_FUNDING' && getNextStatus(currentStatus) !== null;
+    if (currentStatus === 'SEEKING_FUNDING') return false;
+    
+    // Cannot progress from FUNDED_ORDER_PLACED to FUNDED_MACHINE_SHIPPED until escrow is released
+    if (currentStatus === 'FUNDED_ORDER_PLACED') {
+      return onChainProject?.escrowReleaseApproved === true;
+    }
+    
+    return getNextStatus(currentStatus) !== null;
   };
 
   const updateProjectStatus = async (newStatus: ProjectStatus) => {
@@ -324,6 +331,14 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
             </p>
           </div>
         )}
+
+        {project.status === 'FUNDED_ORDER_PLACED' && !onChainProject?.escrowReleaseApproved && (
+          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+            <p className="text-sm text-yellow-400">
+              ⚠️ Cannot progress to machine shipped until escrow is released (operator needs funds to purchase machine)
+            </p>
+          </div>
+        )}
       </Card>
 
       {/* Blockchain Administration */}
@@ -397,7 +412,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                       onClick={handleApproveEscrowRelease}
                       disabled={
                         isUpdating || 
-                        project.status !== 'OPERATIONAL' || 
+                        (project.status !== 'FUNDED_ORDER_PLACED' && project.status !== 'FUNDED_MACHINE_SHIPPED' && project.status !== 'FUNDED_INSTALLATION_PHASE' && project.status !== 'OPERATIONAL') || 
                         !isAliceSet() ||
                         onChainProject?.state !== 1 // Must be in FUNDED state
                       }
@@ -408,9 +423,9 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                       {isUpdating ? 'Approving...' : 'Approve Release'}
                     </Button>
                   )}
-                  {project.status !== 'OPERATIONAL' && (
+                  {(project.status !== 'FUNDED_ORDER_PLACED' && project.status !== 'FUNDED_MACHINE_SHIPPED' && project.status !== 'FUNDED_INSTALLATION_PHASE' && project.status !== 'OPERATIONAL') && (
                     <p className="text-xs text-yellow-400 mt-2">
-                      Project must be operational
+                      Project must be funded (order placed or later)
                     </p>
                   )}
                   {onChainProject?.state !== 1 && (
@@ -483,7 +498,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     </div>
                     <div>
                       <span className="text-secondary">Total Funded:</span>
-                      <span className="ml-2 font-medium">{onChainProject.totalFunded} ETH</span>
+                      <span className="ml-2 font-medium">{onChainProject.totalFunded} RBTC</span>
                     </div>
                     <div>
                       <span className="text-secondary">Escrow Approved:</span>
