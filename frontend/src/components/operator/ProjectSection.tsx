@@ -332,7 +332,6 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             <h4 className="text-sm font-medium mb-2">ℹ️ What happens next:</h4>
             <ul className="text-xs text-secondary space-y-1">
               <li>• Revenue will be deposited to the smart contract</li>
-              <li>• Funds will be automatically distributed to all investors</li>
               <li>• Investors can claim their share immediately</li>
               <li>• Transaction will be recorded on blockchain</li>
             </ul>
