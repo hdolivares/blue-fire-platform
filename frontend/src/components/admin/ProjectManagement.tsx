@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useWeb3 } from '@/context/Web3Context';
+import { API_URL } from '@/config/server';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
@@ -104,7 +105,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
 
     try {
       await axios.patch(
-        `http://localhost:3001/admin/projects/${project._id}/status`,
+        `${API_URL}/admin/projects/${project._id}/status`,
         { status: newStatus },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -213,7 +214,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       
       // Trigger project sync
       await axios.post(
-        `http://localhost:3001/projects/${project._id}/sync-after-transaction`,
+        `${API_URL}/projects/${project._id}/sync-after-transaction`,
         { transactionType: 'state_change' }
       );
       
@@ -255,7 +256,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       
       // Trigger project sync
       await axios.post(
-        `http://localhost:3001/projects/${project._id}/sync-after-transaction`,
+        `${API_URL}/projects/${project._id}/sync-after-transaction`,
         { transactionType: 'state_change' }
       );
       

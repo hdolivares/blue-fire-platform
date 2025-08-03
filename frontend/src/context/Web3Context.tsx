@@ -12,6 +12,7 @@ import contractAddresses from '@/contracts/contract-address.json';
 
 // Import RPC configuration
 import { RPC_URL } from '@/config/blockchain';
+import { API_URL } from '@/config/server';
 
 // Types
 export interface ProjectInfo {
@@ -471,7 +472,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       console.log(`💰 Logging investment of ${rbtcAmount} RBTC for project ${blockchainProjectId}...`);
       
       // Find the database project ID by blockchain project ID
-      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const response = await axios.get(`${API_URL}/projects/blockchain-id/${blockchainProjectId}`);
       const databaseProject = response.data;
       
       if (!databaseProject) {
@@ -521,7 +522,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       console.log(`🔄 Syncing project ${blockchainProjectId} with backend after ${transactionType}...`);
       
       // Find the database project ID by blockchain project ID
-      const response = await axios.get(`http://localhost:3001/projects/blockchain-id/${blockchainProjectId}`);
+      const response = await axios.get(`${API_URL}/projects/blockchain-id/${blockchainProjectId}`);
       const databaseProject = response.data;
       
       if (!databaseProject) {
@@ -530,7 +531,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       }
 
       // Trigger sync with backend
-      await axios.post(`http://localhost:3001/projects/${databaseProject._id}/sync-after-transaction`, {
+      await axios.post(`${API_URL}/projects/${databaseProject._id}/sync-after-transaction`, {
         transactionType
       });
 

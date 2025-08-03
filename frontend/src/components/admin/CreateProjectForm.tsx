@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { useAuth } from '@/context/AuthContext';
+import { API_URL } from '@/config/server';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
@@ -106,7 +107,7 @@ export const CreateProjectForm = () => {
         }
       }
 
-      const response = await axios.post('http://localhost:3001/projects', backendData, {
+              const response = await axios.post(`${API_URL}/projects`, backendData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -151,8 +152,8 @@ export const CreateProjectForm = () => {
              console.warn('Failed to get project address:', error);
            }
            
-           await axios.patch(
-             `http://localhost:3001/projects/${databaseProjectId}/blockchain`,
+                     await axios.patch(
+            `${API_URL}/projects/${databaseProjectId}/blockchain`,
              {
                blockchainProjectId: actualBlockchainId,
                blockchainAddress: projectAddress,

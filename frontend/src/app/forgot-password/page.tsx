@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/config/server';
 import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ export default function ForgotPasswordPage() {
     event.preventDefault();
     setMessage('Sending request...');
     try {
-      const response = await axios.post('http://localhost:3001/auth/forgot-password', { email });
+      const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });
       setMessage(response.data.message);
     } catch (error) {
       setMessage('Error: Could not send reset link. Please try again.');

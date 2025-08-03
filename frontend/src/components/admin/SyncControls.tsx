@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { API_URL } from '@/config/server';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
@@ -24,7 +25,7 @@ export const SyncControls = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:3001/projects/sync/all',
+        `${API_URL}/projects/sync/all`,
         {},
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -56,7 +57,7 @@ export const SyncControls = () => {
 
     try {
       await axios.post(
-        `http://localhost:3001/projects/${projectId}/sync`,
+        `${API_URL}/projects/${projectId}/sync`,
         {},
         {
           headers: { 'Authorization': `Bearer ${token}` }

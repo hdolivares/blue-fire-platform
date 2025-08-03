@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { FRONTEND_URL } from './config/server';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,7 +25,7 @@ async function bootstrap() {
 
   // CORS Configuration
   app.enableCors({
-    origin: configService.get('FRONTEND_URL') || 'http://localhost:3000',
+    origin: configService.get('FRONTEND_URL') || FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -45,7 +46,7 @@ async function bootstrap() {
   logger.log(`🚀 Blue Fire Platform API is running on port ${port}`);
   logger.log(`🌍 Environment: ${environment}`);
   logger.log(`📚 API Documentation: http://localhost:${port}/docs`);
-  logger.log(`🔗 Frontend URL: ${configService.get('FRONTEND_URL') || 'http://localhost:3000'}`);
+  logger.log(`🔗 Frontend URL: ${configService.get('FRONTEND_URL') || FRONTEND_URL}`);
 }
 
 bootstrap();

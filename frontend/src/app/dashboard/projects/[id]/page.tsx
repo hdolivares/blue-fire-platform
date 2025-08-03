@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { API_URL } from '@/config/server';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import Link from 'next/link';
@@ -197,13 +198,13 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     if (id) {
       // Fetch off-chain project data from backend
-      axios.get(`http://localhost:3001/projects/${id}`)
+              axios.get(`${API_URL}/projects/${id}`)
         .then(response => setProject(response.data))
         .catch(error => console.error('Failed to fetch project details:', error));
 
       // This is now handled by PerformanceChart component
       /*
-      axios.get(`http://localhost:3001/performance/${id}`)
+              axios.get(`${API_URL}/performance/${id}`)
         .then(response => setPerformanceData(response.data))
         .catch(error => console.error('Failed to fetch performance data:', error));
       */

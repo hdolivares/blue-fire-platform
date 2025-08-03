@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as SibApiV3Sdk from '@getbrevo/brevo';
+import { FRONTEND_URL } from '../config/server';
 
 @Injectable()
 export class EmailService {
@@ -22,7 +23,7 @@ export class EmailService {
   }
 
   async sendPasswordResetEmail(userEmail: string, token: string) {
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
 
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 

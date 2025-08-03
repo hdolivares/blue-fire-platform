@@ -3,6 +3,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { API_URL } from '@/config/server';
 import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
 import { Card } from '@/components/ui/Card';
@@ -35,7 +36,7 @@ const ResetPasswordForm = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/auth/reset-password', {
+      const response = await axios.post(`${API_URL}/auth/reset-password`, {
         token,
         newPassword,
       });
