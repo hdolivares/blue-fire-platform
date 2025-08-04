@@ -475,3 +475,199 @@ h6 { font-size: 1rem; }
 }
 
 /* DayPicker styles are now handled in BookingCalendar.module.css for better specificity */
+
+/* Landing Page Styles */
+.landing-page {
+  font-family: 'Poppins', sans-serif;
+  background-color: #0d1a2e;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+/* Landing Page Color Variables */
+:root {
+  --primary-color: #0077FF;
+  --secondary-color: #00BFFF;
+  --dark-bg: #0d1a2e;
+  --light-bg: #1d2a3f;
+  --text-color: #e0e0e0;
+  --light-text: #a0a0a0;
+  --accent-color: #FFC700;
+}
+
+/* Landing Page CTA Buttons */
+.cta-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.nav-cta {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.nav-cta:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.hero-cta {
+  background: var(--accent-color);
+  color: var(--dark-bg);
+}
+
+.hero-cta:hover {
+  transform: scale(1.05);
+}
+
+/* Landing Page Sections */
+.landing-page section {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.landing-page section.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Landing Page Tab System */
+.tab-link {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--light-text);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.tab-link.active {
+  color: #fff;
+  background: var(--light-bg);
+}
+
+.tab-content {
+  display: none;
+  max-width: 700px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s;
+  text-align: center;
+}
+
+.tab-content.active {
+  display: block !important;
+}
+
+/* Landing Page Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Landing Page Responsive Design */
+@media (max-width: 900px) {
+  .solution-steps-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .case-study-card {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .landing-page section h2 {
+    font-size: 2rem;
+  }
+  .case-study-stats {
+    flex-direction: column;
+  }
+  .role-tabs {
+    flex-direction: column;
+  }
+  .tab-link {
+    border-radius: 5px;
+  }
+}
+
+/* Additional Landing Page Classes */
+.text-secondary-color {
+  color: var(--secondary-color);
+}
+
+.text-light-text {
+  color: var(--light-text);
+}
+
+.bg-primary-color {
+  background-color: var(--primary-color);
+}
+
+.bg-secondary-color {
+  background-color: var(--secondary-color);
+}
+
+.bg-dark-bg {
+  background-color: var(--dark-bg);
+}
+
+.bg-light-bg {
+  background-color: var(--light-bg);
+}
+
+.border-light-bg {
+  border-color: var(--light-bg);
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Case Study Layout */
+.case-study-card {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.case-study-image {
+  flex: 1 1 40%;
+}
+
+.case-study-content {
+  flex: 1 1 60%;
+}
+
+.case-study-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat {
+  text-align: center;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .case-study-card {
+    flex-direction: column;
+  }
+  
+  .case-study-stats {
+    flex-direction: column;
+  }
+}
