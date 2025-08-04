@@ -638,6 +638,20 @@ h6 { font-size: 1rem; }
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Custom Animation Classes */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
 /* Case Study Layout */
 .case-study-card {
   display: flex;

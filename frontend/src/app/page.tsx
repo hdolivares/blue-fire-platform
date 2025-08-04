@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Lottie from 'lottie-react';
+import { LottieAnimation } from '@/components/LottieAnimation';
+import { AnimatedGradient } from '@/components/AnimatedGradient';
+import { Button } from '@/components/ui/Button';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('Operator');
@@ -55,17 +57,17 @@ export default function LandingPage() {
             </div>
             <span>Blue Fire</span>
           </div>
-          <Link 
-            href="/login" 
-            className="cta-button nav-cta"
-          >
-            Launch App
+          <Link href="/login">
+            <Button variant="primary" size="md">
+              Launch App
+            </Button>
           </Link>
         </nav>
       </header>
 
       {/* Hero Section */}
       <section className="hero min-h-screen flex flex-col justify-center items-center text-center px-5 relative overflow-hidden">
+        <AnimatedGradient />
         <div className="hero-content z-10">
           <h1 className="text-6xl md:text-7xl font-bold mb-4 text-white">
             The Sky is an Ocean.
@@ -73,15 +75,16 @@ export default function LandingPage() {
           <p className="text-xl md:text-2xl text-light-text mb-8 max-w-2xl mx-auto">
             We've learned how to harvest it. Pure water from pure air.
           </p>
-          <button 
+          <Button 
+            variant="warning"
+            size="lg"
             onClick={() => scrollToSection('solution')}
-            className="cta-button hero-cta"
           >
             Discover How ▼
-          </button>
+          </Button>
         </div>
         <div className="hero-animation absolute bottom-[-10%] left-1/2 transform -translate-x-1/2 w-full max-w-4xl z-0 opacity-40">
-          <Lottie 
+          <LottieAnimation 
             src="/Loading.lottie"
             loop={true}
             autoplay={true}
@@ -91,7 +94,9 @@ export default function LandingPage() {
       </section>
 
       {/* Solution Section */}
-      <section id="solution" className="solution bg-light-bg py-24 px-5">
+      <section id="solution" className="solution py-24 px-5" style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #1e3a8a 50%, #1e40af 75%, #1d4ed8 100%)'
+      }}>
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
             We Close the Loop. We Create Value.
@@ -101,21 +106,21 @@ export default function LandingPage() {
           </p>
           
           <div className="solution-steps-container grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
-            <div className="solution-step bg-dark-bg p-8 rounded-2xl border border-light-bg">
+            <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">🏨</div>
               <h3 className="text-xl font-bold mb-4 text-white">1. The Anchor Client</h3>
               <p className="text-light-text">
                 It starts with a partner—a hotel, hospital, or factory—with high energy costs. No CAPEX for them.
               </p>
             </div>
-            <div className="solution-step bg-dark-bg p-8 rounded-2xl border border-light-bg">
+            <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">🔥❄️💧</div>
               <h3 className="text-xl font-bold mb-4 text-white">2. The Valuable Outputs</h3>
               <p className="text-light-text">
                 The system generates thermal energy byproducts, slashing heating and cooling bills, making the water a "zero cost" resource.
               </p>
             </div>
-            <div className="solution-step bg-dark-bg p-8 rounded-2xl border border-light-bg">
+            <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">👩‍💼💰</div>
               <h3 className="text-xl font-bold mb-4 text-white">3. The Opportunity</h3>
               <p className="text-light-text">
@@ -126,7 +131,7 @@ export default function LandingPage() {
 
           <div className="solution-process mt-12">
             <div className="w-full max-w-xs mx-auto mb-4">
-              <Lottie 
+              <LottieAnimation 
                 src="/WaterMorph.lottie"
                 loop={true}
                 autoplay={true}
@@ -142,7 +147,9 @@ export default function LandingPage() {
       </section>
 
       {/* Roles Section */}
-      <section className="roles py-24 px-5">
+      <section className="roles py-24 px-5" style={{
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3b82f6 50%, #1d4ed8 75%, #1e3a8a 100%)'
+      }}>
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
             Find Your Fire.
@@ -173,8 +180,10 @@ export default function LandingPage() {
             <p className="text-light-text mb-8">
               As an "Alice," you manage the water produced by a Blue Fire unit. You build a brand, develop a customer base, and sell high-margin, pure water to your community. We provide the tools; you provide the entrepreneurial spark.
             </p>
-            <Link href="/register" className="cta-button bg-primary-color text-white">
-              Start Your Water Business
+            <Link href="/register">
+              <Button variant="primary" size="md">
+                Start Your Water Business
+              </Button>
             </Link>
           </div>
 
@@ -187,8 +196,10 @@ export default function LandingPage() {
             <p className="text-light-text mb-8">
               Provide capital for the SEAS hardware, the asset at the heart of the system. Earn a predictable, asset-backed return from the profitable sale of water, all managed through transparent smart contracts on the blockchain.
             </p>
-            <Link href="/register" className="cta-button bg-primary-color text-white">
-              Invest in an Asset
+            <Link href="/register">
+              <Button variant="primary" size="md">
+                Invest in an Asset
+              </Button>
             </Link>
           </div>
 
@@ -201,15 +212,19 @@ export default function LandingPage() {
             <p className="text-light-text mb-8">
               For those ready to lead the charge. Fund the machine and manage the water sales yourself to maximize your control and returns in this decentralized utility model.
             </p>
-            <Link href="/register" className="cta-button bg-primary-color text-white">
-              Build Your Utility
+            <Link href="/register">
+              <Button variant="primary" size="md">
+                Build Your Utility
+              </Button>
             </Link>
           </div>
         </div>
       </section>
 
       {/* Technology Section */}
-      <section className="technology bg-light-bg py-24 px-5">
+      <section className="technology py-24 px-5" style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #1e3a8a 50%, #1e40af 75%, #1d4ed8 100%)'
+      }}>
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
             The Powerhouse Behind the Water
@@ -248,7 +263,7 @@ export default function LandingPage() {
                 ]
               }
             ].map((machine, index) => (
-              <div key={index} className="machine-card bg-dark-bg p-8 rounded-2xl text-left">
+              <div key={index} className="machine-card bg-white/10 backdrop-blur-xl p-8 rounded-2xl text-left border border-white/20 shadow-2xl">
                 <div className="relative w-full h-48 mb-6 rounded-xl overflow-hidden">
                   <Image
                     src={machine.image}
@@ -273,13 +288,15 @@ export default function LandingPage() {
       </section>
 
       {/* Proof Section */}
-      <section className="proof py-24 px-5">
+      <section className="proof py-24 px-5" style={{
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3b82f6 50%, #1d4ed8 75%, #1e3a8a 100%)'
+      }}>
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
             Already Making Waves.
           </h2>
           
-          <div className="case-study-card bg-light-bg rounded-2xl overflow-hidden max-w-5xl mx-auto text-left flex flex-col md:flex-row">
+          <div className="case-study-card bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden max-w-5xl mx-auto text-left flex flex-col md:flex-row border border-white/20 shadow-2xl">
             <div className="case-study-image md:w-2/5">
               <div className="relative w-full h-80">
                 <Image
@@ -325,8 +342,10 @@ export default function LandingPage() {
           <p className="text-xl mb-8 opacity-90">
             Ready to join the revolution? Register on our platform to begin your journey as an operator or investor.
           </p>
-          <Link href="/register" className="cta-button bg-white text-primary-color text-lg px-8 py-4 transform scale-110">
-            Launch the App & Register
+          <Link href="/register">
+            <Button variant="outline" size="lg" className="text-lg transform scale-110">
+              Launch the App & Register
+            </Button>
           </Link>
         </div>
       </section>
