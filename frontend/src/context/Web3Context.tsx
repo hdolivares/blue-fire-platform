@@ -493,7 +493,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
       // Call backend investment logging endpoint
       await axios.post(
-        'http://127.0.0.1:3001/investments',
+        `${API_URL}/investments`,
         {
           projectId: databaseProject._id,
           amount: usdAmount
