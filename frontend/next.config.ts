@@ -12,6 +12,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    trustHost: true
+  }
 };
 
 export default nextConfig;
