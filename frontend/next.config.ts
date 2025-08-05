@@ -13,7 +13,9 @@ const nextConfig = {
     ],
   },
   experimental: {
-    trustHost: true
+    serverActions: {
+      allowedOrigins: ['app.bluefire.love', '161.35.225.243', '161.35.225.243:80']
+    }
   }
 };
 
