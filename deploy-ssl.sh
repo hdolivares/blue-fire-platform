@@ -23,7 +23,7 @@ read -p "Enter your email for Let's Encrypt notifications: " EMAIL
 
 echo "📦 Step 1: Installing dependencies..."
 apt update
-apt install -y nginx certbot python3-certbot-nginx nodejs npm git
+apt install -y nginx certbot python3-certbot-nginx
 
 echo "🔧 Step 2: Setting up Nginx configuration..."
 
