@@ -18,7 +18,7 @@
     class MiniGl {
       constructor(canvas, width, height, debug = false) {
         const _miniGl = this,
-          debug_output = -1 !== document.location.search.toLowerCase().indexOf("debug=webgl");
+          debug_output = typeof document !== 'undefined' && -1 !== document.location.search.toLowerCase().indexOf("debug=webgl");
         _miniGl.canvas = canvas, _miniGl.gl = _miniGl.canvas.getContext("webgl", {
           antialias: true
         }), _miniGl.meshes = [];
@@ -309,6 +309,7 @@
         }), e(this, "play", () => {
           requestAnimationFrame(this.animate), this.conf.playing = true
         }), e(this, "initGradient", (selector) => {
+          if (typeof document === 'undefined') return this;
           this.el = document.querySelector(selector);
           this.connect();
           return this;
@@ -329,7 +330,7 @@
             rotation: 0,
             playing: true
           },
-          document.querySelectorAll("canvas").length < 1 ? console.log("DID NOT LOAD HERO STRIPE CANVAS") : (
+          (typeof document !== 'undefined' && document.querySelectorAll("canvas").length < 1) ? console.log("DID NOT LOAD HERO STRIPE CANVAS") : (
 
             this.minigl = new MiniGl(this.el, null, null, !0),
             requestAnimationFrame(() => {
@@ -453,7 +454,7 @@
         this.material = this.initMaterial(), this.geometry = new this.minigl.PlaneGeometry, this.mesh = new this.minigl.Mesh(this.geometry, this.material)
       }
       shouldSkipFrame(e) {
-        return !!window.document.hidden || (!this.conf.playing || (parseInt(e, 10) % 2 == 0 || void 0))
+        return !!(typeof window !== 'undefined' && window.document && window.document.hidden) || (!this.conf.playing || (parseInt(e, 10) % 2 == 0 || void 0))
       }
       updateFrequency(e) {
         this.freqX += e, this.freqY += e
@@ -462,10 +463,10 @@
         this.activeColors[index] = 0 === this.activeColors[index] ? 1 : 0
       }
       showGradientLegend() {
-        this.width > this.minWidth && (this.isGradientLegendVisible = !0, document.body.classList.add("isGradientLegendVisible"))
+        this.width > this.minWidth && (this.isGradientLegendVisible = !0, typeof document !== 'undefined' && document.body.classList.add("isGradientLegendVisible"))
       }
       hideGradientLegend() {
-        this.isGradientLegendVisible = !1, document.body.classList.remove("isGradientLegendVisible")
+        this.isGradientLegendVisible = !1, typeof document !== 'undefined' && document.body.classList.remove("isGradientLegendVisible")
       }
       init() {
         this.initGradientColors(), this.initMesh(), this.resize(), requestAnimationFrame(this.animate), window.addEventListener("resize", this.resize)

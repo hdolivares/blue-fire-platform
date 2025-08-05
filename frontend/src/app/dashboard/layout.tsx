@@ -7,7 +7,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute roles={['Investor', 'Admin']}>
+    <ProtectedRoute requiredRoles={['Investor', 'Admin']}>
       {children}
     </ProtectedRoute>
   );

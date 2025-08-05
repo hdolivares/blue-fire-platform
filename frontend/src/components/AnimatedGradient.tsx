@@ -10,6 +10,8 @@ export const AnimatedGradient = () => {
   const observerRef = useRef<MutationObserver | null>(null);
 
   const initializeGradient = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    
     if (canvasRef.current) {
       try {
         // Check if CSS variables are available
@@ -54,6 +56,8 @@ export const AnimatedGradient = () => {
   };
 
   const setupCssVariableObserver = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    
     // Create a MutationObserver to watch for changes to CSS variables
     observerRef.current = new MutationObserver((mutations) => {
       let shouldReinitialize = false;
@@ -91,6 +95,8 @@ export const AnimatedGradient = () => {
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    
     if (canvasRef.current) {
       // Set canvas dimensions
       const canvas = canvasRef.current;
@@ -132,6 +138,8 @@ export const AnimatedGradient = () => {
 
   // Expose forceReinitialize to window for debugging
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     (window as any).forceGradientReinitialize = forceReinitialize;
     return () => {
       delete (window as any).forceGradientReinitialize;

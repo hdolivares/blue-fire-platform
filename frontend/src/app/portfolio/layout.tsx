@@ -4,7 +4,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 export default function PortfolioLayout({ children }: { children: React.ReactNode }) {
   return (
     // Protect this route for Investors and Admins
-    <ProtectedRoute roles={['Investor', 'Admin']}>
+    <ProtectedRoute requiredRoles={['Investor', 'Admin']}>
       {children}
     </ProtectedRoute>
   );

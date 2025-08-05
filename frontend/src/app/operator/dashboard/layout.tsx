@@ -8,7 +8,7 @@ export default function OperatorDashboardLayout({
 }) {
   return (
     // Protect this route for users with the 'Operator' role
-    <ProtectedRoute roles={['Operator']}>
+    <ProtectedRoute requiredRoles={['Operator']}>
       {children}
     </ProtectedRoute>
   );
