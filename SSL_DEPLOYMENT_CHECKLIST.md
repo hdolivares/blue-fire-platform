@@ -25,9 +25,12 @@
 
 ### Step 1: Upload Files to Server
 ```bash
-# From your local machine
+# From your local machine - upload SSL script
 scp deploy-ssl.sh root@161.35.225.243:/root/
-scp -r . root@161.35.225.243:/var/www/bluefire/
+
+# Upload code anywhere you want (or use git clone)
+scp -r . root@161.35.225.243:/home/jorge/blue-fire-platform/
+# OR: ssh and git clone your-repo /home/jorge/blue-fire-platform
 ```
 
 ### Step 2: Run SSL Setup
@@ -40,14 +43,17 @@ chmod +x /root/deploy-ssl.sh
 
 ### Step 3: Configure Environment Variables
 ```bash
+# Navigate to wherever your code is located
+cd /home/jorge/blue-fire-platform  # or your chosen directory
+
 # Frontend environment
-cd /var/www/bluefire/frontend
+cd frontend
 cat > .env.local << 'EOF'
 NEXT_PUBLIC_API_URL=https://app.bluefire.love/api
 EOF
 
 # Backend environment (IMPORTANT: CORS configuration)
-cd /var/www/bluefire/backend
+cd ../backend
 cat > .env << 'EOF'
 FRONTEND_URL=https://app.bluefire.love
 PORT=3001
@@ -61,8 +67,8 @@ The backend will automatically use `FRONTEND_URL=https://app.bluefire.love` for 
 
 ### Step 4: Build and Deploy Applications
 ```bash
-# Build backend
-cd /var/www/bluefire/backend
+# Build backend (from your code directory)
+cd /home/jorge/blue-fire-platform/backend  # or your chosen directory
 npm install
 npm run build
 
@@ -70,7 +76,7 @@ npm run build
 pm2 start dist/main.js --name bluefire-api
 
 # Build frontend
-cd /var/www/bluefire/frontend
+cd ../frontend
 npm install
 npm run build
 
