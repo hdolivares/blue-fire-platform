@@ -142,3 +142,34 @@ vite.config.ts.timestamp-*
 /contracts/out
 /contracts/cache
 .DS_Store
+
+# Internal Developer Documentation
+ARCHITECTURE_DIAGRAMS.md
+PROJECT_OVERVIEW.md
+DEVELOPER_QUICK_REFERENCE.md
+
+# Deployment & Configuration Guides
+CORS_SSL_GUIDE.md
+SSL_SETUP_GUIDE.md
+SSL_DEPLOYMENT_CHECKLIST.md
+FLEXIBLE_DEPLOYMENT_GUIDE.md
+SIMPLE_SETUP_UBUNTU.md
+SERVER_CONFIG.md
+PORT_CONFIGURATION.md
+RPC_CONFIG.md
+
+# Troubleshooting & Scripts
+FRONTEND_API_TROUBLESHOOTING.md
+nginx-ssl.conf
+deploy-ssl.sh
+ssl-setup.sh
+production.env.example
+
+# Smart Contract Internal Docs
+contracts/INTEGRATION_PROMPT.md
+contracts/LLM_INTEGRATION_PROMPT.md
+contracts/USER_STORIES_DIAGRAMS.md
+contracts/LOCAL_TESTING_GUIDE.md
+
+# Frontend Internal Docs
+frontend/DESIGN_SYSTEM.md
