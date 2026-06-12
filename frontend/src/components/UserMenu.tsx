@@ -54,9 +54,9 @@ export const UserMenu = () => {
   return (
     <div className="flex items-center space-x-4">
       {/* Projects Link - Always visible for all users */}
-      <Link 
-        href="/dashboard" 
-        className="text-sm font-semibold hover:underline text-white"
+      <Link
+        href="/dashboard"
+        className="text-sm font-semibold hover:underline text-text-primary"
       >
         Projects
       </Link>
@@ -71,7 +71,7 @@ export const UserMenu = () => {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 gradient-brand rounded-full flex items-center justify-center text-on-brand font-bold text-sm">
               {user.firstName?.charAt(0) || user.email.charAt(0).toUpperCase()}
             </div>
             <span className="hidden sm:inline">{user.firstName || 'User'}</span>
@@ -89,18 +89,18 @@ export const UserMenu = () => {
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-80 z-50">
-            <Card variant="frosted" className="p-0 shadow-xl border-white/20 bg-white/80 backdrop-blur-md">
+            <Card variant="elevated" className="p-0 shadow-xl border-border overflow-hidden">
               {/* User Info Section */}
-              <div className="p-4 border-b border-white/10">
+              <div className="p-4 border-b border-border">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 gradient-brand rounded-full flex items-center justify-center text-on-brand font-bold text-lg">
                     {user.firstName?.charAt(0) || user.email.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-user-header-menu truncate">
+                    <h3 className="font-bold text-text-primary truncate">
                       Welcome, {user.firstName || 'User'}
                     </h3>
-                    <p className="text-sm text-user-header-menu truncate">{user.email}</p>
+                    <p className="text-sm text-text-secondary truncate">{user.email}</p>
                   </div>
                 </div>
                 {getPrimaryRole() && (
@@ -116,7 +116,7 @@ export const UserMenu = () => {
                 {hasRole(['Admin']) && (
                   <Link 
                     href="/admin/dashboard" 
-                    className="flex items-center gap-3 px-3 py-2 text-sm text-user-header-menu hover:text-white hover:bg-white/40 rounded-md transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-md transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@ export const UserMenu = () => {
                   <>
                     <Link 
                       href="/operator/dashboard" 
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-user-header-menu hover:text-white hover:bg-white/40 rounded-md transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-md transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +142,7 @@ export const UserMenu = () => {
                     </Link>
                     <Link 
                       href="/operator/my-requests" 
-                      className="flex items-center gap-3 px-3 py-2 text-sm text-user-header-menu hover:text-white hover:bg-white/40 rounded-md transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-md transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ export const UserMenu = () => {
                 {hasRole(['Investor']) && (
                   <Link 
                     href="/portfolio" 
-                    className="flex items-center gap-3 px-3 py-2 text-sm text-user-header-menu hover:text-white hover:bg-white/40 rounded-md transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-md transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +170,7 @@ export const UserMenu = () => {
               </div>
 
               {/* Logout Section */}
-              <div className="p-2 border-t border-white/10">
+              <div className="p-2 border-t border-border">
                 <Button
                   onClick={handleLogout}
                   variant="error"

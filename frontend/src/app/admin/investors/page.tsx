@@ -162,7 +162,7 @@ export default function AdminInvestorsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/20">
+                <tr className="border-b border-border">
                   <th className="text-left py-3 px-4">Name</th>
                   <th className="text-left py-3 px-4">Email</th>
                   <th className="text-left py-3 px-4">Wallet</th>
@@ -174,7 +174,7 @@ export default function AdminInvestorsPage() {
               </thead>
               <tbody>
                 {investors.map((investor) => (
-                  <tr key={investor._id} className="border-b border-white/10 hover:bg-white/5">
+                  <tr key={investor._id} className="border-b border-border hover:bg-surface-muted">
                     <td className="py-3 px-4">
                       <div>
                         <div className="font-semibold">{investor.firstName} {investor.lastName}</div>
@@ -182,13 +182,13 @@ export default function AdminInvestorsPage() {
                     </td>
                     <td className="py-3 px-4 text-secondary">{investor.email}</td>
                     <td className="py-3 px-4">
-                      <code className="text-sm bg-white/10 px-2 py-1 rounded">
+                      <code className="text-sm bg-surface-muted px-2 py-1 rounded">
                         {formatWalletAddress(investor.walletAddress)}
                       </code>
                     </td>
                     <td className="py-3 px-4 text-secondary">{investor.country}</td>
                     <td className="py-3 px-4">
-                      <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-sm">
+                      <span className="bg-[var(--info-bg)] text-[var(--info-fg)] px-2 py-1 rounded-full text-sm">
                         {getInvestorInvestmentCount(investor._id)}
                       </span>
                     </td>
@@ -213,7 +213,7 @@ export default function AdminInvestorsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/20">
+                <tr className="border-b border-border">
                   <th className="text-left py-3 px-4">Investor</th>
                   <th className="text-left py-3 px-4">Project</th>
                   <th className="text-left py-3 px-4">Amount</th>
@@ -223,7 +223,7 @@ export default function AdminInvestorsPage() {
               </thead>
               <tbody>
                 {investments.map((investment) => (
-                  <tr key={investment._id} className="border-b border-white/10 hover:bg-white/5">
+                  <tr key={investment._id} className="border-b border-border hover:bg-surface-muted">
                     <td className="py-3 px-4">
                       <div>
                         <div className="font-semibold">{investment.user.firstName} {investment.user.lastName}</div>
@@ -241,11 +241,11 @@ export default function AdminInvestorsPage() {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-sm ${
-                        investment.project.status === 'OPERATIONAL' 
-                          ? 'bg-green-500/20 text-green-300'
+                        investment.project.status === 'OPERATIONAL'
+                          ? 'bg-[var(--success-bg)] text-[var(--success-fg)]'
                           : investment.project.status === 'SEEKING_FUNDING'
-                          ? 'bg-yellow-500/20 text-yellow-300'
-                          : 'bg-gray-300/20 text-secondary'
+                          ? 'bg-[var(--warning-bg)] text-[var(--warning-fg)]'
+                          : 'bg-surface-muted text-text-secondary'
                       }`}>
                         {investment.project.status.replace('_', ' ')}
                       </span>

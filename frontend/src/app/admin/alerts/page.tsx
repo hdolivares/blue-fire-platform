@@ -28,7 +28,7 @@ export default function AlertsPage() {
 
       {/* Tab Navigation */}
       <div className="mb-8">
-        <div className="border-b border-white/10">
+        <div className="border-b border-border">
           <nav className="-mb-px flex space-x-8">
             {tabs.map((tab) => (
               <Button
@@ -38,8 +38,8 @@ export default function AlertsPage() {
                 size="sm"
                 className={`border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-400'
-                    : 'border-transparent text-gray-200 hover:text-gray-100 hover:border-gray-200'
+                    ? 'border-brand-primary text-brand-primary'
+                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border'
                 }`}
               >
                 <span className="mr-2">{tab.icon}</span>

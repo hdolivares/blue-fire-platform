@@ -101,33 +101,33 @@ export const RevenueAnalytics = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card variant="default" className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
+        <Card variant="default" className="p-4 bg-[var(--success-bg)] border border-success/20">
           <p className="text-sm text-secondary mb-1">Total Revenue</p>
-          <p className="text-2xl font-bold text-green-400">{formatRbtc(revenueStats.totalRevenue)} RBTC</p>
+          <p className="text-2xl font-bold text-success">{formatRbtc(revenueStats.totalRevenue)} RBTC</p>
           <p className="text-xs text-secondary">≈ ${formatUsd(revenueStats.totalRevenue)} USD</p>
         </Card>
 
-        <Card variant="default" className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+        <Card variant="default" className="p-4 bg-[var(--info-bg)] border border-brand-primary/20">
           <p className="text-sm text-secondary mb-1">Pending Claims</p>
-          <p className="text-2xl font-bold text-blue-400">{formatRbtc(revenueStats.totalClaims)} RBTC</p>
+          <p className="text-2xl font-bold text-brand-primary">{formatRbtc(revenueStats.totalClaims)} RBTC</p>
           <p className="text-xs text-secondary">≈ ${formatUsd(revenueStats.totalClaims)} USD</p>
         </Card>
 
-        <Card variant="default" className="p-4 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+        <Card variant="default" className="p-4 bg-surface-muted border border-brand-secondary/20">
           <p className="text-sm text-secondary mb-1">Active Projects</p>
-          <p className="text-2xl font-bold text-purple-400">{revenueStats.activeProjects}</p>
+          <p className="text-2xl font-bold text-brand-secondary">{revenueStats.activeProjects}</p>
           <p className="text-xs text-secondary">Operational</p>
         </Card>
 
-        <Card variant="default" className="p-4 bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
+        <Card variant="default" className="p-4 bg-surface-muted border border-accent/20">
           <p className="text-sm text-secondary mb-1">Avg Revenue</p>
-          <p className="text-2xl font-bold text-orange-400">{formatRbtc(revenueStats.avgRevenuePerProject)} RBTC</p>
+          <p className="text-2xl font-bold text-accent">{formatRbtc(revenueStats.avgRevenuePerProject)} RBTC</p>
           <p className="text-xs text-secondary">Per Project</p>
         </Card>
       </div>
 
       {/* Project Performance List */}
-      <Card variant="default" className="p-4 bg-white/5">
+      <Card variant="default" className="p-4 bg-surface-muted">
         <h3 className="text-lg font-bold mb-4">Project Performance</h3>
         
         {projects.length === 0 ? (
@@ -138,13 +138,13 @@ export const RevenueAnalytics = () => {
               .sort((a, b) => parseFloat(b.totalFunded || '0') - parseFloat(a.totalFunded || '0'))
               .slice(0, 5)
               .map((project, index) => (
-                <div key={project.projectId} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div key={project.projectId} className="flex items-center justify-between p-3 bg-surface rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index === 0 ? 'bg-yellow-500 text-black' :
-                      index === 1 ? 'bg-gray-400 text-black' :
-                      index === 2 ? 'bg-orange-600 text-white' :
-                      'bg-white/10 text-white'
+                      index === 0 ? 'bg-warning text-on-brand' :
+                      index === 1 ? 'bg-text-muted text-on-brand' :
+                      index === 2 ? 'bg-accent text-on-brand' :
+                      'bg-surface-muted text-text-primary'
                     }`}>
                       {index + 1}
                     </div>
@@ -158,7 +158,7 @@ export const RevenueAnalytics = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-green-400">{formatRbtc(parseFloat(project.totalFunded || '0'))} RBTC</p>
+                    <p className="font-bold text-success">{formatRbtc(parseFloat(project.totalFunded || '0'))} RBTC</p>
                     <p className="text-xs text-secondary">≈ ${formatUsd(parseFloat(project.totalFunded || '0'))} USD</p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export const RevenueAnalytics = () => {
       </Card>
 
       {/* Revenue Distribution Info */}
-      <Card variant="default" className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20">
+      <Card variant="default" className="mt-4 p-4 bg-[var(--info-bg)] border border-brand-primary/20">
         <h3 className="text-sm font-medium mb-2">ℹ️ Revenue Distribution System</h3>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Operators</strong> deposit revenue from water sales to project contracts</li>

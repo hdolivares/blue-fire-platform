@@ -48,10 +48,10 @@ export const Slider = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-white">
+        <label className="block text-sm font-medium text-text-primary">
           {label}
           {showValue && (
-            <span className="font-bold text-lg ml-2">{value}</span>
+            <span className="font-bold text-lg ml-2 text-brand-primary">{value}</span>
           )}
         </label>
       )}
@@ -68,7 +68,7 @@ export const Slider = ({
         style={{ '--slider-progress': `${progress}%` } as React.CSSProperties}
       />
       
-      <div className="flex justify-between text-xs text-secondary">
+      <div className="flex justify-between text-xs text-text-secondary">
         <span>{min}</span>
         <span>{max}</span>
       </div>

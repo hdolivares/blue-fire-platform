@@ -166,23 +166,23 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
       <Card variant="frosted" className="lg:col-span-1 p-0 flex flex-col overflow-hidden h-full">
         <div className="relative w-full h-48">
           <Image src={project.imageUrl} alt={project.projectName} fill className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface-muted to-transparent"></div>
         </div>
         <div className="p-6 flex-grow flex flex-col">
           <h2 className="text-2xl font-bold mb-2">{project.projectName}</h2>
           <p className="text-secondary text-sm mb-4">{project.location}</p>
           <div className="mt-auto space-y-4 pt-4">
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Avg. Daily Production</span>
-              <span className="font-bold text-lg text-green-400">{project.avgDailyWaterProduction} L</span>
+              <span className="font-bold text-lg text-success">{project.avgDailyWaterProduction} L</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Avg. Humidity</span>
-              <span className="font-bold text-lg text-blue-400">{project.avgHumidity}%</span>
+              <span className="font-bold text-lg text-brand-primary">{project.avgHumidity}%</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Avg. Temperature</span>
-              <span className="font-bold text-lg text-orange-400">{project.avgTemperature}°C</span>
+              <span className="font-bold text-lg text-accent">{project.avgTemperature}°C</span>
             </div>
           </div>
         </div>
@@ -192,14 +192,14 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
       <Card variant="frosted" className="lg:col-span-1 p-6 h-full flex flex-col">
         <h2 className="text-2xl font-bold mb-6">Purchase Water Production</h2>
         {isSoldOut ? (
-          <Card variant="default" className="text-center bg-yellow-500/10 border border-yellow-500/50 p-6 my-auto">
+          <Card variant="default" className="text-center bg-[var(--warning-bg)] border border-warning/50 p-6 my-auto">
             <div className="mb-4">
-              <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300">Production Booked</h3>
+              <h3 className="text-xl font-bold text-warning">Production Booked</h3>
               <p className="mt-2 text-secondary">This unit's water production has been purchased until {nextAvailableDate}.</p>
             </div>
           </Card>
@@ -217,7 +217,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
                   min="0.0001"
                   value={revenueAmount}
                   onChange={(e) => setRevenueAmount(e.target.value)}
-                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 rounded-lg bg-surface border border-border text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="1.0"
                 />
                 <p className="text-xs text-secondary mt-1">
@@ -235,17 +235,17 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
               />
             </div>
             
-            <Card variant="default" className="bg-gradient-to-r from-green-500/10 to-blue-500/10 p-6 text-center border border-green-500/20">
+            <Card variant="default" className="bg-[var(--success-bg)] p-6 text-center border border-success/20">
               <p className="text-secondary text-sm mb-2">Revenue Deposit</p>
-                              <p className="text-4xl font-bold text-white mb-1">{parseFloat(revenueAmount || '0').toFixed(4)} RBTC</p>
+                              <p className="text-4xl font-bold text-text-primary mb-1">{parseFloat(revenueAmount || '0').toFixed(4)} RBTC</p>
               <p className="text-lg text-secondary">Water Sales Revenue</p>
-              <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="mt-3 pt-3 border-t border-border">
                 <p className="text-sm text-secondary">≈ ${(parseFloat(revenueAmount || '0') * ETH_USD_RATE).toFixed(2)} USD</p>
               </div>
             </Card>
             
             {onChainProject && (
-              <Card variant="default" className="bg-blue-500/10 p-4 border border-blue-500/20">
+              <Card variant="default" className="bg-[var(--info-bg)] p-4 border border-brand-primary/20">
                 <p className="text-xs text-secondary mb-2">Project Status</p>
                 <p className="text-sm font-medium">
                   State: {onChainProject.state === 0 ? 'SEEKING_FUNDING' : 
@@ -295,40 +295,40 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
 
     {/* Revenue Deposit Preview Modal */}
     {showRevenuePreview && onChainProject && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-surface-muted flex items-center justify-center z-50 p-4">
         <Card variant="frosted" className="max-w-md w-full p-6">
           <h3 className="text-xl font-bold mb-4">🎯 Revenue Deposit Preview</h3>
-          
+
           <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Project</span>
               <span className="font-medium">{project.projectName}</span>
             </div>
-            
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Revenue Amount</span>
-                              <span className="font-bold text-green-400">{revenueAmount} RBTC</span>
+                              <span className="font-bold text-success">{revenueAmount} RBTC</span>
             </div>
-            
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">USD Value</span>
               <span className="font-medium">≈ ${(parseFloat(revenueAmount) * ETH_USD_RATE).toFixed(2)}</span>
             </div>
-            
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Project State</span>
-              <span className="font-medium text-green-400">
+              <span className="font-medium text-success">
                 {onChainProject?.state === 2 ? 'OPERATIONAL ✅' : 'NOT OPERATIONAL ❌'}
               </span>
             </div>
 
-            <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Total Funded</span>
               <span className="font-medium">{onChainProject?.totalFunded} ETH</span>
             </div>
           </div>
 
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+          <div className="bg-[var(--info-bg)] border border-brand-primary/20 rounded-lg p-4 mb-6">
             <h4 className="text-sm font-medium mb-2">ℹ️ What happens next:</h4>
             <ul className="text-xs text-secondary space-y-1">
               <li>• Revenue will be deposited to the smart contract</li>

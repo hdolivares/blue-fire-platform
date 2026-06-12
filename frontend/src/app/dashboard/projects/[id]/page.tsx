@@ -30,6 +30,7 @@ import { GlowingButton } from '@/components/GlowingButton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ProjectStatusInfo } from '@/components/ProjectStatusInfo'; // Import the new component
 import { PerformanceChart } from '@/components/PerformanceChart'; // Import the new chart component
 
@@ -375,7 +376,7 @@ export default function ProjectDetailPage() {
           <div className="relative w-full h-full">
             <Image src={images[0]} alt={`${name} image 1`} fill className="object-cover" />
             {images.length > 1 && (
-              <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+              <div className="absolute bottom-4 right-4 bg-black/50 text-on-brand px-2 py-1 rounded text-sm">
                 {images.length} images
               </div>
             )}
@@ -420,27 +421,27 @@ export default function ProjectDetailPage() {
              <div>
                <h3 className="text-sm font-medium">Blockchain Integration</h3>
                <div className="flex items-center gap-4 mt-2 text-xs">
-                 <span className={`flex items-center gap-1 ${project.deployedOnChain ? 'text-green-400' : 'text-gray-400'}`}>
-                   {project.deployedOnChain ? '✅' : '⏳'} 
+                 <span className={`flex items-center gap-1 ${project.deployedOnChain ? 'text-success' : 'text-text-muted'}`}>
+                   {project.deployedOnChain ? '✅' : '⏳'}
                    {project.deployedOnChain ? 'Deployed' : 'Not deployed'}
                  </span>
                  {project.blockchainProjectId && (
-                   <span className="text-blue-400">
+                   <span className="text-brand-primary">
                      🆔 Blockchain ID: #{project.blockchainProjectId}
                    </span>
                  )}
                  {project.blockchainAddress && project.blockchainAddress !== 'TBD' && (
-                   <span className="text-purple-400">
+                   <span className="text-brand-secondary">
                      📍 Contract: {project.blockchainAddress.slice(0, 8)}...
                    </span>
                  )}
                  {onChainData && (
-                   <span className="text-green-400">
+                   <span className="text-success">
                      🔗 Live data loaded
                    </span>
                  )}
                  {!onChainData && project.deployedOnChain && isConnected && (
-                   <span className="text-yellow-400">
+                   <span className="text-warning">
                      💾 Using database data
                    </span>
                  )}
@@ -465,22 +466,22 @@ export default function ProjectDetailPage() {
           <Card variant="frosted" className="p-4 text-center">
             <p className="text-xs text-secondary">Funding {onChainData ? 'Cap' : 'Goal'}</p>
             <p className="text-lg font-bold">{goal.toFixed(2)} ETH</p>
-            <p className="text-xs text-gray-400">{onChainData ? '🔗 Blockchain' : '💾 Database'}</p>
+            <p className="text-xs text-text-muted">{onChainData ? '🔗 Blockchain' : '💾 Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
             <p className="text-xs text-secondary">Total Funded</p>
             <p className="text-lg font-bold">{current.toFixed(2)} ETH</p>
-            <p className="text-xs text-gray-400">{onChainData ? '🔗 Live' : '💾 Database'}</p>
+            <p className="text-xs text-text-muted">{onChainData ? '🔗 Live' : '💾 Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
             <p className="text-xs text-secondary">Progress</p>
             <p className="text-lg font-bold">{fundingProgress.toFixed(1)}%</p>
-            <p className="text-xs text-gray-400">{onChainData ? '🔗 Live' : '💾 Calculated'}</p>
+            <p className="text-xs text-text-muted">{onChainData ? '🔗 Live' : '💾 Calculated'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
             <p className="text-xs text-secondary">Blockchain ID</p>
             <p className="text-lg font-bold">#{project.blockchainProjectId || 'TBD'}</p>
-            <p className="text-xs text-gray-400">💾 Database</p>
+            <p className="text-xs text-text-muted">💾 Database</p>
           </Card>
         </div>
       )}
@@ -518,9 +519,9 @@ export default function ProjectDetailPage() {
                   min="0" 
                   max="100" 
                   step="0.1"
-                  value={percentage} 
-                  onChange={handleSliderChange} 
-                  className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                  value={percentage}
+                  onChange={handleSliderChange}
+                  className="w-full h-2 bg-surface border border-border rounded-lg appearance-none cursor-pointer"
                 />
               </div>
               
@@ -530,15 +531,15 @@ export default function ProjectDetailPage() {
                 </GlowingButton>
               ) : (
                 <>
-                  <Card variant="default" className="text-center p-3 bg-green-500/20 border border-green-500">
+                  <Card variant="default" className="text-center p-3 bg-success/20 border border-success">
                     <p className="text-sm">Wallet Connected</p>
                     <p className="text-xs font-mono">{connectedAccount?.slice(0,6)}...{connectedAccount?.slice(-4)}</p>
                   </Card>
-                  <Button 
-                    onClick={handleInvestment} 
-                    disabled={!investmentAmount || isInvesting || parseFloat(investmentAmount) < 0.0001} 
-                    variant="primary" 
-                    size="lg" 
+                  <Button
+                    onClick={handleInvestment}
+                    disabled={!investmentAmount || isInvesting || parseFloat(investmentAmount) < 0.0001}
+                    variant="accent"
+                    size="lg"
                     className="w-full"
                   >
                     {isInvesting ? 'Processing...' : `Invest ${investmentAmount} RBTC`}
@@ -547,17 +548,12 @@ export default function ProjectDetailPage() {
               )}
             </div>
             
-            <Card variant="default" className="bg-sky-500/20 p-6 flex flex-col items-center justify-center text-center">
+            <Card variant="default" className="bg-surface-muted p-6 flex flex-col items-center justify-center text-center">
                 <p className="text-secondary">Funding Progress</p>
                 <p className="text-4xl font-bold my-2">
                   {current.toFixed(3)} ETH / <span className="text-2xl text-secondary">{goal.toFixed(3)} ETH</span>
                 </p>
-                <div className="w-full bg-white/10 rounded-full h-4 mb-2">
-                  <div 
-                    className="bg-gradient-accent h-4 rounded-full transition-all duration-300" 
-                    style={{ width: `${Math.min(fundingProgress, 100)}%` }}
-                  ></div>
-                </div>
+                <ProgressBar value={fundingProgress} className="mb-2" />
                 <p className="text-sm text-secondary">
                   {(goal - current).toFixed(3)} ETH remaining
                 </p>

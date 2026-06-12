@@ -103,8 +103,8 @@ export default function DashboardPage() {
         return {
           title: 'Admin Dashboard',
           subtitle: 'Manage projects, users, and platform operations',
-          color: 'text-blue-300',
-          bgColor: 'bg-blue-500/10',
+          color: 'text-brand-primary',
+          bgColor: 'bg-surface-muted',
           actionButton: (
             <Button variant="primary" size="md" onClick={() => window.location.href = '/admin/dashboard'}>
               Full Admin Panel
@@ -115,8 +115,8 @@ export default function DashboardPage() {
         return {
           title: 'Operator Dashboard',
           subtitle: 'Monitor and manage your assigned projects',
-          color: 'text-orange-300',
-          bgColor: 'bg-orange-500/10',
+          color: 'text-accent',
+          bgColor: 'bg-surface-muted',
           actionButton: (
             <Button variant="warning" size="md" onClick={() => window.location.href = '/operator/dashboard'}>
               Operator Panel
@@ -127,8 +127,8 @@ export default function DashboardPage() {
         return {
           title: 'Investor Dashboard',
           subtitle: 'Discover and invest in water production projects',
-          color: 'text-purple-300',
-          bgColor: 'bg-purple-500/10',
+          color: 'text-brand-secondary',
+          bgColor: 'bg-surface-muted',
           actionButton: (
             <Button variant="secondary" size="md" onClick={() => window.location.href = '/portfolio'}>
               View Portfolio
@@ -139,8 +139,8 @@ export default function DashboardPage() {
         return {
           title: 'Dashboard',
           subtitle: 'Welcome to Blue Fire Platform',
-          color: 'text-gray-300',
-          bgColor: 'bg-gray-300/10',
+          color: 'text-text-secondary',
+          bgColor: 'bg-surface-muted',
           actionButton: null
         };
     }
@@ -159,7 +159,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <main className="container mx-auto p-8">
-        <div className="text-center text-red-500">{error}</div>
+        <div className="text-center text-danger">{error}</div>
       </main>
     );
   }
@@ -210,12 +210,12 @@ export default function DashboardPage() {
               <Card variant="frosted" className="absolute top-full right-0 mt-2 w-56 p-2 z-50">
                 <div className="flex flex-col space-y-2">
                   {projectStatusOrder.map((status) => (
-                    <label key={status} className="flex items-center space-x-2 p-2 rounded-md hover:bg-white/10 cursor-pointer">
+                    <label key={status} className="flex items-center space-x-2 p-2 rounded-md hover:bg-surface-muted cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedStatuses.includes(status)}
                         onChange={() => handleStatusFilterChange(status)}
-                        className="mr-2 h-4 w-4 rounded bg-slate-700 border-slate-600 text-blue-500 focus:ring-blue-600"
+                        className="mr-2 h-4 w-4 rounded bg-surface border-border text-brand-primary focus:ring-brand-primary"
                       />
                       {formatStatus(status)}
                     </label>

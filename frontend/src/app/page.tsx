@@ -6,9 +6,12 @@ import Image from 'next/image';
 import { LottieAnimation } from '@/components/LottieAnimation';
 import { AnimatedGradient } from '@/components/AnimatedGradient';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useScrolled } from '@/hooks/useScrolled';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('Operator');
+  const scrolled = useScrolled();
 
   // Smooth scrolling for anchor links
   const scrollToSection = (sectionId: string) => {
@@ -49,34 +52,39 @@ export default function LandingPage() {
   return (
     <div className="landing-page">
       {/* Header */}
-      <header className="fixed w-full bg-dark-bg/80 backdrop-blur-md p-4 z-50">
+      <header className="app-header fixed w-full p-4 z-50" data-scrolled={scrolled}>
         <nav className="flex justify-between items-center max-w-7xl mx-auto">
-          <div className="flex items-center text-2xl font-bold text-white">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-3">
-              🔥
+          <div className="flex items-center text-2xl font-bold">
+            <div className="w-11 h-11 gradient-brand rounded-xl flex items-center justify-center mr-3 text-on-brand font-bold text-lg shadow-md">
+              BF
             </div>
-            <span>Blue Fire</span>
+            <span className="gradient-brand-text">Blue Fire</span>
           </div>
-          <Link href="/login">
-            <Button variant="primary" size="md">
-              Launch App
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/login">
+              <Button variant="primary" size="md">
+                Launch App
+              </Button>
+            </Link>
+          </div>
         </nav>
       </header>
 
       {/* Hero Section */}
       <section className="hero min-h-screen flex flex-col justify-center items-center text-center px-5 relative overflow-hidden">
         <AnimatedGradient />
+        {/* Scrim keeps hero text legible over the animated gradient in both themes */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40 pointer-events-none" />
         <div className="hero-content z-10">
-          <h1 className="text-6xl md:text-7xl font-bold mb-4 text-white">
+          <h1 className="text-6xl md:text-7xl font-bold mb-4 text-on-brand drop-shadow-lg">
             The Sky is an Ocean.
           </h1>
-          <p className="text-xl md:text-2xl text-light-text mb-8 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-white/85 mb-8 max-w-2xl mx-auto drop-shadow">
             We've learned how to harvest it. Pure water from pure air.
           </p>
-          <Button 
-            variant="warning"
+          <Button
+            variant="accent"
             size="lg"
             onClick={() => scrollToSection('solution')}
           >
@@ -94,36 +102,34 @@ export default function LandingPage() {
       </section>
 
       {/* Solution Section */}
-      <section id="solution" className="solution py-24 px-5" style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #1e3a8a 50%, #1e40af 75%, #1d4ed8 100%)'
-      }}>
+      <section id="solution" className="solution gradient-brand py-24 px-5">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-on-brand">
             We Close the Loop. We Create Value.
           </h2>
-          <p className="section-subtitle max-w-2xl mx-auto mb-12 text-light-text text-lg">
+          <p className="max-w-2xl mx-auto mb-12 text-white/85 text-lg">
             Our #2Green2bBlue model turns inefficient energy use into a source of pure water and profit.
           </p>
-          
+
           <div className="solution-steps-container grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
             <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">🏨</div>
-              <h3 className="text-xl font-bold mb-4 text-white">1. The Anchor Client</h3>
-              <p className="text-light-text">
+              <h3 className="text-xl font-bold mb-4 text-on-brand">1. The Anchor Client</h3>
+              <p className="text-white/80">
                 It starts with a partner—a hotel, hospital, or factory—with high energy costs. No CAPEX for them.
               </p>
             </div>
             <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">🔥❄️💧</div>
-              <h3 className="text-xl font-bold mb-4 text-white">2. The Valuable Outputs</h3>
-              <p className="text-light-text">
+              <h3 className="text-xl font-bold mb-4 text-on-brand">2. The Valuable Outputs</h3>
+              <p className="text-white/80">
                 The system generates thermal energy byproducts, slashing heating and cooling bills, making the water a "zero cost" resource.
               </p>
             </div>
             <div className="solution-step bg-white/10 backdrop-blur-xl p-8 rounded-2xl border border-white/20 shadow-2xl">
               <div className="icon-wrapper text-4xl mb-4">👩‍💼💰</div>
-              <h3 className="text-xl font-bold mb-4 text-white">3. The Opportunity</h3>
-              <p className="text-light-text">
+              <h3 className="text-xl font-bold mb-4 text-on-brand">3. The Opportunity</h3>
+              <p className="text-white/80">
                 This "Zero-Cost Water" creates a new, high-margin market, managed by local operators and funded by savvy investors.
               </p>
             </div>
@@ -131,7 +137,7 @@ export default function LandingPage() {
 
           <div className="solution-process mt-12">
             <div className="w-full max-w-xs mx-auto mb-4">
-              <LottieAnimation 
+              <LottieAnimation
                 src="/WaterMorph.lottie"
                 loop={true}
                 autoplay={true}
@@ -140,28 +146,26 @@ export default function LandingPage() {
             </div>
             <div className="solution-input flex items-center justify-center flex-col">
               <div className="icon-wrapper text-3xl mb-2">⚡️🌬️</div>
-              <p className="text-light-text">Electricity & Humid Air In</p>
+              <p className="text-white/80">Electricity & Humid Air In</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Roles Section */}
-      <section className="roles py-24 px-5" style={{
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3b82f6 50%, #1d4ed8 75%, #1e3a8a 100%)'
-      }}>
+      <section className="roles gradient-brand py-24 px-5">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-on-brand">
             Find Your Fire.
           </h2>
-          
-          <div className="role-tabs mb-8 inline-flex border border-light-bg rounded-xl">
+
+          <div className="role-tabs mb-8 inline-flex border border-white/20 rounded-xl overflow-hidden">
             {['Operator', 'Investor', 'Both'].map((role) => (
               <button
                 key={role}
                 onClick={() => setActiveTab(role)}
-                className={`tab-link px-6 py-4 cursor-pointer border-none text-light-text font-semibold transition-all duration-300 ${
-                  activeTab === role ? 'text-white bg-light-bg' : ''
+                className={`px-6 py-4 cursor-pointer border-none font-semibold transition-all duration-300 ${
+                  activeTab === role ? 'text-on-brand bg-white/15' : 'text-white/70 hover:text-on-brand'
                 }`}
               >
                 {role === 'Operator' && '👩‍💼 Become an Operator'}
@@ -176,8 +180,8 @@ export default function LandingPage() {
             className={`tab-content ${activeTab === 'Operator' ? 'active' : ''}`}
             style={{ display: activeTab === 'Operator' ? 'block' : 'none' }}
           >
-            <h3 className="text-2xl font-bold mb-4 text-secondary-color">Own the Flow.</h3>
-            <p className="text-light-text mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-accent">Own the Flow.</h3>
+            <p className="text-white/80 mb-8">
               As an "Alice," you manage the water produced by a Blue Fire unit. You build a brand, develop a customer base, and sell high-margin, pure water to your community. We provide the tools; you provide the entrepreneurial spark.
             </p>
             <Link href="/register">
@@ -192,8 +196,8 @@ export default function LandingPage() {
             className={`tab-content ${activeTab === 'Investor' ? 'active' : ''}`}
             style={{ display: activeTab === 'Investor' ? 'block' : 'none' }}
           >
-            <h3 className="text-2xl font-bold mb-4 text-secondary-color">Own the Engine.</h3>
-            <p className="text-light-text mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-accent">Own the Engine.</h3>
+            <p className="text-white/80 mb-8">
               Provide capital for the SEAS hardware, the asset at the heart of the system. Earn a predictable, asset-backed return from the profitable sale of water, all managed through transparent smart contracts on the blockchain.
             </p>
             <Link href="/register">
@@ -208,8 +212,8 @@ export default function LandingPage() {
             className={`tab-content ${activeTab === 'Both' ? 'active' : ''}`}
             style={{ display: activeTab === 'Both' ? 'block' : 'none' }}
           >
-            <h3 className="text-2xl font-bold mb-4 text-secondary-color">Own the Revolution.</h3>
-            <p className="text-light-text mb-8">
+            <h3 className="text-2xl font-bold mb-4 text-accent">Own the Revolution.</h3>
+            <p className="text-white/80 mb-8">
               For those ready to lead the charge. Fund the machine and manage the water sales yourself to maximize your control and returns in this decentralized utility model.
             </p>
             <Link href="/register">
@@ -222,11 +226,9 @@ export default function LandingPage() {
       </section>
 
       {/* Technology Section */}
-      <section className="technology py-24 px-5" style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #1e3a8a 50%, #1e40af 75%, #1d4ed8 100%)'
-      }}>
+      <section className="technology gradient-brand py-24 px-5">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-on-brand">
             The Powerhouse Behind the Water
           </h2>
           
@@ -273,10 +275,10 @@ export default function LandingPage() {
                     className="object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-secondary-color">{machine.name}</h3>
+                <h3 className="text-xl font-bold mb-4 text-accent">{machine.name}</h3>
                 <ul className="space-y-3">
                   {machine.specs.map((spec, specIndex) => (
-                    <li key={specIndex} className="text-light-text">
+                    <li key={specIndex} className="text-white/80">
                       <strong>{spec.icon} {spec.label}</strong> {spec.value}
                     </li>
                   ))}
@@ -288,11 +290,9 @@ export default function LandingPage() {
       </section>
 
       {/* Proof Section */}
-      <section className="proof py-24 px-5" style={{
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 25%, #3b82f6 50%, #1d4ed8 75%, #1e3a8a 100%)'
-      }}>
+      <section className="proof gradient-brand py-24 px-5">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12 text-on-brand">
             Already Making Waves.
           </h2>
           
@@ -309,10 +309,10 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="case-study-content md:w-3/5 p-8 md:p-12">
-              <h3 className="text-2xl font-bold mb-4 text-secondary-color">
+              <h3 className="text-2xl font-bold mb-4 text-accent">
                 Case Study: Hotel in Villahermosa, Mexico
               </h3>
-              <p className="text-light-text mb-8">
+              <p className="text-white/80 mb-8">
                 An integration with an older generation AWA 250 proved the model's power, delivering massive energy savings and creating a new resource stream for the hotel.
               </p>
               <div className="case-study-stats flex flex-col md:flex-row gap-6">
@@ -323,8 +323,8 @@ export default function LandingPage() {
                 ].map((stat, index) => (
                   <div key={index} className="stat text-center flex-1">
                     <span className="stat-icon text-3xl block mb-2">{stat.icon}</span>
-                    <strong className="text-xl text-white block mb-1">{stat.value}</strong>
-                    <span className="text-sm text-light-text">{stat.label}</span>
+                    <strong className="text-xl text-on-brand block mb-1">{stat.value}</strong>
+                    <span className="text-sm text-white/80">{stat.label}</span>
                   </div>
                 ))}
               </div>
@@ -334,16 +334,16 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="final-cta bg-gradient-to-r from-primary-color to-secondary-color py-24 px-5 text-white">
+      <section className="final-cta gradient-brand py-24 px-5 text-on-brand">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-on-brand">
             The Future of Water is in the Air.
           </h2>
-          <p className="text-xl mb-8 opacity-90">
+          <p className="text-xl mb-8 text-white/85">
             Ready to join the revolution? Register on our platform to begin your journey as an operator or investor.
           </p>
           <Link href="/register">
-            <Button variant="outline" size="lg" className="text-lg transform scale-110">
+            <Button variant="accent" size="lg" className="text-lg">
               Launch the App & Register
             </Button>
           </Link>
@@ -351,7 +351,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-5 border-t border-light-bg text-center text-light-text">
+      <footer className="py-8 px-5 border-t border-border text-center text-text-secondary">
         <p>&copy; 2025 Blue Fire. All Rights Reserved.</p>
         <div className="contact-info mt-2">
           <span>jt@bluefire.love</span> | <span>lgg@seas-sa.com</span>

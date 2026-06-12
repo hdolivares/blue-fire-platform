@@ -42,7 +42,7 @@ export const WalletControls = () => {
         onClick={() => {}} // No action needed, just for styling consistency
       >
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isWrongNetwork ? 'bg-red-500' : 'bg-green-500'} animate-pulse`}></div>
+          <div className={`w-2 h-2 rounded-full ${isWrongNetwork ? 'bg-danger' : 'bg-success'} animate-pulse`}></div>
           <span>{formatAddress(account!)}</span>
           <span className="text-xs opacity-70">({chainId})</span>
         </div>

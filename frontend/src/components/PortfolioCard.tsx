@@ -136,7 +136,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
         </div>
         <div>
           <p className="text-sm text-secondary">Pending Rewards</p>
-          <p className={`text-xl font-bold ${hasClaimable ? 'text-green-400' : 'text-secondary'}`}>
+          <p className={`text-xl font-bold ${hasClaimable ? 'text-success' : 'text-secondary'}`}>
             {parseFloat(position.pendingRewards).toFixed(4)} ETH
           </p>
         </div>
@@ -154,7 +154,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
       </div>
       
       {onChainProject && (
-        <div className="mt-4 pt-4 border-t border-white/10">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="grid grid-cols-3 gap-4 text-center text-sm">
             <div>
               <p className="text-secondary">Total Funded</p>
@@ -174,55 +174,55 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
 
       {/* Last Claim Info */}
       {lastClaimAmount && (
-        <div className="mt-4 pt-4 border-t border-white/10">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs text-secondary">Last Claim</span>
-            <span className="text-xs font-medium text-green-400">+{lastClaimAmount} RBTC</span>
+            <span className="text-xs font-medium text-success">+{lastClaimAmount} RBTC</span>
           </div>
         </div>
       )}
 
       {/* Claim Preview Modal */}
       {showClaimPreview && onChainProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card variant="frosted" className="max-w-md w-full p-6 shadow-xl border-white/20 bg-white/80 backdrop-blur-md">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">💰 Claim Rewards Preview</h3>
-            
+        <div className="fixed inset-0 bg-surface-muted flex items-center justify-center z-50 p-4">
+          <Card variant="frosted" className="max-w-md w-full p-6 shadow-xl border-border bg-surface backdrop-blur-md">
+            <h3 className="text-xl font-bold mb-4 text-text-primary">💰 Claim Rewards Preview</h3>
+
             <div className="space-y-4 mb-6">
-              <div className="flex justify-between items-center p-3 bg-gray-100/80 rounded-lg">
-                <span className="text-gray-600">Project</span>
-                <span className="font-medium text-gray-800">{displayName}</span>
-              </div>
-              
-              <div className="flex justify-between items-center p-3 bg-gray-100/80 rounded-lg">
-                <span className="text-gray-600">Your NFT Token</span>
-                <span className="font-medium text-gray-800">#{position.tokenId}</span>
-              </div>
-              
-              <div className="flex justify-between items-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <span className="text-gray-600">Claimable Rewards</span>
-                <span className="font-bold text-green-600 text-lg">{parseFloat(position.pendingRewards).toFixed(4)} ETH</span>
-              </div>
-              
-              <div className="flex justify-between items-center p-3 bg-gray-100/80 rounded-lg">
-                <span className="text-gray-600">USD Value</span>
-                <span className="font-medium text-gray-800">≈ ${(parseFloat(position.pendingRewards) * 2000).toFixed(2)}</span>
-              </div>
-              
-              <div className="flex justify-between items-center p-3 bg-gray-100/80 rounded-lg">
-                <span className="text-gray-600">Your Investment</span>
-                <span className="font-medium text-gray-800">{parseFloat(position.funded).toFixed(4)} ETH</span>
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
+                <span className="text-text-secondary">Project</span>
+                <span className="font-medium text-text-primary">{displayName}</span>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-gray-100/80 rounded-lg">
-                <span className="text-gray-600">Your Share</span>
-                <span className="font-medium text-gray-800">{fundingSharePercentage.toFixed(3)}%</span>
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
+                <span className="text-text-secondary">Your NFT Token</span>
+                <span className="font-medium text-text-primary">#{position.tokenId}</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-[var(--success-bg)] border border-success/20 rounded-lg">
+                <span className="text-text-secondary">Claimable Rewards</span>
+                <span className="font-bold text-success text-lg">{parseFloat(position.pendingRewards).toFixed(4)} ETH</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
+                <span className="text-text-secondary">USD Value</span>
+                <span className="font-medium text-text-primary">≈ ${(parseFloat(position.pendingRewards) * 2000).toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
+                <span className="text-text-secondary">Your Investment</span>
+                <span className="font-medium text-text-primary">{parseFloat(position.funded).toFixed(4)} ETH</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
+                <span className="text-text-secondary">Your Share</span>
+                <span className="font-medium text-text-primary">{fundingSharePercentage.toFixed(3)}%</span>
               </div>
             </div>
 
-            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-6">
-              <h4 className="text-sm font-medium mb-2 text-gray-800">✅ What happens next:</h4>
-              <ul className="text-xs text-gray-600 space-y-1">
+            <div className="bg-[var(--success-bg)] border border-success/20 rounded-lg p-4 mb-6">
+              <h4 className="text-sm font-medium mb-2 text-text-primary">✅ What happens next:</h4>
+              <ul className="text-xs text-text-secondary space-y-1">
                 <li>• Rewards will be transferred to your wallet</li>
                 <li>• Transaction will be recorded on blockchain</li>
                 <li>• Your pending rewards will reset to 0</li>

@@ -80,11 +80,11 @@ const RealTimeNotifications: React.FC = () => {
 
   const getSeverityColor = (severity: Notification['severity']) => {
     switch (severity) {
-      case 'CRITICAL': return 'bg-red-500';
-      case 'HIGH': return 'bg-orange-500';
-      case 'MEDIUM': return 'bg-yellow-500';
-      case 'LOW': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      case 'CRITICAL': return 'bg-danger';
+      case 'HIGH': return 'bg-accent';
+      case 'MEDIUM': return 'bg-warning';
+      case 'LOW': return 'bg-brand-primary';
+      default: return 'bg-text-muted';
     }
   };
 
@@ -112,19 +112,19 @@ const RealTimeNotifications: React.FC = () => {
   const newNotificationsCount = notifications.filter(n => n.isNew).length;
 
   return (
-    <div className="bg-white rounded-lg shadow-md">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-surface border border-border rounded-lg shadow-md">
+      <div className="px-6 py-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <h3 className="text-lg font-semibold text-gray-900">Real-Time Notifications</h3>
+            <h3 className="text-lg font-semibold text-text-primary">Real-Time Notifications</h3>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-sm text-gray-500">
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success' : 'bg-danger'}`}></div>
+              <span className="text-sm text-text-muted">
                 {isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-text-muted">
             Last update: {formatTime(lastUpdate)}
           </div>
         </div>
@@ -132,20 +132,20 @@ const RealTimeNotifications: React.FC = () => {
 
       <div className="max-h-96 overflow-y-auto">
         {notifications.length === 0 ? (
-          <div className="px-6 py-8 text-center text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="px-6 py-8 text-center text-text-muted">
+            <svg className="mx-auto h-12 w-12 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6v-6H4v6zM4 5h6V4a1 1 0 00-1-1H5a1 1 0 00-1 1v1zM14 5h6V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v1z" />
             </svg>
             <p className="mt-2">No notifications yet</p>
-            <p className="text-xs text-gray-400">Notifications will appear here in real-time</p>
+            <p className="text-xs text-text-muted">Notifications will appear here in real-time</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-border">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`px-6 py-4 hover:bg-gray-50 transition-colors ${
-                  notification.isNew ? 'bg-blue-50' : ''
+                className={`px-6 py-4 hover:bg-surface-muted transition-colors ${
+                  notification.isNew ? 'bg-[var(--info-bg)]' : ''
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -153,24 +153,24 @@ const RealTimeNotifications: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">{getTypeIcon(notification.type)}</span>
-                      <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
+                      <h4 className="text-sm font-medium text-text-primary">{notification.title}</h4>
                       {notification.isNew && (
-                        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                        <span className="px-2 py-1 text-xs font-medium bg-[var(--info-bg)] text-[var(--info-fg)] rounded-full">
                           NEW
                         </span>
                       )}
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        notification.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                        notification.severity === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                        notification.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
+                        notification.severity === 'CRITICAL' ? 'bg-[var(--danger-bg)] text-[var(--danger-fg)]' :
+                        notification.severity === 'HIGH' ? 'bg-surface-muted text-accent' :
+                        notification.severity === 'MEDIUM' ? 'bg-[var(--warning-bg)] text-[var(--warning-fg)]' :
+                        'bg-[var(--info-bg)] text-[var(--info-fg)]'
                       }`}>
                         {notification.severity}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                    <p className="text-sm text-text-secondary mt-1">{notification.message}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-text-muted">
                         {formatTime(notification.timestamp)}
                       </span>
                       {notification.isNew && (
@@ -178,7 +178,7 @@ const RealTimeNotifications: React.FC = () => {
                           onClick={() => markAsRead(notification.id)}
                           variant="outline"
                           size="sm"
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                          className="text-xs text-brand-primary hover:text-brand-primary font-medium"
                         >
                           Mark as read
                         </Button>
@@ -193,16 +193,16 @@ const RealTimeNotifications: React.FC = () => {
       </div>
 
       {newNotificationsCount > 0 && (
-        <div className="px-6 py-3 bg-blue-50 border-t border-blue-200">
+        <div className="px-6 py-3 bg-[var(--info-bg)] border-t border-border">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-800">
+            <span className="text-sm font-medium text-[var(--info-fg)]">
               {newNotificationsCount} new notification{newNotificationsCount !== 1 ? 's' : ''}
             </span>
             <Button
               onClick={() => setNotifications(prev => prev.map(n => ({ ...n, isNew: false })))}
               variant="outline"
               size="sm"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm text-brand-primary hover:text-brand-primary font-medium"
             >
               Mark all as read
             </Button>

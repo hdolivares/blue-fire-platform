@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center p-4">
-      <Card variant="frosted" className="w-full max-w-md p-8 text-white">
+      <Card variant="elevated" className="w-full max-w-md p-8 text-text-primary">
         <h2 className="text-3xl font-bold text-center mb-6">Forgot Password</h2>
         <p className="text-center text-secondary mb-6">Enter your email address and we will send you a link to reset your password.</p>
         <form onSubmit={handleSubmit} className="space-y-4">

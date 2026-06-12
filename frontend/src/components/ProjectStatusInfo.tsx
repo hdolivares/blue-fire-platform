@@ -17,22 +17,22 @@ const statusDetailsMap = {
   SEEKING_FUNDING: {
     title: 'Seeking Funding',
     description: 'This project is currently raising funds from investors.',
-    style: 'border-blue-500/50 bg-blue-500/10 text-blue-300',
+    style: 'border-border bg-[var(--info-bg)] text-[var(--info-fg)]',
   },
   FUNDED_ORDER_PLACED: {
     title: 'Order Placed',
     description: 'The machine has been ordered. Estimated manufacturing time is 2-3 months.',
-    style: 'border-purple-500/50 bg-purple-500/10 text-purple-300',
+    style: 'border-border bg-surface-muted text-brand-secondary',
   },
   FUNDED_MACHINE_SHIPPED: {
     title: 'Machine Shipped',
     description: 'The machine is on its way. Estimated delivery and customs clearance time is 1 month.',
-    style: 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300',
+    style: 'border-border bg-[var(--info-bg)] text-[var(--info-fg)]',
   },
   FUNDED_INSTALLATION_PHASE: {
     title: 'Installation Phase',
     description: 'The machine is on-site. Installation and setup will take approximately 2 weeks.',
-    style: 'border-yellow-500/50 bg-yellow-500/10 text-yellow-300',
+    style: 'border-border bg-[var(--warning-bg)] text-[var(--warning-fg)]',
   },
   OPERATIONAL: null, // We don't show a specific info box for operational projects
 };

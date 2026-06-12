@@ -1,6 +1,6 @@
 // In backend/src/projects/schemas/project.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 
 export enum ProjectStatus {
@@ -57,7 +57,7 @@ export class Project extends Document {
   @Prop()
   imageUrls?: string[]; // For backward compatibility
   
-  @Prop({ type: Types.ObjectId, ref: 'User' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   operator: User;
 
   // Blockchain integration fields

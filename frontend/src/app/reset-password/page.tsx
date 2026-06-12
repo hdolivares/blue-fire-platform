@@ -50,7 +50,7 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <Card variant="frosted" className="w-full max-w-md p-8 text-white">
+    <Card variant="elevated" className="w-full max-w-md p-8 text-text-primary">
       <h2 className="text-3xl font-bold text-center mb-6">Reset Your Password</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

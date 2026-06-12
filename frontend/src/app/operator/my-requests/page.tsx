@@ -112,7 +112,7 @@ export default function MyRequestsPage() {
               {request.adminFeedback && (
                 <div className="border-t border-light pt-4">
                   <h4 className="font-semibold mb-2">Admin Feedback:</h4>
-                  <p className="text-secondary bg-black/20 p-3 rounded">
+                  <p className="text-secondary bg-surface-muted p-3 rounded">
                     {request.adminFeedback}
                   </p>
                 </div>

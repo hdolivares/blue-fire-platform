@@ -6,6 +6,7 @@ import { Project, ProjectStatus } from './projects/schemas/project.schema';
 import { PerformanceData } from './performance/schemas/performance-data.schema';
 import { User } from './users/schemas/user.schema';
 import { Investment } from './investments/schemas/investment.schema';
+import { OperatorRequest } from './operators/schemas/operator-request.schema';
 import * as bcrypt from 'bcrypt';
 import { subDays, eachDayOfInterval } from 'date-fns';
 
@@ -23,6 +24,7 @@ async function bootstrap() {
   const performanceModel = app.get<Model<PerformanceData>>(getModelToken(PerformanceData.name));
   const userModel = app.get<Model<User>>(getModelToken(User.name));
   const investmentModel = app.get<Model<Investment>>(getModelToken(Investment.name));
+  const operatorRequestModel = app.get<Model<OperatorRequest>>(getModelToken(OperatorRequest.name));
   
   console.log('Seeding database...');
 
@@ -59,6 +61,7 @@ async function bootstrap() {
       currentAmount: 250000,
       avgHumidity: 80,
       avgTemperature: 27,
+      machineModel: 'AWA MODULA 500',
       mainImage: 'https://images.unsplash.com/photo-1579693393132-73b32315a133?q=80&w=1974&auto=format&fit=crop',
       images: [
         'https://images.unsplash.com/photo-1579693393132-73b32315a133?q=80&w=1974&auto=format&fit=crop',
@@ -73,10 +76,25 @@ async function bootstrap() {
       currentAmount: 15000,
       avgHumidity: 85,
       avgTemperature: 28,
+      machineModel: 'AWA MODULA 250',
       mainImage: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop',
       images: [
         'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop',
       ],
+    },
+    {
+        name: 'Desert Resort, Dubai, UAE',
+        location: 'Dubai, United Arab Emirates',
+        status: ProjectStatus.FUNDED_ORDER_PLACED,
+        goalAmount: 350000,
+        currentAmount: 350000,
+        avgHumidity: 60,
+        avgTemperature: 34,
+        machineModel: 'AWA MODULA 500',
+        mainImage: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=2070&auto=format&fit=crop',
+        ],
     },
     {
         name: 'Luxury Villas, Phuket, Thailand',
@@ -86,10 +104,25 @@ async function bootstrap() {
         currentAmount: 500000,
         avgHumidity: 75,
         avgTemperature: 29,
+        machineModel: 'AWA MODULA 1000',
         mainImage: 'https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=1974&auto=format&fit=crop',
         images: [
           'https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=1974&auto=format&fit=crop',
         ]
+    },
+    {
+        name: 'Coastal Hotel, Cartagena, Colombia',
+        location: 'Cartagena, Colombia',
+        status: ProjectStatus.FUNDED_INSTALLATION_PHASE,
+        goalAmount: 180000,
+        currentAmount: 180000,
+        avgHumidity: 82,
+        avgTemperature: 30,
+        machineModel: 'AWA MODULA 250',
+        mainImage: 'https://images.unsplash.com/photo-1533727937480-da3a97967e95?q=80&w=2070&auto=format&fit=crop',
+        images: [
+          'https://images.unsplash.com/photo-1533727937480-da3a97967e95?q=80&w=2070&auto=format&fit=crop',
+        ],
     },
     {
         // Legacy project name for backward compatibility during upsert
@@ -101,6 +134,7 @@ async function bootstrap() {
         currentAmount: 72440,
         avgHumidity: 76,
         avgTemperature: 26.6,
+        machineModel: 'AWA MODULA 250',
         mainImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop',
         images: [
           'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop',
@@ -194,22 +228,82 @@ async function bootstrap() {
   );
   console.log('Test investor is up-to-date.');
 
-  // Link the investor to the first project in the list
-  const projectToInvestIn = seededProjects[0];
-  await investmentModel.findOneAndUpdate(
-    { user: testInvestor._id, project: projectToInvestIn._id },
+  // Link the investor to several projects so the portfolio shows multiple holdings.
+  const investmentsToSeed = [
+    { projectIndex: 0, amount: 15000 }, // Resort & Spa, Singapore (OPERATIONAL)
+    { projectIndex: 5, amount: 8000 },  // Hotel in Villahermosa (OPERATIONAL)
+    { projectIndex: 1, amount: 5000 },  // Eco-Lodge, Manaus (SEEKING_FUNDING)
+  ];
+  for (const inv of investmentsToSeed) {
+    const project = seededProjects[inv.projectIndex];
+    if (!project) continue;
+    await investmentModel.findOneAndUpdate(
+      { user: testInvestor._id, project: project._id },
+      { $setOnInsert: { user: testInvestor._id, project: project._id, amount: inv.amount } },
+      { upsert: true }
+    );
+    console.log(`Test investment in "${project.name}" ($${inv.amount}) is up-to-date.`);
+  }
+
+  // --- 5. Upsert a Test Operator, assign them to a project, and seed requests ---
+  console.log('Upserting test operator...');
+  const operatorEmail = 'operator@bluefire.test';
+  const operatorSalt = await bcrypt.genSalt();
+  const operatorHashedPassword = await bcrypt.hash('password123', operatorSalt);
+
+  const testOperator = await userModel.findOneAndUpdate(
+    { email: operatorEmail },
     {
       $setOnInsert: {
-        user: testInvestor._id,
-        project: projectToInvestIn._id,
-        amount: 15000,
-      }
+        firstName: 'Test',
+        lastName: 'Operator',
+        email: operatorEmail,
+        password: operatorHashedPassword,
+        country: 'Singapore',
+        walletAddress: '0xTestOperatorWalletAddress00000000000000',
+        roles: ['Operator'],
+      },
     },
-    { upsert: true }
+    { upsert: true, new: true },
   );
-  console.log('Test investment is up-to-date.');
+  console.log('Test operator is up-to-date.');
 
-  // --- 5. Safely close the connections ---
+  // Assign the operator to the first OPERATIONAL project so their dashboard has data.
+  const assignedProject = seededProjects[0];
+  await projectModel.findByIdAndUpdate(assignedProject._id, {
+    $set: { operator: testOperator._id },
+  });
+  console.log(`Assigned operator to "${assignedProject.name}".`);
+
+  // Seed one operator request in each status so the operator "My Requests" page and
+  // the admin operator-requests section both show PENDING / APPROVED / REJECTED.
+  const adminUser = await userModel.findOne({ email: adminEmail });
+  const operatorRequestsToSeed = [
+    { projectIndex: 0, status: 'APPROVED', adminFeedback: 'Great track record — approved.' },
+    { projectIndex: 2, status: 'PENDING' },
+    { projectIndex: 3, status: 'REJECTED', adminFeedback: 'Capacity already allocated for this site.' },
+  ];
+  for (const reqData of operatorRequestsToSeed) {
+    const project = seededProjects[reqData.projectIndex];
+    if (!project) continue;
+    const reviewed = reqData.status !== 'PENDING';
+    await operatorRequestModel.findOneAndUpdate(
+      { operator: testOperator._id, project: project._id },
+      {
+        $setOnInsert: {
+          operator: testOperator._id,
+          project: project._id,
+          status: reqData.status,
+          ...(reqData.adminFeedback ? { adminFeedback: reqData.adminFeedback } : {}),
+          ...(reviewed && adminUser ? { reviewedBy: adminUser._id, reviewedAt: new Date() } : {}),
+        },
+      },
+      { upsert: true },
+    );
+    console.log(`Operator request for "${project.name}" (${reqData.status}) is up-to-date.`);
+  }
+
+  // --- 6. Safely close the connections ---
   await connection.close();
   await app.close();
   console.log('Seeding complete!');

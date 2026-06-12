@@ -237,7 +237,7 @@ export default function AdminProjectsPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/20">
+              <tr className="border-b border-border">
                 <th className="text-left py-3 px-4">Project Name</th>
                 <th className="text-left py-3 px-4">Location</th>
                 <th className="text-left py-3 px-4">Status</th>
@@ -258,7 +258,7 @@ export default function AdminProjectsPage() {
                 }
                 
                 return (
-                <tr key={project._id} className="border-b border-white/10 hover:bg-white/5">
+                <tr key={project._id} className="border-b border-border hover:bg-surface-muted">
                                                         <td className="py-3 px-4">
                      <div>
                        <div className="font-semibold">{project.name || project.projectName || 'Unnamed Project'}</div>
@@ -287,9 +287,9 @@ export default function AdminProjectsPage() {
                      </div>
                    </td>
                    <td className="py-3 px-4">
-                     <div className="w-full bg-white/10 rounded-full h-2">
-                       <div 
-                         className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" 
+                     <div className="w-full bg-surface-muted rounded-full h-2">
+                       <div
+                         className="gradient-brand h-2 rounded-full"
                          style={{ width: `${project.goalAmount ? Math.min(((project.currentAmount || 0) / project.goalAmount) * 100, 100) : 0}%` }}
                        ></div>
                      </div>

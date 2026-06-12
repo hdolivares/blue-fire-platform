@@ -20,6 +20,14 @@ import api from '@/lib/axios';
 import { subMonths, format } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useTheme } from '@/context/ThemeContext';
+
+// Reads a CSS custom property off the document root at call time so chart
+// colors track the active theme.
+const cssVar = (name: string): string => {
+  if (typeof document === 'undefined') return '';
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+};
 
 // Registering Chart.js components
 ChartJS.register(
@@ -63,6 +71,7 @@ const statusColors = {
 
 
 export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
+  const { theme } = useTheme();
   const [data, setData] = useState<PerformanceDataPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -124,79 +133,93 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
 
   const chartData: ChartData<'line'> = useMemo(() => {
     const labels = data.map(d => new Date(d.timestamp).toLocaleString());
+    const brand = cssVar('--brand-primary') || '#2563eb';
+    const success = cssVar('--success') || '#059669';
+    const danger = cssVar('--danger') || '#dc2626';
+    const tint = (hex: string) => `color-mix(in srgb, ${hex} 25%, transparent)`;
     return {
       labels,
       datasets: [
         {
           label: 'kWh/L',
           data: data.map(d => d.kwhPerLiter),
-          borderColor: 'rgb(53, 162, 235)',
-          backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          borderColor: brand,
+          backgroundColor: tint(brand),
           yAxisID: 'y',
         },
         {
           label: 'Humidity (%)',
           data: data.map(d => d.humidity),
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: success,
+          backgroundColor: tint(success),
           yAxisID: 'y1',
         },
         {
           label: 'Temperature (°C)',
           data: data.map(d => d.temperature),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          borderColor: danger,
+          backgroundColor: tint(danger),
           yAxisID: 'y1',
         },
       ],
     };
-  }, [data]);
+    // theme is a dependency so colors re-resolve when the user toggles themes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, theme]);
 
-  const chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Historical Performance Data',
-      },
-      tooltip: {
-        callbacks: {
-          footer: (tooltipItems) => {
-            const index = tooltipItems[0].dataIndex;
-            const status = data[index]?.machineStatus;
-            return status ? `Status: ${status}` : '';
+  const chartOptions: ChartOptions<'line'> = useMemo(() => {
+    const textColor = cssVar('--text-secondary') || '#475569';
+    const gridColor = cssVar('--border') || '#e2e8f0';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top' as const,
+          labels: { color: textColor },
+        },
+        title: {
+          display: true,
+          text: 'Historical Performance Data',
+          color: textColor,
+        },
+        tooltip: {
+          callbacks: {
+            footer: (tooltipItems) => {
+              const index = tooltipItems[0].dataIndex;
+              const status = data[index]?.machineStatus;
+              return status ? `Status: ${status}` : '';
+            },
           },
         },
       },
-    },
-    scales: {
-      y: {
-        type: 'linear',
-        display: true,
-        position: 'left',
-        title: {
+      scales: {
+        x: {
+          ticks: { color: textColor },
+          grid: { color: gridColor },
+        },
+        y: {
+          type: 'linear',
           display: true,
-          text: 'kWh/L',
+          position: 'left',
+          title: { display: true, text: 'kWh/L', color: textColor },
+          ticks: { color: textColor },
+          grid: { color: gridColor },
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'Temp (°C) / Humidity (%)', color: textColor },
+          ticks: { color: textColor },
+          grid: {
+            drawOnChartArea: false, // only draw grid for y axis
+          },
         },
       },
-      y1: {
-        type: 'linear',
-        display: true,
-        position: 'right',
-        title: {
-          display: true,
-          text: 'Temp (°C) / Humidity (%)',
-        },
-        grid: {
-          drawOnChartArea: false, // only draw grid for y axis
-        },
-      },
-    },
-  };
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, theme]);
 
   const quickFilters = [
     { label: 'Last Month', value: '1M', months: 1 },
@@ -232,9 +255,9 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
 
       {/* Custom Date Range Picker */}
       {showCustom && (
-        <div className="flex items-end space-x-4 mb-4 p-4 border border-white/10 rounded-lg">
+        <div className="flex items-end space-x-4 mb-4 p-4 border border-border rounded-lg">
           <div>
-            <label htmlFor="start-date" className="block text-sm font-medium text-secondary mb-1">Start Date</label>
+            <label htmlFor="start-date" className="block text-sm font-medium text-text-secondary mb-1">Start Date</label>
             <input
               type="date"
               id="start-date"
@@ -244,7 +267,7 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
             />
           </div>
           <div>
-            <label htmlFor="end-date" className="block text-sm font-medium text-secondary mb-1">End Date</label>
+            <label htmlFor="end-date" className="block text-sm font-medium text-text-secondary mb-1">End Date</label>
             <input
               type="date"
               id="end-date"
@@ -261,14 +284,14 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
         </div>
       )}
       
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      
+      {error && <p className="text-danger text-sm mb-4">{error}</p>}
+
       <div className="relative h-96">
         {data.length > 0 ? (
           <Line options={chartOptions} data={chartData} />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-             <p className="text-secondary">
+             <p className="text-text-secondary">
                 {loading ? 'Fetching data...' : 'Please select a date range and load the chart to view performance data.'}
             </p>
           </div>

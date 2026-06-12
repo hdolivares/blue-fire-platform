@@ -80,8 +80,8 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
     return (
       <div className={`flex items-center justify-center h-96 ${className}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading global map...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
+          <p className="text-text-secondary">Loading global map...</p>
         </div>
       </div>
     );
@@ -91,10 +91,10 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
     return (
       <div className={`flex items-center justify-center h-96 ${className}`}>
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
-                 <button 
+          <p className="text-danger mb-4">{error}</p>
+                 <button
          onClick={fetchGlobalMapData}
-         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+         className="px-4 py-2 bg-brand-primary text-on-brand rounded-lg hover:bg-[var(--brand-primary-hover)] transition-colors"
        >
          Retry
        </button>
@@ -107,16 +107,16 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-2">Global Projects Map</h2>
-        <p className="text-gray-300">
+        <h2 className="text-3xl font-bold text-text-primary mb-2">Global Projects Map</h2>
+        <p className="text-text-secondary">
           {projects.length} active projects in {new Set(projects.map(p => p.location.split(',')[0])).size} countries
         </p>
       </div>
 
       {/* Map Container */}
-      <div className="relative bg-gradient-to-br from-blue-900/20 to-purple-900/20 rounded-xl p-6 border border-gray-700">
+      <div className="relative bg-surface-muted rounded-xl p-6 border border-border">
         {/* Simplified Map Visualization */}
-        <div className="relative h-96 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-lg overflow-hidden">
+        <div className="relative h-96 bg-surface rounded-lg overflow-hidden">
           {/* World Map Background */}
           <div className="absolute inset-0 opacity-10">
             <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMTAgMjBIMzBWMzBIMTBWMjBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTMwIDIwSDQwVjMwSDMwVjIwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik00MCAyMEg1MFYzMEg0MFYyMFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNNTAgMjBINzBWMzBINTBWMjBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTcwIDIwSDgwVjMwSDcwVjIwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik04MCAyMEg5MFYzMEg4MFYyMFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNMTAgMzBIMzBWNjBIMTBWMzBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTMwIDMwSDQwVjYwSDMwVjMwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik00MCAzMEg1MFY2MEg0MFYzMFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNNTAgMzBINzBWNjBINTBWMzBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTcwIDMwSDgwVjYwSDcwVjMwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik04MCAzMEg5MFY2MEg4MFYzMFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNMTAgNjBIMzBWNzBIMTBWNjBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTMwIDYwSDQwVjcwSDMwVjYwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik00MCA2MEg1MFY3MEg0MFY2MFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNNTAgNjBINzBWNzBINTBWNjBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTcwIDYwSDgwVjcwSDcwVjYwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik04MCA2MEg5MFY3MEg4MFY2MFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNMTAgNzBIMzBWOThIMTBWNzBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTMwIDcwSDQwVjk4SDMwVjcwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik00MCA3MEg1MFY5OEg0MFY3MFoiIGZpbGw9IiMzMzQxNTUiLz4KICA8cGF0aCBkPSJNNTAgNzBINzBWOThINTBWNzBaIiBmaWxsPSIjMzM0MTU1Ii8+CiAgPHBhdGggZD0iTTcwIDcwSDgwVjk4SDcwVjcwWiIgZmlsbD0iIzMzNDE1NSIvPgogIDxwYXRoIGQ9Ik04MCA3MEg5MFY5OEg4MFY3MFoiIGZpbGw9IiMzMzQxNTUiLz4KPC9zdmc+')] bg-cover bg-center"></div>
@@ -136,17 +136,17 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
                 onClick={() => setSelectedProject(project)}
               >
                 {/* Pin */}
-                <div className={`w-4 h-4 rounded-full border-2 border-white shadow-lg ${
-                  project.status === 'OPERATIONAL' ? 'bg-green-500' :
-                  project.status === 'SEEKING_FUNDING' ? 'bg-yellow-500' :
-                  'bg-blue-500'
+                <div className={`w-4 h-4 rounded-full border-2 border-surface shadow-lg ${
+                  project.status === 'OPERATIONAL' ? 'bg-success' :
+                  project.status === 'SEEKING_FUNDING' ? 'bg-warning' :
+                  'bg-info'
                 }`}>
-                  <div className="w-2 h-2 rounded-full bg-white m-0.5"></div>
+                  <div className="w-2 h-2 rounded-full bg-surface m-0.5"></div>
                 </div>
-                
+
                 {/* Pulse effect for operational projects */}
                 {project.status === 'OPERATIONAL' && (
-                  <div className="absolute inset-0 w-4 h-4 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                  <div className="absolute inset-0 w-4 h-4 rounded-full bg-success animate-ping opacity-75"></div>
                 )}
               </div>
             );
@@ -156,16 +156,16 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
         {/* Legend */}
         <div className="mt-4 flex justify-center space-x-6">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-sm text-gray-300">Operational</span>
+            <div className="w-3 h-3 rounded-full bg-success"></div>
+            <span className="text-sm text-text-secondary">Operational</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span className="text-sm text-gray-300">Seeking Funding</span>
+            <div className="w-3 h-3 rounded-full bg-warning"></div>
+            <span className="text-sm text-text-secondary">Seeking Funding</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span className="text-sm text-gray-300">Machine Shipped</span>
+            <div className="w-3 h-3 rounded-full bg-info"></div>
+            <span className="text-sm text-text-secondary">Machine Shipped</span>
           </div>
         </div>
       </div>
@@ -173,12 +173,12 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
       {/* Project Details Modal */}
       {selectedProject && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
+          <div className="bg-surface rounded-xl p-6 max-w-md w-full mx-4 border border-border">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-white">{selectedProject.name}</h3>
+              <h3 className="text-xl font-bold text-text-primary">{selectedProject.name}</h3>
               <button
                 onClick={() => setSelectedProject(null)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-text-secondary hover:text-text-primary transition-colors"
               >
                 ✕
               </button>
@@ -197,53 +197,53 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
               {/* Project Info */}
               <div className="space-y-2">
                                  <div className="flex justify-between">
-                   <span className="text-gray-400">Location:</span>
-                   <span className="text-white">{selectedProject.location}</span>
+                   <span className="text-text-secondary">Location:</span>
+                   <span className="text-text-primary">{selectedProject.location}</span>
                  </div>
-                 
+
                  <div className="flex justify-between">
-                   <span className="text-gray-400">Status:</span>
+                   <span className="text-text-secondary">Status:</span>
                    <Badge variant={getStatusColor(selectedProject.status)}>
                      {getStatusText(selectedProject.status)}
                    </Badge>
                  </div>
 
                  <div className="flex justify-between">
-                   <span className="text-gray-400">Funding:</span>
-                   <span className="text-white">
+                   <span className="text-text-secondary">Funding:</span>
+                   <span className="text-text-primary">
                      ${selectedProject.currentAmount.toLocaleString()} / ${selectedProject.goalAmount.toLocaleString()}
                    </span>
                  </div>
 
                  <div className="flex justify-between">
-                   <span className="text-gray-400">Progress:</span>
-                   <span className="text-white">{selectedProject.fundingPercentage.toFixed(1)}%</span>
+                   <span className="text-text-secondary">Progress:</span>
+                   <span className="text-text-primary">{selectedProject.fundingPercentage.toFixed(1)}%</span>
                  </div>
 
                  {selectedProject.operator && (
                    <div className="flex justify-between">
-                     <span className="text-gray-400">Operator:</span>
-                     <span className="text-white">
+                     <span className="text-text-secondary">Operator:</span>
+                     <span className="text-text-primary">
                        {selectedProject.operator.firstName} {selectedProject.operator.lastName}
                      </span>
                    </div>
                  )}
 
                  <div className="flex justify-between">
-                   <span className="text-gray-400">Temperature:</span>
-                   <span className="text-white">{selectedProject.avgTemperature}°C</span>
+                   <span className="text-text-secondary">Temperature:</span>
+                   <span className="text-text-primary">{selectedProject.avgTemperature}°C</span>
                  </div>
 
                  <div className="flex justify-between">
-                   <span className="text-gray-400">Humidity:</span>
-                   <span className="text-white">{selectedProject.avgHumidity}%</span>
+                   <span className="text-text-secondary">Humidity:</span>
+                   <span className="text-text-primary">{selectedProject.avgHumidity}%</span>
                  </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="w-full bg-surface-muted rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                  className="gradient-brand h-2 rounded-full transition-all duration-300"
                   style={{ width: `${Math.min(selectedProject.fundingPercentage, 100)}%` }}
                 ></div>
               </div>
@@ -255,24 +255,24 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                  <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-blue-400">
+           <div className="text-2xl font-bold text-brand-primary">
              {projects.filter(p => p.status === 'OPERATIONAL').length}
            </div>
-           <div className="text-sm text-gray-400">Operational Projects</div>
+           <div className="text-sm text-text-secondary">Operational Projects</div>
          </Card>
-         
+
          <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-yellow-400">
+           <div className="text-2xl font-bold text-warning">
              {projects.filter(p => p.status === 'SEEKING_FUNDING').length}
            </div>
-           <div className="text-sm text-gray-400">Seeking Funding</div>
+           <div className="text-sm text-text-secondary">Seeking Funding</div>
          </Card>
-         
+
          <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-green-400">
+           <div className="text-2xl font-bold text-success">
              ${projects.reduce((sum, p) => sum + p.currentAmount, 0).toLocaleString()}
            </div>
-           <div className="text-sm text-gray-400">Total Capital Raised</div>
+           <div className="text-sm text-text-secondary">Total Capital Raised</div>
         </Card>
       </div>
     </div>

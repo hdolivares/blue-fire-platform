@@ -8,6 +8,7 @@ import { BecomeOperatorButton } from './BecomeOperatorButton';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
+import { ProgressBar } from './ui/ProgressBar';
 import api from '@/lib/axios';
 
 // The Project interface now supports both the new and old data shapes
@@ -140,32 +141,24 @@ export const ProjectCard = ({ project }: { project: Project }) => {
               </Badge>
             )}
           </div>
-          <p className="text-secondary mb-4">
+          <p className="text-text-secondary mb-4">
             Funding Goal: ${goal.toLocaleString()}
           </p>
         </div>
 
         <div>
-          <div className="w-full bg-black/30 rounded-full h-2.5 mb-2">
-            <div
-              className="bg-green-500 h-2.5 rounded-full"
-              style={{ width: `${fundingPercentage}%` }}
-            ></div>
-          </div>
-          <p className="text-sm text-right mb-3">{fundingPercentage.toFixed(2)}% Funded</p>
-          
+          <ProgressBar value={fundingPercentage} className="mb-2" variant="brand" />
+          <p className="text-sm text-right mb-3 text-text-secondary">{fundingPercentage.toFixed(2)}% Funded</p>
+
           {/* Buttons Section */}
           <div className="space-y-2">
             {/* View Details Button - Always show */}
-            <Button 
-              variant="primary"
-              size="sm"
-              className="w-full"
-              onClick={() => window.location.href = `/dashboard/projects/${project._id}`}
-            >
-              View Details
-            </Button>
-            
+            <Link href={`/dashboard/projects/${project._id}`} className="block">
+              <Button variant="primary" size="sm" className="w-full">
+                View Details
+              </Button>
+            </Link>
+
             {/* Become Operator Button - Show for operators */}
             {showBecomeOperatorButton && !loading && (
               <>

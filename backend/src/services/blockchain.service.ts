@@ -94,7 +94,9 @@ export class BlockchainService {
 
   async getProjectCount(): Promise<number> {
     try {
-      const count = await this.factoryContract.projectCount();
+      // The factory exposes `nextProjectId` (next id to assign); with ids
+      // starting at 0 this equals the number of projects created.
+      const count = await this.factoryContract.nextProjectId();
       return Number(count);
     } catch (error) {
       this.logger.error('Failed to get project count:', error);

@@ -378,7 +378,7 @@ export const CreateProjectForm = () => {
             type="file" 
             multiple
             accept="image/*"
-            className="mt-1 block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+            className="mt-1 block w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-surface-muted file:text-brand-secondary hover:file:bg-surface-muted"
             onChange={(e) => setImages(e.target.files)}
           />
           <p className="text-xs text-secondary mt-1">
@@ -418,16 +418,16 @@ export const CreateProjectForm = () => {
 
       {/* Deployment Status */}
       {isCreating && deploymentStep && (
-        <div className="mt-4 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+        <div className="mt-4 p-4 bg-[var(--info-bg)] rounded-lg border border-brand-primary/20">
           <h3 className="text-sm font-medium mb-2">🚀 Deployment Progress</h3>
-          <p className="text-sm text-blue-300">{deploymentStep}</p>
-          <div className="w-full bg-blue-500/20 rounded-full h-2 mt-2">
-            <div className="bg-blue-500 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          <p className="text-sm text-brand-primary">{deploymentStep}</p>
+          <div className="w-full bg-surface-muted rounded-full h-2 mt-2">
+            <div className="bg-brand-primary h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
           </div>
         </div>
       )}
 
-      <div className="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+      <div className="mt-6 p-4 bg-[var(--info-bg)] rounded-lg border border-brand-primary/20">
         <h3 className="text-sm font-medium mb-2">ℹ️ Enhanced Project Creation</h3>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Dual System:</strong> Projects stored in database AND deployed on blockchain</li>

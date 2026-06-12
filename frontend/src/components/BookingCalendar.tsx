@@ -60,13 +60,13 @@ export const BookingCalendar = ({ soldUntilDate, daysToPurchase, avgDailyWaterPr
     <Card variant="frosted" className="p-6 h-full flex flex-col">
       <h3 className="text-xl font-bold mb-4">Production Schedule</h3>
       
-      <div className="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-blue-500/20">
+      <div className="mb-6 p-4 bg-surface-muted rounded-lg border border-border">
         <div className="text-center">
           <p className="text-sm text-secondary mb-2">Your Selected Period</p>
-          <p className="text-lg font-bold text-white mb-1">
+          <p className="text-lg font-bold text-text-primary mb-1">
             {formatDate(selectedRange.from)} - {formatDate(selectedRange.to)}
           </p>
-          <p className="text-sm text-green-400 font-medium">
+          <p className="text-sm text-success font-medium">
             {daysToPurchase} days • ~{totalWaterProduction.toLocaleString()}L total production
           </p>
           <p className="text-xs text-secondary mt-1">
@@ -105,15 +105,15 @@ export const BookingCalendar = ({ soldUntilDate, daysToPurchase, avgDailyWaterPr
       
       <div className="mt-auto pt-6 space-y-3 text-sm">
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded-full mr-2 bg-gray-300" /> 
+          <div className="w-4 h-4 rounded-full mr-2 bg-surface-muted" />
           <span className="text-secondary">Already Purchased</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded-full mr-2 bg-gradient-accent" /> 
+          <div className="w-4 h-4 rounded-full mr-2 gradient-brand" />
           <span className="text-secondary">Your Potential Purchase</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded-full mr-2 bg-green-500" /> 
+          <div className="w-4 h-4 rounded-full mr-2 bg-success" />
           <span className="text-secondary">Available for Purchase</span>
         </div>
       </div>

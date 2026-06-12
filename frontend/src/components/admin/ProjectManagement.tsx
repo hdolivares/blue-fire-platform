@@ -301,7 +301,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                   <Badge 
                     variant={isCompleted ? (isCurrent ? 'success' : 'info') : 'pending'}
                     size="sm"
-                    className={isCurrent ? 'ring-2 ring-blue-400' : ''}
+                    className={isCurrent ? 'ring-2 ring-brand-primary' : ''}
                   >
                     {status.replace(/_/g, ' ')}
                   </Badge>
@@ -326,16 +326,16 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
         )}
 
         {project.status === 'SEEKING_FUNDING' && (
-          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-            <p className="text-sm text-yellow-400">
+          <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
+            <p className="text-sm text-warning">
               ⚠️ Project must receive funding before status can be progressed
             </p>
           </div>
         )}
 
         {project.status === 'FUNDED_ORDER_PLACED' && !onChainProject?.escrowReleaseApproved && (
-          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-            <p className="text-sm text-yellow-400">
+          <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
+            <p className="text-sm text-warning">
               ⚠️ Cannot progress to machine shipped until escrow is released (operator needs funds to purchase machine)
             </p>
           </div>
@@ -358,7 +358,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
             <div className="space-y-4">
               {/* Project State Management */}
               {onChainProject?.state === 0 && onChainProject?.fundingProgress >= 100 && (
-                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
                   <h3 className="font-medium mb-2">🎯 Project State</h3>
                   <p className="text-sm text-secondary mb-3">
                     Project is fully funded but needs to be transitioned to FUNDED state for escrow operations
@@ -368,7 +368,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     disabled={isUpdating}
                     variant="outline"
                     size="sm"
-                    className="w-full border-yellow-500/50 hover:bg-yellow-500/20"
+                    className="w-full border-warning/50 hover:bg-warning/20"
                   >
                     {isUpdating ? 'Setting...' : 'Set Project to FUNDED'}
                   </Button>
@@ -376,7 +376,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <div className="p-4 bg-[var(--info-bg)] border border-brand-primary/20 rounded-lg">
                   <h3 className="font-medium mb-2">Set "Alice" Operator</h3>
                   <p className="text-sm text-secondary mb-3">
                     Assign the current wallet as the "Alice" operator on the blockchain
@@ -395,13 +395,13 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     </Button>
                   )}
                   {!project.operator && (
-                    <p className="text-xs text-red-400 mt-2">
+                    <p className="text-xs text-danger mt-2">
                       Assign an operator first
                     </p>
                   )}
                 </div>
 
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <div className="p-4 bg-[var(--success-bg)] border border-success/20 rounded-lg">
                   <h3 className="font-medium mb-2">Approve Escrow Release</h3>
                   <p className="text-sm text-secondary mb-3">
                     Approve the release of escrowed funds to the beneficiary (default is admin)
@@ -425,24 +425,24 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     </Button>
                   )}
                   {(project.status !== 'FUNDED_ORDER_PLACED' && project.status !== 'FUNDED_MACHINE_SHIPPED' && project.status !== 'FUNDED_INSTALLATION_PHASE' && project.status !== 'OPERATIONAL') && (
-                    <p className="text-xs text-yellow-400 mt-2">
+                    <p className="text-xs text-warning mt-2">
                       Project must be funded (order placed or later)
                     </p>
                   )}
                   {onChainProject?.state !== 1 && (
-                    <p className="text-xs text-yellow-400 mt-2">
+                    <p className="text-xs text-warning mt-2">
                       Project must be in FUNDED state on blockchain
                     </p>
                   )}
                   {!isAliceSet() && (
-                    <p className="text-xs text-yellow-400 mt-2">
+                    <p className="text-xs text-warning mt-2">
                       Must set Alice operator first
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <div className="p-4 bg-[var(--danger-bg)] border border-danger/20 rounded-lg">
                 <h3 className="font-medium mb-2">⚠️ Release Escrow</h3>
                 <p className="text-sm text-secondary mb-3">
                   Release escrowed funds to the beneficiary (default is admin). This action is irreversible.
@@ -457,29 +457,29 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                   }
                   variant="outline"
                   size="sm"
-                  className="w-full border-red-500/50 hover:bg-red-500/20"
+                  className="w-full border-danger/50 hover:bg-danger/20"
                 >
                   {isUpdating ? 'Releasing...' : 'Release Escrow'}
                 </Button>
                 {!onChainProject?.escrowReleaseApproved && (
-                  <p className="text-xs text-red-400 mt-2">
+                  <p className="text-xs text-danger mt-2">
                     Must approve release first
                   </p>
                 )}
                 {onChainProject?.state !== 1 && (
-                  <p className="text-xs text-red-400 mt-2">
+                  <p className="text-xs text-danger mt-2">
                     Project must be in FUNDED state on blockchain
                   </p>
                 )}
                 {!isAliceSet() && (
-                  <p className="text-xs text-red-400 mt-2">
+                  <p className="text-xs text-danger mt-2">
                     Must set Alice operator first
                   </p>
                 )}
               </div>
 
               {onChainProject && (
-                <div className="p-4 bg-white/5 rounded-lg">
+                <div className="p-4 bg-surface-muted rounded-lg">
                   <h3 className="text-sm font-medium mb-2">📊 Blockchain Status</h3>
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>

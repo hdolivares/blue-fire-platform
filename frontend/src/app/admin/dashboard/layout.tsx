@@ -6,25 +6,25 @@ import { Card } from "@/components/ui/Card";
 // A simple Sidebar component defined right in the layout
 const Sidebar = () => {
   return (
-    <div className="w-64 bg-black/20 p-4 flex flex-col">
+    <div className="w-64 bg-surface-muted p-4 flex flex-col">
       <nav className="flex flex-col space-y-2">
         <h3 className="font-bold text-lg mb-2">Admin Menu</h3>
-        <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">
+        <Card variant="frosted" className="p-3 rounded-lg hover:bg-surface-muted transition-colors">
           <Link href="/admin/dashboard">
             Dashboard
           </Link>
         </Card>
-        <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">
+        <Card variant="frosted" className="p-3 rounded-lg hover:bg-surface-muted transition-colors">
           <Link href="/admin/projects">
             Manage Projects
           </Link>
         </Card>
-        <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">
+        <Card variant="frosted" className="p-3 rounded-lg hover:bg-surface-muted transition-colors">
           <Link href="/admin/investors">
             Manage Investors
           </Link>
         </Card>
-        <Card variant="frosted" className="p-3 rounded-lg hover:bg-white/20 transition-colors">
+        <Card variant="frosted" className="p-3 rounded-lg hover:bg-surface-muted transition-colors">
           <Link href="/admin/projects/new">
             Create Project
           </Link>

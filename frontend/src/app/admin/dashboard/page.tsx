@@ -41,25 +41,25 @@ export default function AdminDashboardPage() {
     <main className="container-main">
       <div className="mb-8">
         <h1 className="section-header">Admin Dashboard</h1>
-        <p className="text-gray-200 mt-2">Welcome to the admin dashboard</p>
+        <p className="text-text-secondary mt-2">Welcome to the admin dashboard</p>
       </div>
-      
+
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <p className="text-gray-200 text-sm mb-1">Total Capital Raised</p>
+          <div className="glass rounded-lg p-6">
+            <p className="text-text-secondary text-sm mb-1">Total Capital Raised</p>
             <p className="text-3xl font-bold">${stats.totalCapitalRaised.toLocaleString()}</p>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <p className="text-gray-200 text-sm mb-1">Active Investors</p>
+          <div className="glass rounded-lg p-6">
+            <p className="text-text-secondary text-sm mb-1">Active Investors</p>
             <p className="text-3xl font-bold">{stats.totalInvestors}</p>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <p className="text-gray-200 text-sm mb-1">Projects Seeking Funding</p>
+          <div className="glass rounded-lg p-6">
+            <p className="text-text-secondary text-sm mb-1">Projects Seeking Funding</p>
             <p className="text-3xl font-bold">{stats.projectsSeekingFunding}</p>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
-            <p className="text-gray-200 text-sm mb-1">Operational Units</p>
+          <div className="glass rounded-lg p-6">
+            <p className="text-text-secondary text-sm mb-1">Operational Units</p>
             <p className="text-3xl font-bold">{stats.operationalUnits}</p>
           </div>
         </div>

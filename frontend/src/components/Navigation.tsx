@@ -9,7 +9,6 @@ interface NavigationItem {
   href: string;
   roles: string[];
   icon?: string;
-  color?: string;
 }
 
 export const Navigation = () => {
@@ -32,80 +31,68 @@ export const Navigation = () => {
     {
       label: 'Admin Dashboard',
       href: '/admin/dashboard',
-      roles: ['Admin'],
-      color: 'text-blue-300'
+      roles: ['Admin']
     },
     {
       label: 'Create Project',
       href: '/admin/projects/new',
-      roles: ['Admin'],
-      color: 'text-green-300'
+      roles: ['Admin']
     },
     {
       label: 'Manage Projects',
       href: '/admin/projects',
-      roles: ['Admin'],
-      color: 'text-yellow-300'
+      roles: ['Admin']
     },
     {
       label: 'Manage Investors',
       href: '/admin/investors',
-      roles: ['Admin'],
-      color: 'text-purple-300'
+      roles: ['Admin']
     },
     {
       label: 'Manage Users',
       href: '/admin/users',
-      roles: ['Admin'],
-      color: 'text-indigo-300'
+      roles: ['Admin']
     },
 
     // Operator-specific items
     {
       label: 'Operator Dashboard',
       href: '/operator/dashboard',
-      roles: ['Operator'],
-      color: 'text-orange-300'
+      roles: ['Operator']
     },
     {
       label: 'My Requests',
       href: '/operator/my-requests',
-      roles: ['Operator'],
-      color: 'text-orange-300'
+      roles: ['Operator']
     },
 
     // Investor-specific items
     {
       label: 'Investor Dashboard',
       href: '/dashboard',
-      roles: ['Investor'],
-      color: 'text-purple-300'
+      roles: ['Investor']
     },
     {
       label: 'My Portfolio',
       href: '/portfolio',
-      roles: ['Investor'],
-      color: 'text-purple-300'
+      roles: ['Investor']
     },
     {
       label: 'Available Projects',
       href: '/projects',
-      roles: ['Investor'],
-      color: 'text-purple-300'
+      roles: ['Investor']
     },
 
     // General items (for all authenticated users)
     {
       label: 'Dashboard',
       href: '/dashboard',
-      roles: ['Admin', 'Operator', 'Investor'],
-      color: 'text-gray-300'
+      roles: ['Admin', 'Operator', 'Investor']
     },
     {
       label: 'Projects',
       href: '/projects',
-      roles: ['Admin', 'Operator', 'Investor'],
-      color: 'text-gray-300'
+      roles: ['Admin', 'Operator', 'Investor']
     },
   ];
 
@@ -129,9 +116,9 @@ export const Navigation = () => {
           href={item.href}
           className={`
             block px-4 py-2 rounded-lg transition-all duration-200
-            ${isActive(item.href) 
-              ? 'bg-white/20 text-white font-semibold' 
-              : `${item.color || 'text-gray-300'} hover:bg-white/10 hover:text-white`
+            ${isActive(item.href)
+              ? 'bg-surface-muted text-text-primary font-semibold'
+              : 'text-text-secondary hover:bg-surface-muted hover:text-text-primary'
             }
           `}
         >
@@ -155,25 +142,25 @@ export const QuickNavigation = () => {
   return (
     <div className="flex flex-wrap gap-2">
       {isAdmin && (
-        <Link 
+        <Link
           href="/admin/dashboard"
-          className="px-3 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-full hover:bg-blue-500/30"
+          className="px-3 py-1 text-xs rounded-full bg-[var(--info-bg)] text-[var(--info-fg)] hover:opacity-80 transition-opacity"
         >
           Admin
         </Link>
       )}
       {isOperator && (
-        <Link 
+        <Link
           href="/operator/dashboard"
-          className="px-3 py-1 text-xs bg-orange-500/20 text-orange-300 rounded-full hover:bg-orange-500/30"
+          className="px-3 py-1 text-xs rounded-full bg-[var(--warning-bg)] text-[var(--warning-fg)] hover:opacity-80 transition-opacity"
         >
           Operator
         </Link>
       )}
       {isInvestor && (
-        <Link 
+        <Link
           href="/portfolio"
-          className="px-3 py-1 text-xs bg-purple-500/20 text-purple-300 rounded-full hover:bg-purple-500/30"
+          className="px-3 py-1 text-xs rounded-full bg-surface-muted text-brand-secondary hover:opacity-80 transition-opacity"
         >
           Portfolio
         </Link>

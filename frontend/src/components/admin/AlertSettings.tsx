@@ -219,26 +219,26 @@ const AlertSettings: React.FC = () => {
 
   const getSeverityColor = (severity: AlertRule['severity']) => {
     switch (severity) {
-      case 'CRITICAL': return 'bg-red-500';
-      case 'HIGH': return 'bg-orange-500';
-      case 'MEDIUM': return 'bg-yellow-500';
-      case 'LOW': return 'bg-blue-500';
-      default: return 'bg-gray-500';
+      case 'CRITICAL': return 'bg-danger';
+      case 'HIGH': return 'bg-accent';
+      case 'MEDIUM': return 'bg-warning';
+      case 'LOW': return 'bg-brand-primary';
+      default: return 'bg-text-muted';
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-600">{error}</p>
+      <div className="bg-[var(--danger-bg)] border border-border rounded-lg p-4">
+        <p className="text-danger">{error}</p>
       </div>
     );
   }
@@ -249,14 +249,14 @@ const AlertSettings: React.FC = () => {
       <Card variant="gradient" className="p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold mb-2 text-white">Alert Settings</h2>
-            <p className="text-white/80">Configure automated alert rules and conditions</p>
+            <h2 className="text-2xl font-bold mb-2 text-on-brand">Alert Settings</h2>
+            <p className="text-on-brand/80">Configure automated alert rules and conditions</p>
           </div>
           <div className="flex space-x-3">
             <Button
               variant="outline"
               onClick={() => setShowTemplates(true)}
-              className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+              className="bg-on-brand/20 hover:bg-on-brand/30 text-on-brand border-on-brand/30"
             >
               📋 Templates
             </Button>
@@ -272,17 +272,17 @@ const AlertSettings: React.FC = () => {
 
       {/* Rules List */}
       <Card variant="frosted" className="overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="text-lg font-semibold text-white">Alert Rules</h3>
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="text-lg font-semibold text-text-primary">Alert Rules</h3>
         </div>
-        <div className="divide-y divide-white/10">
+        <div className="divide-y divide-border">
           {rules.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-400">
-              <svg className="mx-auto h-12 w-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="px-6 py-8 text-center text-text-secondary">
+              <svg className="mx-auto h-12 w-12 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="mt-2 text-white">No alert rules configured</p>
-              <p className="text-xs text-gray-400">Create your first alert rule to get started</p>
+              <p className="mt-2 text-text-primary">No alert rules configured</p>
+              <p className="text-xs text-text-secondary">Create your first alert rule to get started</p>
             </div>
           ) : (
             rules.map((rule) => (
@@ -293,7 +293,7 @@ const AlertSettings: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg">{getTypeIcon(rule.type)}</span>
-                        <h4 className="text-sm font-medium text-white">{rule.name}</h4>
+                        <h4 className="text-sm font-medium text-text-primary">{rule.name}</h4>
                         <Badge variant={rule.severity === 'CRITICAL' ? 'error' : rule.severity === 'HIGH' ? 'warning' : 'info'}>
                           {rule.severity}
                         </Badge>
@@ -301,12 +301,12 @@ const AlertSettings: React.FC = () => {
                           {rule.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-300 mt-1">{rule.description}</p>
+                      <p className="text-sm text-text-secondary mt-1">{rule.description}</p>
                       <div className="mt-2">
-                        <p className="text-xs font-medium text-gray-400">Conditions:</p>
+                        <p className="text-xs font-medium text-text-secondary">Conditions:</p>
                         <div className="mt-1 space-y-1">
                           {rule.conditions.map((condition, index) => (
-                            <div key={index} className="text-xs text-gray-400">
+                            <div key={index} className="text-xs text-text-secondary">
                               {condition.field} {condition.operator} {String(condition.value)}
                             </div>
                           ))}
@@ -348,28 +348,28 @@ const AlertSettings: React.FC = () => {
       {showTemplates && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card variant="frosted" className="max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-white/10">
+            <div className="px-6 py-4 border-b border-border">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Alert Templates</h3>
+                <h3 className="text-lg font-semibold text-text-primary">Alert Templates</h3>
                 <Button
                   variant="outline"
                   onClick={() => setShowTemplates(false)}
-                  className="text-white border-white/30"
+                  className="text-text-primary border-border"
                 >
                   ✕
                 </Button>
               </div>
             </div>
             <div className="px-6 py-4">
-              <p className="text-gray-300 mb-4">Choose a template to quickly create common alert rules:</p>
+              <p className="text-text-secondary mb-4">Choose a template to quickly create common alert rules:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {ALERT_TEMPLATES.map((template) => (
-                  <Card key={template.id} variant="default" className="p-4 hover:border-white/20 transition-colors">
+                  <Card key={template.id} variant="default" className="p-4 hover:border-border transition-colors">
                     <div className="flex items-start space-x-3">
                       <span className="text-2xl">{getTypeIcon(template.type)}</span>
                       <div className="flex-1">
-                        <h4 className="font-medium text-white mb-1">{template.name}</h4>
-                        <p className="text-sm text-gray-400 mb-2">{template.description}</p>
+                        <h4 className="font-medium text-text-primary mb-1">{template.name}</h4>
+                        <p className="text-sm text-text-secondary mb-2">{template.description}</p>
                         <div className="flex items-center space-x-2">
                           <Badge variant={template.severity === 'CRITICAL' ? 'error' : template.severity === 'HIGH' ? 'warning' : 'info'}>
                             {template.severity}
@@ -397,13 +397,13 @@ const AlertSettings: React.FC = () => {
       {showCreateForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card variant="frosted" className="max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-white/10">
+            <div className="px-6 py-4 border-b border-border">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Create Alert Rule</h3>
+                <h3 className="text-lg font-semibold text-text-primary">Create Alert Rule</h3>
                 <Button
                   variant="outline"
                   onClick={() => setShowCreateForm(false)}
-                  className="text-white border-white/30"
+                  className="text-text-primary border-border"
                 >
                   ✕
                 </Button>
@@ -411,22 +411,22 @@ const AlertSettings: React.FC = () => {
             </div>
             <div className="px-6 py-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white mb-1">Rule Name</label>
+                <label className="block text-sm font-medium text-text-primary mb-1">Rule Name</label>
                 <input
                   type="text"
                   value={newRule.name}
                   onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   placeholder="Enter rule name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white mb-1">Description</label>
+                <label className="block text-sm font-medium text-text-primary mb-1">Description</label>
                 <textarea
                   value={newRule.description}
                   onChange={(e) => setNewRule({ ...newRule, description: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   rows={3}
                   placeholder="Enter rule description"
                 />
@@ -434,11 +434,11 @@ const AlertSettings: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-1">Type</label>
+                  <label className="block text-sm font-medium text-text-primary mb-1">Type</label>
                   <select
                     value={newRule.type}
                     onChange={(e) => setNewRule({ ...newRule, type: e.target.value as AlertRule['type'] })}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     <option value="PERFORMANCE">Performance</option>
                     <option value="IOT">IoT</option>
@@ -451,11 +451,11 @@ const AlertSettings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-1">Severity</label>
+                  <label className="block text-sm font-medium text-text-primary mb-1">Severity</label>
                   <select
                     value={newRule.severity}
                     onChange={(e) => setNewRule({ ...newRule, severity: e.target.value as AlertRule['severity'] })}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -466,7 +466,7 @@ const AlertSettings: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white mb-1">Conditions</label>
+                <label className="block text-sm font-medium text-text-primary mb-1">Conditions</label>
                 <div className="space-y-2">
                   {newRule.conditions.map((condition, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -474,13 +474,13 @@ const AlertSettings: React.FC = () => {
                         type="text"
                         value={condition.field}
                         onChange={(e) => updateCondition(index, 'field', e.target.value)}
-                        className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                         placeholder="Field name"
                       />
                       <select
                         value={condition.operator}
                         onChange={(e) => updateCondition(index, 'operator', e.target.value as AlertCondition['operator'])}
-                        className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="bg-surface border border-border rounded-lg px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                       >
                         <option value="equals">Equals</option>
                         <option value="not_equals">Not Equals</option>
@@ -493,7 +493,7 @@ const AlertSettings: React.FC = () => {
                         type="text"
                         value={condition.value}
                         onChange={(e) => updateCondition(index, 'value', e.target.value)}
-                        className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                         placeholder="Value"
                       />
                       {newRule.conditions.length > 1 && (
@@ -511,19 +511,19 @@ const AlertSettings: React.FC = () => {
                     variant="outline"
                     size="sm"
                     onClick={addCondition}
-                    className="text-blue-400 border-blue-400/30 hover:bg-blue-400/10"
+                    className="text-brand-primary border-brand-primary/30 hover:bg-brand-primary/10"
                   >
                     + Add Condition
                   </Button>
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-white/10">
+            <div className="px-6 py-4 border-t border-border">
               <div className="flex justify-end space-x-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowCreateForm(false)}
-                  className="text-white border-white/30"
+                  className="text-text-primary border-border"
                 >
                   Cancel
                 </Button>

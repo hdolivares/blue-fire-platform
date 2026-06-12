@@ -62,15 +62,15 @@ const IndustryBenchmarks: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-600">{error}</p>
+      <div className="bg-[var(--danger-bg)] border border-border rounded-lg p-4">
+        <p className="text-danger">{error}</p>
       </div>
     );
   }
@@ -78,7 +78,7 @@ const IndustryBenchmarks: React.FC = () => {
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
       </div>
     );
   }
@@ -102,7 +102,7 @@ const IndustryBenchmarks: React.FC = () => {
   };
 
   const formatPercentage = (num: number) => {
-    const color = num >= 0 ? 'text-green-600' : 'text-red-600';
+    const color = num >= 0 ? 'text-success' : 'text-danger';
     const sign = num >= 0 ? '+' : '';
     return <span className={color}>{sign}{num.toFixed(1)}%</span>;
   };
@@ -131,25 +131,25 @@ const IndustryBenchmarks: React.FC = () => {
     };
 
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+      <div className="bg-surface border border-border rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">{title}</h3>
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Blue Fire</span>
-            <span className="font-semibold text-blue-600">{formatValue(blueFireValue)}</span>
+            <span className="text-sm text-text-secondary">Blue Fire</span>
+            <span className="font-semibold text-brand-primary">{formatValue(blueFireValue)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Industry Average</span>
-            <span className="font-semibold text-gray-900">{formatValue(industryAverage)}</span>
+            <span className="text-sm text-text-secondary">Industry Average</span>
+            <span className="font-semibold text-text-primary">{formatValue(industryAverage)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">Industry Top</span>
-            <span className="font-semibold text-purple-600">{formatValue(industryTop)}</span>
+            <span className="text-sm text-text-secondary">Industry Top</span>
+            <span className="font-semibold text-brand-secondary">{formatValue(industryTop)}</span>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-border">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Performance vs Industry</span>
-              <span className={`font-semibold ${blueFireValue > industryAverage ? 'text-green-600' : 'text-red-600'}`}>
+              <span className="text-sm font-medium text-text-secondary">Performance vs Industry</span>
+              <span className={`font-semibold ${blueFireValue > industryAverage ? 'text-success' : 'text-danger'}`}>
                 {blueFireValue > industryAverage ? 'Above Average' : 'Below Average'}
               </span>
             </div>
@@ -161,103 +161,103 @@ const IndustryBenchmarks: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-6 text-white">
+      <div className="gradient-brand rounded-lg p-6 text-on-brand">
         <h2 className="text-2xl font-bold mb-2">Industry Benchmarks</h2>
-        <p className="text-purple-100">Compare Blue Fire performance against industry standards</p>
+        <p className="text-on-brand/80">Compare Blue Fire performance against industry standards</p>
       </div>
 
       {/* Current Metrics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+        <div className="bg-surface border border-border rounded-lg shadow-md p-6 border-l-4 border-l-brand-primary">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-[var(--info-bg)] rounded-lg">
+              <svg className="w-6 h-6 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Water Produced</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(data.currentMetrics?.totalWaterProduced || 0)} L</p>
+              <p className="text-sm font-medium text-text-secondary">Water Produced</p>
+              <p className="text-2xl font-bold text-text-primary">{formatNumber(data.currentMetrics?.totalWaterProduced || 0)} L</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+        <div className="bg-surface border border-border rounded-lg shadow-md p-6 border-l-4 border-l-success">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-[var(--success-bg)] rounded-lg">
+              <svg className="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.currentMetrics?.totalRevenue || 0)}</p>
+              <p className="text-sm font-medium text-text-secondary">Total Revenue</p>
+              <p className="text-2xl font-bold text-text-primary">{formatCurrency(data.currentMetrics?.totalRevenue || 0)}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+        <div className="bg-surface border border-border rounded-lg shadow-md p-6 border-l-4 border-l-brand-secondary">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-[var(--surface-muted)] rounded-lg">
+              <svg className="w-6 h-6 text-brand-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Energy Efficiency</p>
-              <p className="text-2xl font-bold text-gray-900">{(data.currentMetrics?.averageEfficiency || 0).toFixed(2)} L/kWh</p>
+              <p className="text-sm font-medium text-text-secondary">Energy Efficiency</p>
+              <p className="text-2xl font-bold text-text-primary">{(data.currentMetrics?.averageEfficiency || 0).toFixed(2)} L/kWh</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+        <div className="bg-surface border border-border rounded-lg shadow-md p-6 border-l-4 border-l-accent">
           <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-[var(--warning-bg)] rounded-lg">
+              <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Operational Projects</p>
-              <p className="text-2xl font-bold text-gray-900">{data.currentMetrics?.operationalProjects || 0}</p>
+              <p className="text-sm font-medium text-text-secondary">Operational Projects</p>
+              <p className="text-2xl font-bold text-text-primary">{data.currentMetrics?.operationalProjects || 0}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Performance vs Industry */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance vs Industry</h3>
+      <div className="bg-surface border border-border rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">Performance vs Industry</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {formatPercentage(data.performanceVsIndustry?.waterProduction || 0)}
             </div>
-            <div className="text-sm text-gray-600">Water Production</div>
+            <div className="text-sm text-text-secondary">Water Production</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {formatPercentage(data.performanceVsIndustry?.energyEfficiency || 0)}
             </div>
-            <div className="text-sm text-gray-600">Energy Efficiency</div>
+            <div className="text-sm text-text-secondary">Energy Efficiency</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {formatPercentage(data.performanceVsIndustry?.revenuePerLiter || 0)}
             </div>
-            <div className="text-sm text-gray-600">Revenue per Liter</div>
+            <div className="text-sm text-text-secondary">Revenue per Liter</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {formatPercentage(data.performanceVsIndustry?.uptime || 0)}
             </div>
-            <div className="text-sm text-gray-600">Uptime</div>
+            <div className="text-sm text-text-secondary">Uptime</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold mb-1">
               {formatPercentage(data.performanceVsIndustry?.roi || 0)}
             </div>
-            <div className="text-sm text-gray-600">ROI</div>
+            <div className="text-sm text-text-secondary">ROI</div>
           </div>
         </div>
       </div>
@@ -306,39 +306,39 @@ const IndustryBenchmarks: React.FC = () => {
       </div>
 
       {/* Competitive Analysis */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Competitive Analysis</h3>
+      <div className="bg-surface border border-border rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-text-primary mb-4">Competitive Analysis</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[var(--info-bg)] rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Market Position</h4>
-              <p className="text-sm text-gray-600">Blue Fire&apos;s position relative to industry leaders</p>
+              <h4 className="font-medium text-text-primary">Market Position</h4>
+              <p className="text-sm text-text-secondary">Blue Fire&apos;s position relative to industry leaders</p>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-blue-600">Top 20%</div>
-              <div className="text-sm text-gray-500">Industry Ranking</div>
+              <div className="text-lg font-bold text-brand-primary">Top 20%</div>
+              <div className="text-sm text-text-muted">Industry Ranking</div>
             </div>
           </div>
-          
-          <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+
+          <div className="flex items-center justify-between p-4 bg-[var(--success-bg)] rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Efficiency Advantage</h4>
-              <p className="text-sm text-gray-600">Energy efficiency compared to industry average</p>
+              <h4 className="font-medium text-text-primary">Efficiency Advantage</h4>
+              <p className="text-sm text-text-secondary">Energy efficiency compared to industry average</p>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-green-600">+15%</div>
-              <div className="text-sm text-gray-500">Above Average</div>
+              <div className="text-lg font-bold text-success">+15%</div>
+              <div className="text-sm text-text-muted">Above Average</div>
             </div>
           </div>
-          
-          <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+
+          <div className="flex items-center justify-between p-4 bg-[var(--surface-muted)] rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Revenue Performance</h4>
-              <p className="text-sm text-gray-600">Revenue per liter vs industry standards</p>
+              <h4 className="font-medium text-text-primary">Revenue Performance</h4>
+              <p className="text-sm text-text-secondary">Revenue per liter vs industry standards</p>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-purple-600">+25%</div>
-              <div className="text-sm text-gray-500">Above Average</div>
+              <div className="text-lg font-bold text-brand-secondary">+25%</div>
+              <div className="text-sm text-text-muted">Above Average</div>
             </div>
           </div>
         </div>

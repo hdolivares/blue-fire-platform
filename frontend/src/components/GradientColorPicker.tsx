@@ -25,7 +25,7 @@ export const GradientColorPicker = () => {
   };
 
   return (
-    <div className="fixed top-4 right-4 bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg p-4 text-white z-50 max-w-sm">
+    <div className="fixed top-4 right-4 bg-surface backdrop-blur-sm border border-border rounded-lg p-4 text-text-primary z-50 max-w-sm">
       <h3 className="text-lg font-bold mb-4">Gradient Color Picker</h3>
       
       <div className="space-y-3 mb-4">
@@ -36,13 +36,13 @@ export const GradientColorPicker = () => {
               type="color"
               value={colors.color1}
               onChange={(e) => handleColorChange('color1', e.target.value)}
-              className="w-12 h-8 rounded border border-white/20"
+              className="w-12 h-8 rounded border border-border"
             />
             <input
               type="text"
               value={colors.color1}
               onChange={(e) => handleColorChange('color1', e.target.value)}
-              className="flex-1 bg-black/50 border border-white/20 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-surface-muted border border-border rounded px-2 py-1 text-sm"
               placeholder="#667eea"
             />
           </div>
@@ -55,13 +55,13 @@ export const GradientColorPicker = () => {
               type="color"
               value={colors.color2}
               onChange={(e) => handleColorChange('color2', e.target.value)}
-              className="w-12 h-8 rounded border border-white/20"
+              className="w-12 h-8 rounded border border-border"
             />
             <input
               type="text"
               value={colors.color2}
               onChange={(e) => handleColorChange('color2', e.target.value)}
-              className="flex-1 bg-black/50 border border-white/20 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-surface-muted border border-border rounded px-2 py-1 text-sm"
               placeholder="#2487d8"
             />
           </div>
@@ -74,13 +74,13 @@ export const GradientColorPicker = () => {
               type="color"
               value={colors.color3}
               onChange={(e) => handleColorChange('color3', e.target.value)}
-              className="w-12 h-8 rounded border border-white/20"
+              className="w-12 h-8 rounded border border-border"
             />
             <input
               type="text"
               value={colors.color3}
               onChange={(e) => handleColorChange('color3', e.target.value)}
-              className="flex-1 bg-black/50 border border-white/20 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-surface-muted border border-border rounded px-2 py-1 text-sm"
               placeholder="#6659f8"
             />
           </div>
@@ -93,13 +93,13 @@ export const GradientColorPicker = () => {
               type="color"
               value={colors.color4}
               onChange={(e) => handleColorChange('color4', e.target.value)}
-              className="w-12 h-8 rounded border border-white/20"
+              className="w-12 h-8 rounded border border-border"
             />
             <input
               type="text"
               value={colors.color4}
               onChange={(e) => handleColorChange('color4', e.target.value)}
-              className="flex-1 bg-black/50 border border-white/20 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-surface-muted border border-border rounded px-2 py-1 text-sm"
               placeholder="#512494"
             />
           </div>
@@ -113,7 +113,7 @@ export const GradientColorPicker = () => {
             <button
               key={presetName}
               onClick={() => applyPreset(presetName)}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-medium transition-colors"
+              className="px-3 py-1 bg-brand-primary hover:bg-brand-primary text-on-brand rounded text-xs font-medium transition-colors"
             >
               {presetName.charAt(0).toUpperCase() + presetName.slice(1)}
             </button>
@@ -124,7 +124,7 @@ export const GradientColorPicker = () => {
       <div className="space-y-2">
         <button
           onClick={handleForceReinitialize}
-          className="w-full px-3 py-2 bg-orange-600 hover:bg-orange-700 rounded text-sm font-medium transition-colors"
+          className="w-full px-3 py-2 bg-accent hover:bg-accent text-on-brand rounded text-sm font-medium transition-colors"
         >
           Force Reinitialize
         </button>

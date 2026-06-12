@@ -63,7 +63,7 @@ export default function PortfolioPage() {
             </div>
             <div>
               <p className="text-sm text-secondary">Total Rewards</p>
-              <p className="text-2xl font-bold text-green-400">
+              <p className="text-2xl font-bold text-success">
                 {userPositions.reduce((sum, pos) => sum + parseFloat(pos.pendingRewards), 0).toFixed(4)} ETH
               </p>
             </div>
@@ -88,7 +88,7 @@ export default function PortfolioPage() {
           {userPositions.length > 0 && (
             <div>
               <strong>Positions:</strong>
-              <pre className="text-xs mt-2 p-2 bg-black/20 rounded">
+              <pre className="text-xs mt-2 p-2 bg-surface-muted rounded">
                 {JSON.stringify(userPositions, null, 2)}
               </pre>
             </div>
@@ -100,7 +100,7 @@ export default function PortfolioPage() {
             refreshProjects();
             refreshUserPositions();
           }}
-          className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+          className="mt-4 px-4 py-2 bg-brand-primary text-on-brand rounded hover:bg-[var(--brand-primary-hover)]"
         >
           🔄 Manual Refresh
         </button>

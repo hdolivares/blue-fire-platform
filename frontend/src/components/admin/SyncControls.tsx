@@ -105,7 +105,7 @@ export const SyncControls = () => {
             <input
               type="text"
               placeholder="Enter project database ID (e.g., 6881af21680d7f548c3660c7)"
-              className="flex-1 p-2 rounded bg-white/10 border border-white/20 text-white placeholder-white/50"
+              className="flex-1 p-2 rounded bg-surface border border-border text-text-primary placeholder-text-muted"
               value={singleProjectId}
               onChange={(e) => setSingleProjectId(e.target.value)}
               onKeyDown={(e) => {
@@ -127,22 +127,22 @@ export const SyncControls = () => {
       </div>
 
       {syncResults && (
-        <Card variant="default" className="p-4 bg-green-500/10 border border-green-500/20">
+        <Card variant="default" className="p-4 bg-[var(--success-bg)] border border-success/20">
           <h4 className="text-sm font-medium mb-2">📊 Last Sync Results</h4>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-green-400">{syncResults.synced}</p>
+              <p className="text-2xl font-bold text-success">{syncResults.synced}</p>
               <p className="text-xs text-secondary">Projects Synced</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-red-400">{syncResults.errors}</p>
+              <p className="text-2xl font-bold text-danger">{syncResults.errors}</p>
               <p className="text-xs text-secondary">Errors</p>
             </div>
           </div>
         </Card>
       )}
 
-      <Card variant="default" className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20">
+      <Card variant="default" className="mt-4 p-4 bg-[var(--info-bg)] border border-brand-primary/20">
         <h4 className="text-sm font-medium mb-2">ℹ️ Sync Information</h4>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Automatic Sync:</strong> Projects sync automatically after blockchain transactions</li>
