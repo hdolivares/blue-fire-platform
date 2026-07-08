@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Web3Provider } from "@/context/Web3Context";
@@ -8,16 +8,19 @@ import { LandingLayout } from "@/components/LandingLayout";
 import { Toaster } from "react-hot-toast";
 import ClientLoadingOverlay from "@/components/ClientLoadingOverlay";
 
-const inter = Inter({
-  subsets: ["latin"],
+// Self-hosted variable fonts (woff2 vendored from Fontsource) — no build-time
+// network fetch, which fails behind TLS-intercepting proxies.
+const inter = localFont({
+  src: "../fonts/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
+  weight: "100 900",
   display: "swap",
 });
 
-const sora = Sora({
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+const sora = localFont({
+  src: "../fonts/sora-latin-wght-normal.woff2",
   variable: "--font-sora",
+  weight: "100 800",
   display: "swap",
 });
 
