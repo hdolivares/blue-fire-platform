@@ -8,118 +8,109 @@
    Light theme is the default (:root); .dark overrides.
    ============================================================ */
 :root {
+  /* ---- BlueFire "ice paper" light theme ---- */
   /* Surfaces & structure */
-  --background:        #f6f8fb;
+  --background:        #f4f9ff;
   --surface:           #ffffff;
   --surface-elevated:  #ffffff;
-  --surface-muted:     #eef2f7;
-  --border:            #e2e8f0;
-  --border-strong:     #cbd5e1;
+  --surface-muted:     #e8f1fb;
+  --border:            rgba(11, 27, 54, 0.12);
+  --border-strong:     rgba(11, 27, 54, 0.28);
 
   /* Text */
-  --text-primary:      #0f172a;
-  --text-secondary:    #475569;
-  --text-muted:        #64748b;
+  --text-primary:      #0b1b36;
+  --text-secondary:    rgba(11, 27, 54, 0.74);
+  --text-muted:        rgba(11, 27, 54, 0.64);
   --text-on-brand:     #ffffff;
 
   /* Brand roles */
-  --brand-primary:        #2563eb; /* blue */
-  --brand-primary-hover:  #1d4ed8;
-  --brand-secondary:      #7c3aed; /* purple */
-  --brand-secondary-hover:#6d28d9;
-  --accent:               #f97316; /* orange — high-emphasis CTAs */
-  --accent-hover:         #ea580c;
+  --brand-primary:        #1467d2; /* bf-blue */
+  --brand-primary-hover:  #0f56b4;
+  --brand-secondary:      #0d76ac; /* aqua, darkened for AA on white */
+  --brand-secondary-hover:#0a6191;
+  --accent:               #c94a10; /* ember, darkened for AA */
+  --accent-hover:         #b03f0c;
 
   /* Semantic status */
-  --success: #059669;
-  --warning: #d97706;
-  --danger:  #dc2626;
-  --info:    #2563eb;
+  --success: #0b8163;
+  --warning: #a35f00;
+  --danger:  #d7263d;
+  --info:    #0b76ad;
 
   /* Tinted status backgrounds/foregrounds (badges) */
-  --success-bg: #d1fae5; --success-fg: #047857;
-  --warning-bg: #fef3c7; --warning-fg: #b45309;
-  --danger-bg:  #fee2e2; --danger-fg:  #b91c1c;
-  --info-bg:    #dbeafe; --info-fg:    #1d4ed8;
+  --success-bg: #d7f4ea; --success-fg: #06614a;
+  --warning-bg: #fdeed7; --warning-fg: #7a4a05;
+  --danger-bg:  #fde3e6; --danger-fg:  #a31226;
+  --info-bg:    #ddf1fb; --info-fg:    #085a84;
 
   /* Focus ring & brand gradient */
-  --ring:                #2563eb;
-  --gradient-brand-from: #2563eb;
-  --gradient-brand-to:   #7c3aed;
+  --ring:                #1467d2;
+  --gradient-brand-from: #1467d2;
+  --gradient-brand-to:   #0b3f9e;
 
-  /* Elevation */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  /* Elevation (navy-tinted) */
+  --shadow-sm: 0 1px 2px rgba(11, 27, 54, 0.06);
+  --shadow-md: 0 6px 16px rgba(11, 27, 54, 0.09);
+  --shadow-lg: 0 12px 32px rgba(11, 27, 54, 0.14);
 
   /* Glass */
   --glass-bg:        rgba(255, 255, 255, 0.62);
-  --glass-border:    rgba(255, 255, 255, 0.6);
-  --glass-highlight: rgba(255, 255, 255, 0.7);
+  --glass-border:    rgba(11, 27, 54, 0.10);
+  --glass-highlight: rgba(255, 255, 255, 0.75);
 
   /* Sticky header surface — background-tinted, high opacity for readability
      over scrolling content (distinct from the lighter card glass). */
-  --header-bg:        rgba(246, 248, 251, 0.92);
-  --header-bg-top:    rgba(246, 248, 251, 0.60);
-  --header-border:    rgba(15, 23, 42, 0.08);
-
-  /* Animated WebGL gradient (consumed by AnimatedGradient) */
-  --gradient-color-1: #60a5fa;
-  --gradient-color-2: #2563eb;
-  --gradient-color-3: #818cf8;
-  --gradient-color-4: #7c3aed;
+  --header-bg:        rgba(244, 249, 255, 0.92);
+  --header-bg-top:    rgba(244, 249, 255, 0.60);
+  --header-border:    rgba(11, 27, 54, 0.10);
 }
 
 .dark {
-  --background:        #0b1220;
-  --surface:           #111a2e;
-  --surface-elevated:  #16223c;
-  --surface-muted:     #0f1830;
-  --border:            rgba(255, 255, 255, 0.10);
-  --border-strong:     rgba(255, 255, 255, 0.18);
+  /* ---- BlueFire cinematic flagship (navy void / cyan / ember) ---- */
+  --background:        #04070e;
+  --surface:           #0a1424;
+  --surface-elevated:  #0e1c33;
+  --surface-muted:     #071120;
+  --border:            rgba(140, 190, 255, 0.13);
+  --border-strong:     rgba(150, 198, 255, 0.30);
 
-  --text-primary:      #f1f5f9;
-  --text-secondary:    #cbd5e1;
-  --text-muted:        #94a3b8;
-  --text-on-brand:     #ffffff;
+  --text-primary:      #eaf5ff;
+  --text-secondary:    rgba(199, 224, 248, 0.74);
+  --text-muted:        rgba(158, 195, 232, 0.62);
+  --text-on-brand:     #051220; /* ink — reads on cyan/aqua/ember/status fills */
 
-  --brand-primary:        #3b82f6;
-  --brand-primary-hover:  #60a5fa;
-  --brand-secondary:      #a78bfa;
-  --brand-secondary-hover:#c4b5fd;
-  --accent:               #fb923c;
-  --accent-hover:         #fdba74;
+  --brand-primary:        #56d9ff; /* bf-cyan */
+  --brand-primary-hover:  #7ee4ff;
+  --brand-secondary:      #19a8e6; /* bf-aqua */
+  --brand-secondary-hover:#3fbdf2;
+  --accent:               #ff7847; /* bf-ember */
+  --accent-hover:         #ff9268;
 
-  --success: #34d399;
-  --warning: #fbbf24;
-  --danger:  #f87171;
-  --info:    #60a5fa;
+  --success: #35e0c0;
+  --warning: #ffb35c;
+  --danger:  #ff6b76;
+  --info:    #56d9ff;
 
-  --success-bg: rgba(16, 185, 129, 0.18); --success-fg: #6ee7b7;
-  --warning-bg: rgba(245, 158, 11, 0.18); --warning-fg: #fcd34d;
-  --danger-bg:  rgba(239, 68, 68, 0.18);  --danger-fg:  #fca5a5;
-  --info-bg:    rgba(59, 130, 246, 0.18); --info-fg:    #93c5fd;
+  --success-bg: rgba(53, 224, 192, 0.14); --success-fg: #7ff0d8;
+  --warning-bg: rgba(255, 179, 92, 0.14); --warning-fg: #ffd39d;
+  --danger-bg:  rgba(255, 107, 118, 0.14); --danger-fg: #ffa8ad;
+  --info-bg:    rgba(86, 217, 255, 0.12);  --info-fg:   #9ce7ff;
 
-  --ring:                #60a5fa;
-  --gradient-brand-from: #3b82f6;
-  --gradient-brand-to:   #a78bfa;
+  --ring:                #56d9ff;
+  --gradient-brand-from: #56d9ff;
+  --gradient-brand-to:   #19a8e6;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 2px rgba(1, 5, 14, 0.5);
+  --shadow-md: 0 8px 24px rgba(1, 5, 14, 0.5);
+  --shadow-lg: 0 16px 48px rgba(1, 5, 14, 0.6);
 
-  --glass-bg:        rgba(255, 255, 255, 0.06);
-  --glass-border:    rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.14);
+  --glass-bg:        rgba(11, 25, 49, 0.42);
+  --glass-border:    rgba(140, 190, 255, 0.13);
+  --glass-highlight: rgba(199, 224, 248, 0.07);
 
-  --header-bg:        rgba(11, 18, 32, 0.92);
-  --header-bg-top:    rgba(11, 18, 32, 0.50);
-  --header-border:    rgba(255, 255, 255, 0.10);
-
-  --gradient-color-1: #11a8ee;
-  --gradient-color-2: #0461b9;
-  --gradient-color-3: #308af1;
-  --gradient-color-4: #6e19d7;
+  --header-bg:        rgba(4, 8, 16, 0.78);
+  --header-bg-top:    rgba(4, 8, 16, 0.50);
+  --header-border:    rgba(140, 190, 255, 0.13);
 }
 
 /* ============================================================
@@ -150,8 +141,10 @@
 
   --color-ring:    var(--ring);
 
-  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), "Cascadia Code", Consolas, ui-monospace, monospace;
+  --font-serif:   var(--font-instrument), Georgia, "Times New Roman", serif;
 }
 
 /* ============================================================
@@ -160,13 +153,29 @@
 body {
   background: var(--background);
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  /* Reference the live next/font var directly — @theme inline font tokens are
+     inlined into utilities and aren't available to hand-written rules. */
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 430;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
+/* Branded thin scrollbar for the app (landing owns its own via .bf). */
+html:not(:has(.bf)) {
+  scrollbar-color: color-mix(in srgb, var(--brand-primary) 30%, transparent) var(--background);
+}
+html:not(:has(.bf))::-webkit-scrollbar { width: 10px; height: 10px; }
+html:not(:has(.bf))::-webkit-scrollbar-track { background: var(--background); }
+html:not(:has(.bf))::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+  border: 2px solid var(--background);
+}
+html:not(:has(.bf))::-webkit-scrollbar-thumb:hover { background: var(--brand-primary); }
+
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -184,6 +193,37 @@ h6 { font-size: 1rem; }
   background: var(--brand-primary);
   color: var(--text-on-brand);
 }
+
+/* ============================================================
+   APP ATMOSPHERE (static navy field + grain; replaces WebGL mesh)
+   ============================================================ */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 85% -8%, rgba(20, 103, 210, 0.06), transparent 70%),
+    radial-gradient(55% 42% at 8% 108%, rgba(19, 168, 230, 0.05), transparent 70%),
+    var(--background);
+}
+.dark .app-bg {
+  background:
+    radial-gradient(120% 62% at 50% 114%, rgba(20, 103, 210, 0.22), transparent 64%),
+    radial-gradient(52% 36% at 86% -10%, rgba(86, 217, 255, 0.08), transparent 70%),
+    radial-gradient(42% 32% at 6% 106%, rgba(255, 120, 71, 0.07), transparent 72%),
+    var(--background);
+}
+.app-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+.dark .app-noise { opacity: 0.04; }
 
 /* ============================================================
    HELPER COMPONENT CLASSES (token-driven)
@@ -242,6 +282,154 @@ h6 { font-size: 1rem; }
 }
 
 /* ============================================================
+   BRAND DESIGN-LANGUAGE HELPERS (ported from the landing)
+   ============================================================ */
+
+/* Display treatment: expanded Archivo caps for page titles. */
+.display-caps {
+  font-family: var(--font-archivo), ui-sans-serif, sans-serif;
+  font-stretch: 116%;
+  font-weight: 720;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  line-height: 1.03;
+}
+
+/* Numbered mono kicker: "01 / SECTION" with a cyan index + hairline dash. */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.85em;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.kicker::before {
+  content: "";
+  width: 2.25rem;
+  height: 1px;
+  flex: none;
+  background: var(--border-strong);
+}
+.kicker b { font-weight: 400; color: var(--brand-primary); }
+
+/* Mono micro-label for stat titles, table headers, meta rows. */
+.mono-label {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Stroked transparent numerals for empty states / section indices. */
+.ghost-index {
+  font-family: var(--font-archivo), ui-sans-serif, sans-serif;
+  font-stretch: 84%;
+  font-weight: 700;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  user-select: none;
+}
+
+.hairline-t { border-top: 1px solid var(--border); }
+.hairline-b { border-bottom: 1px solid var(--border); }
+
+/* Editorial serif accent (rare) — the Tailwind `font-serif` default key won't
+   override via @theme inline, so reference the live font var directly. */
+.serif-italic {
+  font-family: var(--font-instrument), Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+
+/* Pill fill-sweep: a veil rises from the bottom on hover, behind the label.
+   Requires a positioned host with its own background; text stays put. */
+.btn-sweep { position: relative; overflow: hidden; isolation: isolate; }
+.btn-sweep::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--sweep-color, rgba(255, 255, 255, 0.18));
+  transform: translateY(102%);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;
+}
+.btn-sweep:hover::before,
+.btn-sweep:focus-visible::before { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .btn-sweep::before { transition: none; }
+}
+
+/* Skeleton shimmer for loading states. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-muted);
+  border-radius: 0.5rem;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand-primary) 12%, transparent), transparent);
+  animation: bfShimmer 1.6s ease-in-out infinite;
+}
+@keyframes bfShimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+
+/* Pulsing logo mark for loading states. */
+.bf-pulse { animation: bfMarkPulse 1.8s ease-in-out infinite; }
+@keyframes bfMarkPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bf-pulse { animation: none; }
+}
+
+/* ============================================================
+   MOTION LAYER — app entrance + staggered reveals
+   (opacity/transform only; disabled under reduced motion)
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .page-enter {
+    animation: bfPageEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes bfPageEnter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .stagger-rise > * {
+    animation: bfRise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger-rise > *:nth-child(1) { animation-delay: 0s; }
+  .stagger-rise > *:nth-child(2) { animation-delay: 0.05s; }
+  .stagger-rise > *:nth-child(3) { animation-delay: 0.1s; }
+  .stagger-rise > *:nth-child(4) { animation-delay: 0.15s; }
+  .stagger-rise > *:nth-child(5) { animation-delay: 0.2s; }
+  .stagger-rise > *:nth-child(6) { animation-delay: 0.25s; }
+  .stagger-rise > *:nth-child(7) { animation-delay: 0.3s; }
+  .stagger-rise > *:nth-child(n + 8) { animation-delay: 0.35s; }
+  @keyframes bfRise {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+/* ============================================================
    LEGACY UTILITY CLASSES — redefined against tokens
    (kept to avoid a large call-site sweep)
    ============================================================ */
@@ -296,6 +484,19 @@ h6 { font-size: 1rem; }
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);
 }
 
+/* Chrome forces a light background on autofilled fields — repaint it to the
+   surface token so dark-theme inputs don't flash white. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Navigation */
 .nav-link        { color: var(--text-secondary); transition: color 0.2s; }
 .nav-link:hover  { color: var(--text-primary); }
@@ -303,7 +504,17 @@ h6 { font-size: 1rem; }
 
 /* Layout */
 .container-main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.section-header   { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-primary); }
+.section-header {
+  font-family: var(--font-archivo), ui-sans-serif, sans-serif;
+  font-stretch: 112%;
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  font-weight: 720;
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
 .section-subtitle { color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 1rem; }
 
 /* ============================================================
@@ -331,7 +542,6 @@ h6 { font-size: 1rem; }
 }
 
 /* Gradients */
-.gradient-accent { background: linear-gradient(135deg, var(--gradient-color-1), var(--gradient-color-2)); }
 .gradient-card   { background: linear-gradient(135deg, var(--surface-elevated), var(--surface)); }
 
 /* ============================================================
@@ -366,79 +576,6 @@ h6 { font-size: 1rem; }
 .slider::-moz-range-thumb:hover { background: var(--brand-primary-hover); transform: scale(1.1); }
 .slider::-moz-range-track { width: 100%; height: 8px; border-radius: 4px; background: var(--surface-muted); border: none; }
 
-.text-user-header-menu { color: var(--brand-primary); }
-
-/* ============================================================
-   LANDING PAGE — structure kept, colors tokenized
-   ============================================================ */
-.landing-page {
-  font-family: var(--font-sans);
-  background-color: var(--background);
-  color: var(--text-primary);
-  line-height: 1.6;
-}
-
-/* Landing legacy color helpers → tokens */
-.text-secondary-color { color: var(--brand-secondary); }
-.text-light-text      { color: var(--text-secondary); }
-.bg-primary-color     { background-color: var(--brand-primary); }
-.bg-secondary-color   { background-color: var(--brand-secondary); }
-.bg-dark-bg           { background-color: var(--surface); }
-.bg-light-bg          { background-color: var(--surface-muted); }
-.border-light-bg      { border-color: var(--border); }
-
-/* Landing CTA buttons */
-.cta-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-.nav-cta { background-color: var(--brand-primary); color: var(--text-on-brand); }
-.nav-cta:hover { background-color: var(--brand-primary-hover); transform: translateY(-2px); }
-.hero-cta { background: var(--accent); color: var(--text-on-brand); }
-.hero-cta:hover { background: var(--accent-hover); transform: scale(1.05); }
-
-/* Landing section reveal */
-.landing-page section {
-  opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.landing-page section.show { opacity: 1; transform: translateY(0); }
-
-/* Landing tab system */
-.tab-link {
-  padding: 1rem 1.5rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-.tab-link.active { color: var(--text-primary); background: var(--surface-muted); }
-.tab-content {
-  display: none;
-  max-width: 700px;
-  margin: 0 auto;
-  animation: fadeIn 0.5s;
-  text-align: center;
-}
-.tab-content.active { display: block !important; }
-
-/* Case study layout */
-.case-study-card  { display: flex; flex-wrap: wrap; }
-.case-study-image { flex: 1 1 40%; }
-.case-study-content { flex: 1 1 60%; }
-.case-study-stats { display: flex; gap: 2rem; }
-.stat { text-align: center; flex: 1; }
-
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -447,16 +584,4 @@ h6 { font-size: 1rem; }
   h1 { font-size: 2rem; }
   h2 { font-size: 1.75rem; }
   h3 { font-size: 1.375rem; }
-  .hero h1 { font-size: 2.5rem; }
-  .hero p { font-size: 1rem; }
-  .landing-page section h2 { font-size: 2rem; }
-  .case-study-card { flex-direction: column; }
-  .case-study-stats { flex-direction: column; }
-  .role-tabs { flex-direction: column; }
-  .tab-link { border-radius: 5px; }
-}
-
-@media (max-width: 900px) {
-  .solution-steps-container { flex-direction: column; align-items: center; }
-  .case-study-card { flex-direction: column; }
 }

@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
+import { BrandSpinner } from '../BrandSpinner';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface ProjectLocation {
   id: string;
@@ -66,11 +69,11 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'OPERATIONAL':
-        return 'Operacional';
+        return 'Operational';
       case 'SEEKING_FUNDING':
-        return 'Buscando Financiamiento';
+        return 'Seeking Funding';
       case 'FUNDED_MACHINE_SHIPPED':
-        return 'Máquina Enviada';
+        return 'Machine Shipped';
       default:
         return status;
     }
@@ -79,10 +82,7 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
   if (loading) {
     return (
       <div className={`flex items-center justify-center h-96 ${className}`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading global map...</p>
-        </div>
+        <BrandSpinner label="Loading map" />
       </div>
     );
   }
@@ -92,12 +92,7 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
       <div className={`flex items-center justify-center h-96 ${className}`}>
         <div className="text-center">
           <p className="text-danger mb-4">{error}</p>
-                 <button
-         onClick={fetchGlobalMapData}
-         className="px-4 py-2 bg-brand-primary text-on-brand rounded-lg hover:bg-[var(--brand-primary-hover)] transition-colors"
-       >
-         Retry
-       </button>
+          <Button onClick={fetchGlobalMapData} variant="primary" size="sm">Retry</Button>
         </div>
       </div>
     );
@@ -107,9 +102,9 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-text-primary mb-2">Global Projects Map</h2>
-        <p className="text-text-secondary">
-          {projects.length} active projects in {new Set(projects.map(p => p.location.split(',')[0])).size} countries
+        <h2 className="display-caps text-3xl mb-2">Global projects map</h2>
+        <p className="mono-label !tracking-[0.12em]">
+          {projects.length} active projects · {new Set(projects.map(p => p.location.split(',')[0])).size} countries
         </p>
       </div>
 
@@ -179,8 +174,9 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
               <button
                 onClick={() => setSelectedProject(null)}
                 className="text-text-secondary hover:text-text-primary transition-colors"
+                aria-label="Close"
               >
-                ✕
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
@@ -254,25 +250,25 @@ export default function GlobalMapView({ className = '' }: GlobalMapViewProps) {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                 <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-brand-primary">
-             {projects.filter(p => p.status === 'OPERATIONAL').length}
-           </div>
-           <div className="text-sm text-text-secondary">Operational Projects</div>
-         </Card>
+        <Card className="text-center p-5">
+          <div className="text-2xl font-bold tabular-nums text-brand-primary">
+            {projects.filter(p => p.status === 'OPERATIONAL').length}
+          </div>
+          <div className="mono-label mt-2">Operational projects</div>
+        </Card>
 
-         <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-warning">
-             {projects.filter(p => p.status === 'SEEKING_FUNDING').length}
-           </div>
-           <div className="text-sm text-text-secondary">Seeking Funding</div>
-         </Card>
+        <Card className="text-center p-5">
+          <div className="text-2xl font-bold tabular-nums text-warning">
+            {projects.filter(p => p.status === 'SEEKING_FUNDING').length}
+          </div>
+          <div className="mono-label mt-2">Seeking funding</div>
+        </Card>
 
-         <Card className="text-center p-4">
-           <div className="text-2xl font-bold text-success">
-             ${projects.reduce((sum, p) => sum + p.currentAmount, 0).toLocaleString()}
-           </div>
-           <div className="text-sm text-text-secondary">Total Capital Raised</div>
+        <Card className="text-center p-5">
+          <div className="text-2xl font-bold tabular-nums text-success">
+            ${projects.reduce((sum, p) => sum + p.currentAmount, 0).toLocaleString()}
+          </div>
+          <div className="mono-label mt-2">Total capital raised</div>
         </Card>
       </div>
     </div>

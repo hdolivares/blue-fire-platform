@@ -21,14 +21,18 @@ export const StatCard = ({ title, value, icon, trend, trendTone = 'neutral' }: S
 
   return (
     <Card variant="frosted" hover className="p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-text-secondary text-sm mb-1">{title}</h3>
-          <p className="text-3xl font-bold text-text-primary">{value}</p>
-          {trend && <p className={`mt-1 text-xs font-medium ${trendColor}`}>{trend}</p>}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="mono-label mb-2">{title}</h3>
+          <p className="text-3xl font-bold text-text-primary tabular-nums tracking-tight">{value}</p>
+          {trend && (
+            <p className={`mt-2 font-mono text-[0.66rem] uppercase tracking-[0.08em] ${trendColor}`}>
+              {trend}
+            </p>
+          )}
         </div>
         {icon && (
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-surface-muted text-brand-primary">
+          <div className="flex h-11 w-11 flex-none items-center justify-center rounded-lg border border-border bg-surface-muted text-brand-primary">
             {icon}
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import { useWeb3 } from '@/context/Web3Context';
 import { Button } from './ui/Button';
+import { WalletIcon, ArrowPathIcon, PowerIcon } from '@heroicons/react/24/outline';
 
 export const WalletControls = () => {
   const { 
@@ -21,13 +22,9 @@ export const WalletControls = () => {
 
   if (!isConnected) {
     return (
-      <Button 
-        onClick={connectWallet}
-        variant="primary"
-        size="sm"
-        className="font-bold"
-      >
-        🦊 Connect Wallet
+      <Button onClick={connectWallet} variant="primary" size="sm">
+        <WalletIcon className="h-4 w-4" />
+        Connect Wallet
       </Button>
     );
   }
@@ -51,23 +48,15 @@ export const WalletControls = () => {
       {/* Control Buttons */}
       <div className="flex gap-2">
         {isWrongNetwork && (
-          <Button
-            onClick={switchToAnvilNetwork}
-            variant="warning"
-            size="sm"
-            className="font-bold"
-          >
-            🔄 Switch Network
+          <Button onClick={switchToAnvilNetwork} variant="warning" size="sm">
+            <ArrowPathIcon className="h-4 w-4" />
+            Switch Network
           </Button>
         )}
-        
-        <Button
-          onClick={disconnectWallet}
-          variant="error"
-          size="sm"
-          className="font-bold"
-        >
-          🔌 Disconnect
+
+        <Button onClick={disconnectWallet} variant="error" size="sm">
+          <PowerIcon className="h-4 w-4" />
+          Disconnect
         </Button>
       </div>
     </div>

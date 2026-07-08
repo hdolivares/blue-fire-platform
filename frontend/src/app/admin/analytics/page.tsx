@@ -33,23 +33,24 @@ const AnalyticsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Analytics Dashboard</h1>
+          <p className="kicker mb-2"><b>◇</b> Intelligence</p>
+          <h1 className="section-header !mb-2">Analytics dashboard</h1>
           <p className="text-text-secondary">
-            Comprehensive analytics and reporting for Blue Fire Platform performance
+            Comprehensive analytics and reporting for BlueFire platform performance
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-8">
-          <nav className="flex space-x-8 overflow-x-auto">
+        <div className="mb-8 hairline-b">
+          <nav className="flex gap-6 overflow-x-auto pb-px">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`whitespace-nowrap py-3 px-0.5 border-b-2 font-mono text-[0.7rem] uppercase tracking-[0.12em] transition-colors ${
                   activeTab === tab.id
                     ? 'border-brand-primary text-brand-primary'
-                    : 'border-transparent text-text-muted hover:text-text-primary hover:border-border'
+                    : 'border-transparent text-text-muted hover:text-text-primary'
                 }`}
               >
                 {tab.name}

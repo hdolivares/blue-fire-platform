@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { BrandSpinner } from './BrandSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -43,7 +44,11 @@ export const ProtectedRoute = ({
 
   // Show loading while checking authentication
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <BrandSpinner label="Authenticating" />
+      </div>
+    );
   }
 
   // If no user, don't render children (will redirect)

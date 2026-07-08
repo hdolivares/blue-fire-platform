@@ -9,6 +9,7 @@ import { ProjectSection } from '@/components/operator/ProjectSection';
 import { AssignedProject } from '@/types/project';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { BrandSpinner } from '@/components/BrandSpinner';
 
 /**
  * @component OperatorDashboard
@@ -38,14 +39,19 @@ const OperatorDashboard = () => {
 
 
   if (loading) {
-    return <div className="text-center p-10">Loading Your Project(s)...</div>;
+    return (
+      <div className="flex justify-center py-24">
+        <BrandSpinner label="Loading projects" />
+      </div>
+    );
   }
 
   return (
     <main className="container-main">
       <div className="mb-8">
-        <h1 className="section-header">Operator Dashboard</h1>
-        <p className="text-secondary mt-2">Manage your assigned water production units and process purchases.</p>
+        <p className="kicker mb-2"><b>◇</b> Operator</p>
+        <h1 className="section-header !mb-2">Operator dashboard</h1>
+        <p className="serif-italic text-text-secondary text-lg">Manage your assigned water production units and process purchases.</p>
       </div>
       
       {projects && projects.length > 0 ? (

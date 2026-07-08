@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
+import { archivo, instrument, mono } from "./fonts";
 import { AuthProvider } from "@/context/AuthContext";
 import { Web3Provider } from "@/context/Web3Context";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -8,29 +8,30 @@ import { LandingLayout } from "@/components/LandingLayout";
 import { Toaster } from "react-hot-toast";
 import ClientLoadingOverlay from "@/components/ClientLoadingOverlay";
 
-// Self-hosted variable fonts (woff2 vendored from Fontsource) — no build-time
-// network fetch, which fails behind TLS-intercepting proxies.
-const inter = localFont({
-  src: "../fonts/inter-latin-wght-normal.woff2",
-  variable: "--font-inter",
-  weight: "100 900",
-  display: "swap",
-});
-
-const sora = localFont({
-  src: "../fonts/sora-latin-wght-normal.woff2",
-  variable: "--font-sora",
-  weight: "100 800",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Blue Fire Platform",
-  description: "Blockchain-based water production investment platform",
+  title: "BlueFire — Pure water, out of thin air",
+  description:
+    "BlueFire condenses drinking water from air and returns the energy as cooling and hot water — one machine, three utilities. Fund and operate on-chain.",
 };
 
 // Runs before React hydration so the correct theme paints immediately (no flash).
 const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark', d);}catch(e){document.documentElement.classList.add('dark');}})();`;
+
+// Toast surface tuned to the token system so notifications sit inside the brand
+// in both themes (react-hot-toast defaults to a white card otherwise).
+const toastOptions = {
+  style: {
+    background: "var(--surface-elevated)",
+    color: "var(--text-primary)",
+    border: "1px solid var(--border)",
+    boxShadow: "var(--shadow-lg)",
+    borderRadius: "0.625rem",
+    fontSize: "0.875rem",
+  },
+  success: { iconTheme: { primary: "var(--success)", secondary: "var(--surface-elevated)" } },
+  error: { iconTheme: { primary: "var(--danger)", secondary: "var(--surface-elevated)" } },
+  loading: { iconTheme: { primary: "var(--brand-primary)", secondary: "var(--surface-elevated)" } },
+};
 
 export default function RootLayout({
   children,
@@ -42,13 +43,16 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className={`${inter.variable} ${sora.variable} font-sans`} suppressHydrationWarning>
+      <body
+        className={`${archivo.variable} ${instrument.variable} ${mono.variable}`}
+        suppressHydrationWarning
+      >
         <ThemeProvider>
           <AuthProvider>
             <Web3Provider>
               <ClientLoadingOverlay />
               <LandingLayout>
-                <Toaster position="top-center" />
+                <Toaster position="top-center" toastOptions={toastOptions} />
                 {children}
               </LandingLayout>
             </Web3Provider>

@@ -8,6 +8,7 @@ import api from '@/lib/axios';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { BrandSpinner } from '@/components/BrandSpinner';
 // import { Menu } from '@headlessui/react'; // No longer using Headless UI for the filter
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
@@ -150,8 +151,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="container mx-auto p-8">
-        <div className="text-center">Loading projects...</div>
+      <main className="container-main">
+        <div className="flex justify-center py-24">
+          <BrandSpinner label="Loading projects" />
+        </div>
       </main>
     );
   }
@@ -168,14 +171,15 @@ export default function DashboardPage() {
     <main className="container-main">
       {/* Role-specific header */}
       <Card variant="frosted" className={`${dashboardContent.bgColor} p-6 mb-8`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className={`text-4xl font-bold ${dashboardContent.color} mb-2`}>
+            <p className="kicker mb-2"><b>◇</b> {getPrimaryRole()}</p>
+            <h1 className={`display-caps text-4xl ${dashboardContent.color} mb-2`}>
               {dashboardContent.title}
             </h1>
-            <p className="text-secondary text-lg">{dashboardContent.subtitle}</p>
+            <p className="serif-italic text-text-secondary text-lg">{dashboardContent.subtitle}</p>
             {user && (
-              <p className="text-sm text-secondary mt-2">
+              <p className="mono-label mt-3 !tracking-[0.1em]">
                 Welcome back, {user.email}
               </p>
             )}
@@ -226,7 +230,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="stagger-rise grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project) => (
             <ProjectCard key={project._id} project={project} />
           ))}

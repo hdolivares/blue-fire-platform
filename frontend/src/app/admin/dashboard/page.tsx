@@ -4,6 +4,18 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
 import { OperatorRequestsSection } from '@/components/admin/OperatorRequestsSection';
 import { Button } from '@/components/ui/Button';
+import { StatCard } from '@/components/StatCard';
+import { BrandSpinner } from '@/components/BrandSpinner';
+import {
+  CurrencyDollarIcon,
+  UsersIcon,
+  MagnifyingGlassIcon,
+  BoltIcon,
+  ClipboardDocumentListIcon,
+  ChartBarIcon,
+  BellAlertIcon,
+  PlusIcon,
+} from '@heroicons/react/24/outline';
 
 interface DashboardStats {
   totalInvestors: number;
@@ -32,7 +44,9 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <main className="container-main">
-        <div className="text-center p-10">Loading Admin Stats...</div>
+        <div className="flex justify-center py-24">
+          <BrandSpinner label="Loading stats" />
+        </div>
       </main>
     );
   }
@@ -40,57 +54,37 @@ export default function AdminDashboardPage() {
   return (
     <main className="container-main">
       <div className="mb-8">
-        <h1 className="section-header">Admin Dashboard</h1>
-        <p className="text-text-secondary mt-2">Welcome to the admin dashboard</p>
+        <p className="kicker mb-2"><b>◇</b> Control</p>
+        <h1 className="section-header !mb-0">Admin dashboard</h1>
       </div>
 
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="glass rounded-lg p-6">
-            <p className="text-text-secondary text-sm mb-1">Total Capital Raised</p>
-            <p className="text-3xl font-bold">${stats.totalCapitalRaised.toLocaleString()}</p>
-          </div>
-          <div className="glass rounded-lg p-6">
-            <p className="text-text-secondary text-sm mb-1">Active Investors</p>
-            <p className="text-3xl font-bold">{stats.totalInvestors}</p>
-          </div>
-          <div className="glass rounded-lg p-6">
-            <p className="text-text-secondary text-sm mb-1">Projects Seeking Funding</p>
-            <p className="text-3xl font-bold">{stats.projectsSeekingFunding}</p>
-          </div>
-          <div className="glass rounded-lg p-6">
-            <p className="text-text-secondary text-sm mb-1">Operational Units</p>
-            <p className="text-3xl font-bold">{stats.operationalUnits}</p>
-          </div>
+        <div className="stagger-rise grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Total capital raised" value={`$${stats.totalCapitalRaised.toLocaleString()}`} icon={<CurrencyDollarIcon className="h-5 w-5" />} />
+          <StatCard title="Active investors" value={String(stats.totalInvestors)} icon={<UsersIcon className="h-5 w-5" />} />
+          <StatCard title="Seeking funding" value={String(stats.projectsSeekingFunding)} icon={<MagnifyingGlassIcon className="h-5 w-5" />} />
+          <StatCard title="Operational units" value={String(stats.operationalUnits)} icon={<BoltIcon className="h-5 w-5" />} />
         </div>
       )}
 
-      <div className="mt-8">
-        <h2 className="section-header">Quick Actions</h2>
+      <div className="mt-10">
+        <h2 className="section-header">Quick actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Button 
-            onClick={() => window.location.href = '/admin/projects'}
-            variant="outline"
-          >
-            📋 View Projects
+          <Button onClick={() => (window.location.href = '/admin/projects')} variant="outline">
+            <ClipboardDocumentListIcon className="h-4 w-4" />
+            View Projects
           </Button>
-          <Button 
-            onClick={() => window.location.href = '/admin/analytics'}
-            variant="primary"
-          >
-            📊 Analytics
+          <Button onClick={() => (window.location.href = '/admin/analytics')} variant="primary">
+            <ChartBarIcon className="h-4 w-4" />
+            Analytics
           </Button>
-          <Button 
-            onClick={() => window.location.href = '/admin/alerts'}
-            variant="error"
-          >
-            🚨 Alerts
+          <Button onClick={() => (window.location.href = '/admin/alerts')} variant="error">
+            <BellAlertIcon className="h-4 w-4" />
+            Alerts
           </Button>
-          <Button 
-            onClick={() => window.location.href = '/admin/projects/new'}
-            variant="success"
-          >
-            + New Project
+          <Button onClick={() => (window.location.href = '/admin/projects/new')} variant="success">
+            <PlusIcon className="h-4 w-4" />
+            New Project
           </Button>
         </div>
       </div>

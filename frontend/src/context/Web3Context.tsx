@@ -185,7 +185,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       
       // Success message for correct network
       if (isPreferredNetwork) {
-        toast.success(`✅ Connected to RSK Testnet (Chain ID: ${currentChainId})`);
+        toast.success(`Connected to RSK Testnet (Chain ID: ${currentChainId})`);
       }
       
       // Setup factory contract

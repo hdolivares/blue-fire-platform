@@ -8,6 +8,7 @@ import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { AuthShell } from '@/components/AuthShell';
 
 const ResetPasswordForm = () => {
   const router = useRouter();
@@ -51,7 +52,7 @@ const ResetPasswordForm = () => {
 
   return (
     <Card variant="elevated" className="w-full max-w-md p-8 text-text-primary">
-      <h2 className="text-3xl font-bold text-center mb-6">Reset Your Password</h2>
+      <h2 className="display-caps text-3xl text-center mb-6">Reset your password</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="newPassword">New Password</label>
@@ -79,10 +80,10 @@ const ResetPasswordForm = () => {
 // A small wrapper is needed for Suspense with Client Components
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <main className="min-h-screen w-full flex items-center justify-center p-4">
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <AuthShell kicker="NEW PASSWORD">
         <ResetPasswordForm />
-      </main>
+      </AuthShell>
     </Suspense>
   )
 }

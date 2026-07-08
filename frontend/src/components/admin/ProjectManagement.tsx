@@ -113,7 +113,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       );
 
       toast.dismiss(loadingToast);
-      toast.success(`✅ Project status updated to ${newStatus.replace(/_/g, ' ')}`);
+      toast.success(`Project status updated to ${newStatus.replace(/_/g, ' ')}`);
       onProjectUpdate();
     } catch (error: any) {
       console.error('Status update failed:', error);
@@ -142,7 +142,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       await setProjectState(project.blockchainProjectId, 1); // 1 = FUNDED
       
       toast.dismiss(loadingToast);
-      toast.success('✅ Project state set to FUNDED on blockchain');
+      toast.success('Project state set to FUNDED on blockchain');
       
       onProjectUpdate();
     } catch (error: any) {
@@ -179,7 +179,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       await setAlice(project.blockchainProjectId, operatorWalletAddress);
       
       toast.dismiss(loadingToast);
-      toast.success(`✅ Alice set to operator (${operatorWalletAddress.slice(0, 8)}...) on blockchain`);
+      toast.success(`Alice set to operator (${operatorWalletAddress.slice(0, 8)}...) on blockchain`);
       
       // Note: sync is automatically triggered by Web3Context setAlice function
       onProjectUpdate();
@@ -210,7 +210,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       await approveEscrowRelease(project.blockchainProjectId);
       
       toast.dismiss(loadingToast);
-      toast.success('✅ Escrow release approved on blockchain');
+      toast.success('Escrow release approved on blockchain');
       
       // Trigger project sync
       await axios.post(
@@ -252,7 +252,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       await releaseEscrow(project.blockchainProjectId);
       
       toast.dismiss(loadingToast);
-      toast.success('✅ Escrow released successfully');
+      toast.success('Escrow released successfully');
       
       // Trigger project sync
       await axios.post(
@@ -276,7 +276,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
     <div className="space-y-6">
       {/* Status Management */}
       <Card variant="frosted" className="p-6">
-        <h2 className="text-xl font-bold mb-4">📋 Project Status Management</h2>
+        <h2 className="text-xl font-bold mb-4">Project Status Management</h2>
         
         <div className="mb-4">
           <p className="text-sm text-secondary mb-2">Current Status:</p>
@@ -328,7 +328,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
         {project.status === 'SEEKING_FUNDING' && (
           <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
             <p className="text-sm text-warning">
-              ⚠️ Project must receive funding before status can be progressed
+              Project must receive funding before status can be progressed
             </p>
           </div>
         )}
@@ -336,7 +336,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
         {project.status === 'FUNDED_ORDER_PLACED' && !onChainProject?.escrowReleaseApproved && (
           <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
             <p className="text-sm text-warning">
-              ⚠️ Cannot progress to machine shipped until escrow is released (operator needs funds to purchase machine)
+              Cannot progress to machine shipped until escrow is released (operator needs funds to purchase machine)
             </p>
           </div>
         )}
@@ -345,7 +345,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       {/* Blockchain Administration */}
       {project.deployedOnChain && (
         <Card variant="frosted" className="p-6">
-          <h2 className="text-xl font-bold mb-4">⛓️ Blockchain Administration</h2>
+          <h2 className="text-xl font-bold mb-4">Blockchain Administration</h2>
           
           {!isConnected ? (
             <div className="text-center">
@@ -359,7 +359,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
               {/* Project State Management */}
               {onChainProject?.state === 0 && onChainProject?.fundingProgress >= 100 && (
                 <div className="p-4 bg-[var(--warning-bg)] border border-warning/20 rounded-lg">
-                  <h3 className="font-medium mb-2">🎯 Project State</h3>
+                  <h3 className="font-medium mb-2">Project State</h3>
                   <p className="text-sm text-secondary mb-3">
                     Project is fully funded but needs to be transitioned to FUNDED state for escrow operations
                   </p>
@@ -382,7 +382,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     Assign the current wallet as the "Alice" operator on the blockchain
                   </p>
                   {isAliceSet() ? (
-                    <Badge variant="success" size="sm">✅ Alice Set ({onChainProject.alice.slice(0, 8)}...)</Badge>
+                    <Badge variant="success" size="sm">Alice Set ({onChainProject.alice.slice(0, 8)}...)</Badge>
                   ) : (
                     <Button
                       onClick={handleSetAlice}
@@ -407,7 +407,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     Approve the release of escrowed funds to the beneficiary (default is admin)
                   </p>
                   {onChainProject?.escrowReleaseApproved ? (
-                    <Badge variant="success" size="sm">✅ Release Approved</Badge>
+                    <Badge variant="success" size="sm">Release Approved</Badge>
                   ) : (
                     <Button
                       onClick={handleApproveEscrowRelease}
@@ -443,7 +443,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
               </div>
 
               <div className="p-4 bg-[var(--danger-bg)] border border-danger/20 rounded-lg">
-                <h3 className="font-medium mb-2">⚠️ Release Escrow</h3>
+                <h3 className="font-medium mb-2">Release Escrow</h3>
                 <p className="text-sm text-secondary mb-3">
                   Release escrowed funds to the beneficiary (default is admin). This action is irreversible.
                 </p>
@@ -480,7 +480,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
 
               {onChainProject && (
                 <div className="p-4 bg-surface-muted rounded-lg">
-                  <h3 className="text-sm font-medium mb-2">📊 Blockchain Status</h3>
+                  <h3 className="text-sm font-medium mb-2">Blockchain Status</h3>
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
                       <span className="text-secondary">Project State:</span>
@@ -504,7 +504,7 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
                     <div>
                       <span className="text-secondary">Escrow Approved:</span>
                       <span className="ml-2 font-medium">
-                        {onChainProject.escrowReleaseApproved ? '✅ Yes' : '❌ No'}
+                        {onChainProject.escrowReleaseApproved ? 'Yes' : 'No'}
                       </span>
                     </div>
                   </div>

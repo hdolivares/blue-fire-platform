@@ -72,7 +72,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
       // Store last claim amount for display
       setLastClaimAmount(claimAmount.toFixed(4));
       
-      toast.success(`✅ Successfully claimed ${claimAmount.toFixed(4)} RBTC!`);
+      toast.success(`Successfully claimed ${claimAmount.toFixed(4)} RBTC!`);
       
       // Show additional success info
       setTimeout(() => {
@@ -186,7 +186,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
       {showClaimPreview && onChainProject && (
         <div className="fixed inset-0 bg-surface-muted flex items-center justify-center z-50 p-4">
           <Card variant="frosted" className="max-w-md w-full p-6 shadow-xl border-border bg-surface backdrop-blur-md">
-            <h3 className="text-xl font-bold mb-4 text-text-primary">💰 Claim Rewards Preview</h3>
+            <h3 className="display-caps text-xl mb-4 text-text-primary">Claim rewards preview</h3>
 
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
@@ -221,7 +221,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
             </div>
 
             <div className="bg-[var(--success-bg)] border border-success/20 rounded-lg p-4 mb-6">
-              <h4 className="text-sm font-medium mb-2 text-text-primary">✅ What happens next:</h4>
+              <h4 className="text-sm font-medium mb-2 text-text-primary">What happens next:</h4>
               <ul className="text-xs text-text-secondary space-y-1">
                 <li>• Rewards will be transferred to your wallet</li>
                 <li>• Transaction will be recorded on blockchain</li>
@@ -247,7 +247,7 @@ export const PortfolioCard = ({ position, projectName }: PortfolioCardProps) => 
                 className="flex-1"
                 disabled={isClaiming}
               >
-                {isClaiming ? 'Processing...' : `✅ Claim ${parseFloat(position.pendingRewards).toFixed(4)} ETH`}
+                {isClaiming ? 'Processing...' : `Claim ${parseFloat(position.pendingRewards).toFixed(4)} ETH`}
               </Button>
             </div>
           </Card>

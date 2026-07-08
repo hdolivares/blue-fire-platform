@@ -164,14 +164,14 @@ export const CreateProjectForm = () => {
            );
 
           toast.dismiss(linkToast);
-          toast.success('🎉 Project fully created and deployed!');
+          toast.success('Project fully created and deployed!');
 
         } catch (blockchainError: any) {
           console.error('Blockchain deployment failed:', blockchainError);
           toast.error('Project created in database but blockchain deployment failed');
         }
       } else {
-        toast.success('✅ Project created in database (blockchain deployment skipped)');
+        toast.success('Project created in database (blockchain deployment skipped)');
       }
 
               // Reset form
@@ -419,7 +419,7 @@ export const CreateProjectForm = () => {
       {/* Deployment Status */}
       {isCreating && deploymentStep && (
         <div className="mt-4 p-4 bg-[var(--info-bg)] rounded-lg border border-brand-primary/20">
-          <h3 className="text-sm font-medium mb-2">🚀 Deployment Progress</h3>
+          <h3 className="mono-label mb-2">Deployment Progress</h3>
           <p className="text-sm text-brand-primary">{deploymentStep}</p>
           <div className="w-full bg-surface-muted rounded-full h-2 mt-2">
             <div className="bg-brand-primary h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
@@ -428,7 +428,7 @@ export const CreateProjectForm = () => {
       )}
 
       <div className="mt-6 p-4 bg-[var(--info-bg)] rounded-lg border border-brand-primary/20">
-        <h3 className="text-sm font-medium mb-2">ℹ️ Enhanced Project Creation</h3>
+        <h3 className="mono-label mb-2">Enhanced Project Creation</h3>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Dual System:</strong> Projects stored in database AND deployed on blockchain</li>
           <li>• <strong>Database:</strong> Metadata, images, environmental data, operator assignments</li>

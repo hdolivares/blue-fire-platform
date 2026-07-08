@@ -1,10 +1,10 @@
-// In frontend/src/app/login/page.tsx
 import { LoginForm } from '@/components/LoginForm';
+import { AuthShell } from '@/components/AuthShell';
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen w-full flex items-center justify-center p-4">
+    <AuthShell kicker="ACCESS">
       <LoginForm />
-    </main>
+    </AuthShell>
   );
 }

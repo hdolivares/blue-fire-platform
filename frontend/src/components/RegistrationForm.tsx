@@ -64,7 +64,10 @@ export const RegistrationForm = () => {
 
   return (
     <Card variant="elevated" className="w-full max-w-md p-8 text-text-primary">
-      <h2 className="text-3xl font-bold text-center mb-6">Create Account</h2>
+      <h2 className="display-caps text-3xl text-center mb-1">Create account</h2>
+      <p className="serif-italic text-center text-text-secondary text-lg mb-6">
+        join the loop
+      </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex space-x-4">
           <div className="flex-1">

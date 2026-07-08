@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
+import { BoltIcon, SignalIcon, LinkIcon, CurrencyDollarIcon, LockClosedIcon, WrenchScrewdriverIcon, ComputerDesktopIcon, MegaphoneIcon } from '@heroicons/react/24/outline';
 
 interface Notification {
   id: string;
@@ -89,15 +90,16 @@ const RealTimeNotifications: React.FC = () => {
   };
 
   const getTypeIcon = (type: Notification['type']) => {
+    const cls = 'h-4 w-4';
     switch (type) {
-      case 'PERFORMANCE': return '⚡';
-      case 'IOT': return '📡';
-      case 'BLOCKCHAIN': return '🔗';
-      case 'INVESTMENT': return '💰';
-      case 'SECURITY': return '🔒';
-      case 'MAINTENANCE': return '🔧';
-      case 'SYSTEM': return '🖥️';
-      default: return '📢';
+      case 'PERFORMANCE': return <BoltIcon className={cls} />;
+      case 'IOT': return <SignalIcon className={cls} />;
+      case 'BLOCKCHAIN': return <LinkIcon className={cls} />;
+      case 'INVESTMENT': return <CurrencyDollarIcon className={cls} />;
+      case 'SECURITY': return <LockClosedIcon className={cls} />;
+      case 'MAINTENANCE': return <WrenchScrewdriverIcon className={cls} />;
+      case 'SYSTEM': return <ComputerDesktopIcon className={cls} />;
+      default: return <MegaphoneIcon className={cls} />;
     }
   };
 
@@ -152,7 +154,7 @@ const RealTimeNotifications: React.FC = () => {
                   <div className={`w-3 h-3 rounded-full mt-2 ${getSeverityColor(notification.severity)}`}></div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">{getTypeIcon(notification.type)}</span>
+                      <span className="text-text-secondary">{getTypeIcon(notification.type)}</span>
                       <h4 className="text-sm font-medium text-text-primary">{notification.title}</h4>
                       {notification.isNew && (
                         <span className="px-2 py-1 text-xs font-medium bg-[var(--info-bg)] text-[var(--info-fg)] rounded-full">

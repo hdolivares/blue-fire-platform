@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { Header } from './Header';
-import { AnimatedGradientProvider } from './AnimatedGradientProvider';
+import AppBackground from './AppBackground';
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -14,7 +14,7 @@ export const LandingLayout = ({ children }: LandingLayoutProps) => {
 
   return (
     <>
-      {!isLandingPage && <AnimatedGradientProvider />}
+      {!isLandingPage && <AppBackground />}
       {!isLandingPage && <Header />}
       {children}
     </>

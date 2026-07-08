@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from "@/context/AuthContext";
+import { BrandSpinner } from "./BrandSpinner";
 
 export const LoadingOverlay = () => {
   const { isLoading } = useAuth();
@@ -8,8 +9,8 @@ export const LoadingOverlay = () => {
   if (!isLoading) return null;
 
   return (
-    <div className="fixed inset-0 bg-surface-muted backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-brand-primary"></div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--background)_82%,transparent)] backdrop-blur-md">
+      <BrandSpinner />
     </div>
   );
 };

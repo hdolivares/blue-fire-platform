@@ -13,7 +13,8 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'md',
   className = '',
 }) => {
-  const baseClasses = 'inline-flex items-center rounded-full font-medium';
+  const baseClasses =
+    'inline-flex items-center gap-1.5 rounded-full border border-current/20 font-mono uppercase tracking-[0.1em] font-medium whitespace-nowrap';
 
   const variantClasses: Record<NonNullable<BadgeProps['variant']>, string> = {
     pending: 'bg-[var(--warning-bg)] text-[var(--warning-fg)]',
@@ -26,9 +27,9 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-1.5 text-base',
+    sm: 'px-2 py-0.5 text-[0.6rem]',
+    md: 'px-2.5 py-0.5 text-[0.66rem]',
+    lg: 'px-3 py-1 text-[0.72rem]',
   };
 
   return (

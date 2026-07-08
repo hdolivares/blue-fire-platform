@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from '@/lib/axios';
+import { BoltIcon, SignalIcon, LinkIcon, CurrencyDollarIcon, LockClosedIcon, WrenchScrewdriverIcon, ComputerDesktopIcon, MegaphoneIcon } from '@heroicons/react/24/outline';
 
 interface Alert {
   id: string;
@@ -124,15 +125,16 @@ const AlertsDashboard: React.FC = () => {
   };
 
   const getTypeIcon = (type: Alert['type']) => {
+    const cls = 'h-4 w-4';
     switch (type) {
-      case 'PERFORMANCE': return '⚡';
-      case 'IOT': return '📡';
-      case 'BLOCKCHAIN': return '🔗';
-      case 'INVESTMENT': return '💰';
-      case 'SECURITY': return '🔒';
-      case 'MAINTENANCE': return '🔧';
-      case 'SYSTEM': return '🖥️';
-      default: return '📢';
+      case 'PERFORMANCE': return <BoltIcon className={cls} />;
+      case 'IOT': return <SignalIcon className={cls} />;
+      case 'BLOCKCHAIN': return <LinkIcon className={cls} />;
+      case 'INVESTMENT': return <CurrencyDollarIcon className={cls} />;
+      case 'SECURITY': return <LockClosedIcon className={cls} />;
+      case 'MAINTENANCE': return <WrenchScrewdriverIcon className={cls} />;
+      case 'SYSTEM': return <ComputerDesktopIcon className={cls} />;
+      default: return <MegaphoneIcon className={cls} />;
     }
   };
 
@@ -313,7 +315,7 @@ const AlertsDashboard: React.FC = () => {
                     <div className={`w-3 h-3 rounded-full mt-2 ${getSeverityColor(alert.severity)}`}></div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="text-lg">{getTypeIcon(alert.type)}</span>
+                        <span className="text-text-secondary">{getTypeIcon(alert.type)}</span>
                         <h4 className="text-sm font-medium text-text-primary">{alert.title}</h4>
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                           alert.severity === 'CRITICAL' ? 'bg-[var(--danger-bg)] text-[var(--danger-fg)]' :

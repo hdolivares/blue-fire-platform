@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="bfIcon" x1="24" y1="4" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#56d9ff"/>
+      <stop offset="0.62" stop-color="#19a8e6"/>
+      <stop offset="1" stop-color="#1467d2"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#bfIcon)" fill-rule="evenodd" clip-rule="evenodd"
+    d="M24 3.6C24 3.6 9.6 19.7 9.6 30a14.4 14.4 0 1 0 28.8 0C38.4 19.7 24 3.6 24 3.6Zm0 13.6c3.3 3.5 6.4 7.6 6.4 11.6a6.4 6.4 0 1 1-12.8 0c0-2.4 1.2-4.7 2.8-6.7-.3 2 .4 3.6 1.9 4.6-.5-3.2.4-6.5 1.7-9.5Z"/>
+</svg>

@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import AlertsDashboard from '@/components/admin/AlertsDashboard';
 import RealTimeNotifications from '@/components/admin/RealTimeNotifications';
 import AlertSettings from '@/components/admin/AlertSettings';
-import { Button } from '@/components/ui/Button';
 
 type TabType = 'dashboard' | 'notifications' | 'settings';
 
@@ -12,42 +11,38 @@ export default function AlertsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
 
   const tabs = [
-    { id: 'dashboard', name: 'Alert Dashboard', icon: '🚨' },
-    { id: 'notifications', name: 'Real-Time Notifications', icon: '📡' },
-    { id: 'settings', name: 'Alert Settings', icon: '⚙️' },
+    { id: 'dashboard', name: 'Alert Dashboard' },
+    { id: 'notifications', name: 'Real-Time Notifications' },
+    { id: 'settings', name: 'Alert Settings' },
   ];
 
   return (
     <main className="container-main">
       <div className="mb-8">
-        <h1 className="section-header">Alerts & Notifications</h1>
-        <p className="text-secondary mt-2">
+        <p className="kicker mb-2"><b>◇</b> Monitoring</p>
+        <h1 className="section-header !mb-2">Alerts &amp; notifications</h1>
+        <p className="text-text-secondary">
           Monitor system alerts, configure notification rules, and manage real-time notifications
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="mb-8">
-        <div className="border-b border-border">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => (
-              <Button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as TabType)}
-                variant={activeTab === tab.id ? 'primary' : 'outline'}
-                size="sm"
-                className={`border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-brand-primary text-brand-primary'
-                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border'
-                }`}
-              >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.name}
-              </Button>
-            ))}
-          </nav>
-        </div>
+      <div className="mb-8 hairline-b">
+        <nav className="flex gap-6 overflow-x-auto pb-px">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as TabType)}
+              className={`whitespace-nowrap py-3 px-0.5 border-b-2 font-mono text-[0.7rem] uppercase tracking-[0.12em] transition-colors ${
+                activeTab === tab.id
+                  ? 'border-brand-primary text-brand-primary'
+                  : 'border-transparent text-text-muted hover:text-text-primary'
+              }`}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </nav>
       </div>
 
       {/* Tab Content */}

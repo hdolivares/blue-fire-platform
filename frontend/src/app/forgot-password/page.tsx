@@ -8,6 +8,7 @@ import { StyledInput } from '@/components/StyledInput';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { AuthShell } from '@/components/AuthShell';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -26,10 +27,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center p-4">
+    <AuthShell kicker="RESET">
       <Card variant="elevated" className="w-full max-w-md p-8 text-text-primary">
-        <h2 className="text-3xl font-bold text-center mb-6">Forgot Password</h2>
-        <p className="text-center text-secondary mb-6">Enter your email address and we will send you a link to reset your password.</p>
+        <h2 className="display-caps text-3xl text-center mb-3">Forgot password</h2>
+        <p className="text-center text-text-secondary mb-6">Enter your email address and we will send you a link to reset your password.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email">Email Address</label>
@@ -50,6 +51,6 @@ export default function ForgotPasswordPage() {
           <Link href="/login" className="font-semibold hover:underline">Log In</Link>
         </p>
       </Card>
-    </main>
+    </AuthShell>
   );
 }

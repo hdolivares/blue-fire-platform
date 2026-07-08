@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { useWeb3 } from '@/context/Web3Context';
-import { GlowingButton } from '@/components/GlowingButton';
 import { BookingCalendar } from '@/components/BookingCalendar';
 import { StyledInput } from '@/components/StyledInput';
 import { AssignedProject } from '@/types/project';
@@ -126,7 +125,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
     try {
       await depositRevenue(onChainProject.projectAddress, revenueAmount);
       toast.dismiss(loadingToast);
-      toast.success(`✅ Successfully deposited ${revenueAmount} RBTC as revenue!`);
+      toast.success(`Successfully deposited ${revenueAmount} RBTC as revenue!`);
       
       // Show distribution info
       setTimeout(() => {
@@ -261,9 +260,9 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
             <div className="mt-auto pt-6">
               {!connectedAccount ? (
                 <div className="w-full">
-                  <GlowingButton onClick={connectWallet}>
+                  <Button onClick={connectWallet} variant="accent" size="lg" className="w-full">
                     Connect Wallet to Deposit Revenue
-                  </GlowingButton>
+                  </Button>
                 </div>
               ) : (
                 <Button 
@@ -297,7 +296,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
     {showRevenuePreview && onChainProject && (
       <div className="fixed inset-0 bg-surface-muted flex items-center justify-center z-50 p-4">
         <Card variant="frosted" className="max-w-md w-full p-6">
-          <h3 className="text-xl font-bold mb-4">🎯 Revenue Deposit Preview</h3>
+          <h3 className="display-caps text-xl mb-4">Revenue deposit preview</h3>
 
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
@@ -317,8 +316,8 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
 
             <div className="flex justify-between items-center p-3 bg-surface-muted rounded-lg">
               <span className="text-secondary">Project State</span>
-              <span className="font-medium text-success">
-                {onChainProject?.state === 2 ? 'OPERATIONAL ✅' : 'NOT OPERATIONAL ❌'}
+              <span className={`font-medium ${onChainProject?.state === 2 ? 'text-success' : 'text-danger'}`}>
+                {onChainProject?.state === 2 ? 'Operational' : 'Not operational'}
               </span>
             </div>
 
@@ -329,7 +328,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
           </div>
 
           <div className="bg-[var(--info-bg)] border border-brand-primary/20 rounded-lg p-4 mb-6">
-            <h4 className="text-sm font-medium mb-2">ℹ️ What happens next:</h4>
+            <h4 className="text-sm font-medium mb-2">What happens next:</h4>
             <ul className="text-xs text-secondary space-y-1">
               <li>• Revenue will be deposited to the smart contract</li>
               <li>• Investors can claim their share immediately</li>
@@ -354,7 +353,7 @@ export const ProjectSection = ({ project }: { project: AssignedProject }) => {
               className="flex-1"
               disabled={isProcessing}
             >
-              {isProcessing ? 'Processing...' : `✅ Confirm Deposit`}
+              {isProcessing ? 'Processing...' : 'Confirm Deposit'}
             </Button>
           </div>
         </Card>

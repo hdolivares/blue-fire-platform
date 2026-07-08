@@ -76,7 +76,7 @@ export const RevenueAnalytics = () => {
   if (!isConnected) {
     return (
       <Card variant="frosted" className="p-6">
-        <h2 className="text-xl font-bold mb-4">📊 Revenue Analytics</h2>
+        <h2 className="text-xl font-bold mb-4">Revenue Analytics</h2>
         <p className="text-secondary">Connect your wallet to view revenue analytics.</p>
       </Card>
     );
@@ -85,7 +85,7 @@ export const RevenueAnalytics = () => {
   return (
     <Card variant="frosted" className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">📊 Revenue Analytics</h2>
+        <h2 className="text-xl font-bold">Revenue Analytics</h2>
         <div className="flex gap-2">
           {(['7d', '30d', 'all'] as const).map((period) => (
             <Button
@@ -169,7 +169,7 @@ export const RevenueAnalytics = () => {
 
       {/* Revenue Distribution Info */}
       <Card variant="default" className="mt-4 p-4 bg-[var(--info-bg)] border border-brand-primary/20">
-        <h3 className="text-sm font-medium mb-2">ℹ️ Revenue Distribution System</h3>
+        <h3 className="text-sm font-medium mb-2">Revenue Distribution System</h3>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Operators</strong> deposit revenue from water sales to project contracts</li>
           <li>• <strong>Revenue</strong> is automatically distributed proportionally to all investors</li>

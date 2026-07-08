@@ -5,6 +5,7 @@ import Link from "next/link";
 import { UserMenu } from "./UserMenu";
 import { WalletControls } from "./WalletControls";
 import { ThemeToggle } from "./ThemeToggle";
+import { LogoMark } from "./brand/assets";
 import { useScrolled } from "@/hooks/useScrolled";
 
 export const Header = () => {
@@ -19,11 +20,18 @@ export const Header = () => {
       <div className="container mx-auto flex items-center justify-between p-4">
         {/* Left side: Logo and Wallet Controls */}
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2 text-xl font-bold">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg gradient-brand text-on-brand text-sm">
-              BF
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5"
+            aria-label="BlueFire — dashboard"
+          >
+            <LogoMark gid="bfHeaderMark" className="h-7 w-7" />
+            <span
+              className="font-display text-[0.95rem] uppercase tracking-[0.14em] text-text-primary"
+              style={{ fontStretch: "120%", fontWeight: 760 }}
+            >
+              BlueFire
             </span>
-            <span className="gradient-brand-text">Blue Fire</span>
           </Link>
           <WalletControls />
         </div>

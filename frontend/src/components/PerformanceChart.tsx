@@ -21,13 +21,7 @@ import { subMonths, format } from 'date-fns';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/context/ThemeContext';
-
-// Reads a CSS custom property off the document root at call time so chart
-// colors track the active theme.
-const cssVar = (name: string): string => {
-  if (typeof document === 'undefined') return '';
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-};
+import { cssVar, tint, baseLineOptions, valueAxis } from '@/lib/chart-theme';
 
 // Registering Chart.js components
 ChartJS.register(
@@ -61,14 +55,6 @@ interface PerformanceDataPoint {
 interface PerformanceChartProps {
   projectId: string;
 }
-
-const statusColors = {
-  [MachineStatus.OPERATIONAL]: 'rgba(75, 192, 192, 0.6)',
-  [MachineStatus.IDLE]: 'rgba(255, 206, 86, 0.6)',
-  [MachineStatus.MAINTENANCE]: 'rgba(255, 99, 132, 0.6)',
-  [MachineStatus.OFFLINE]: 'rgba(150, 150, 150, 0.6)',
-};
-
 
 export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
   const { theme } = useTheme();
@@ -133,32 +119,34 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
 
   const chartData: ChartData<'line'> = useMemo(() => {
     const labels = data.map(d => new Date(d.timestamp).toLocaleString());
-    const brand = cssVar('--brand-primary') || '#2563eb';
-    const success = cssVar('--success') || '#059669';
-    const danger = cssVar('--danger') || '#dc2626';
-    const tint = (hex: string) => `color-mix(in srgb, ${hex} 25%, transparent)`;
+    const cyan = cssVar('--brand-primary', '#56d9ff');
+    const aqua = cssVar('--brand-secondary', '#19a8e6');
+    const ember = cssVar('--accent', '#ff7847');
     return {
       labels,
       datasets: [
         {
-          label: 'kWh/L',
+          label: 'kWh / L',
           data: data.map(d => d.kwhPerLiter),
-          borderColor: brand,
-          backgroundColor: tint(brand),
+          borderColor: cyan,
+          backgroundColor: tint(cyan, 18),
+          fill: true,
           yAxisID: 'y',
         },
         {
-          label: 'Humidity (%)',
+          label: 'Humidity %',
           data: data.map(d => d.humidity),
-          borderColor: success,
-          backgroundColor: tint(success),
+          borderColor: aqua,
+          backgroundColor: tint(aqua, 12),
+          // cyan & aqua are adjacent hues — dash the humidity line to separate
+          borderDash: [5, 4],
           yAxisID: 'y1',
         },
         {
-          label: 'Temperature (°C)',
+          label: 'Temp °C',
           data: data.map(d => d.temperature),
-          borderColor: danger,
-          backgroundColor: tint(danger),
+          borderColor: ember,
+          backgroundColor: tint(ember, 12),
           yAxisID: 'y1',
         },
       ],
@@ -168,54 +156,26 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
   }, [data, theme]);
 
   const chartOptions: ChartOptions<'line'> = useMemo(() => {
-    const textColor = cssVar('--text-secondary') || '#475569';
-    const gridColor = cssVar('--border') || '#e2e8f0';
+    const base = baseLineOptions();
     return {
-      responsive: true,
-      maintainAspectRatio: false,
+      ...base,
       plugins: {
-        legend: {
-          position: 'top' as const,
-          labels: { color: textColor },
-        },
-        title: {
-          display: true,
-          text: 'Historical Performance Data',
-          color: textColor,
-        },
+        ...base.plugins,
         tooltip: {
+          ...base.plugins!.tooltip,
           callbacks: {
             footer: (tooltipItems) => {
               const index = tooltipItems[0].dataIndex;
               const status = data[index]?.machineStatus;
-              return status ? `Status: ${status}` : '';
+              return status ? `STATUS: ${status}` : '';
             },
           },
         },
       },
       scales: {
-        x: {
-          ticks: { color: textColor },
-          grid: { color: gridColor },
-        },
-        y: {
-          type: 'linear',
-          display: true,
-          position: 'left',
-          title: { display: true, text: 'kWh/L', color: textColor },
-          ticks: { color: textColor },
-          grid: { color: gridColor },
-        },
-        y1: {
-          type: 'linear',
-          display: true,
-          position: 'right',
-          title: { display: true, text: 'Temp (°C) / Humidity (%)', color: textColor },
-          ticks: { color: textColor },
-          grid: {
-            drawOnChartArea: false, // only draw grid for y axis
-          },
-        },
+        ...base.scales,
+        y: valueAxis('kWh / L', 'left', true),
+        y1: valueAxis('Temp / Humidity', 'right', false),
       },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -230,10 +190,11 @@ export const PerformanceChart = ({ projectId }: PerformanceChartProps) => {
 
   return (
     <Card variant="frosted" className="p-6">
-      <h3 className="section-subheader mb-4">Performance Analysis</h3>
-      
+      <p className="kicker mb-2"><b>◇</b> Telemetry</p>
+      <h3 className="display-caps text-2xl mb-4">Performance analysis</h3>
+
       {/* Quick Filters */}
-      <div className="flex items-center space-x-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         {quickFilters.map(filter => (
           <Button
             key={filter.value}

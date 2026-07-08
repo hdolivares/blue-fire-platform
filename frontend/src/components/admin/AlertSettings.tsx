@@ -5,6 +5,7 @@ import axios from '@/lib/axios';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { BoltIcon, SignalIcon, LinkIcon, CurrencyDollarIcon, LockClosedIcon, WrenchScrewdriverIcon, ComputerDesktopIcon, MegaphoneIcon } from '@heroicons/react/24/outline';
 
 interface AlertRule {
   id: string;
@@ -205,15 +206,16 @@ const AlertSettings: React.FC = () => {
   };
 
   const getTypeIcon = (type: AlertRule['type']) => {
+    const cls = 'h-5 w-5';
     switch (type) {
-      case 'PERFORMANCE': return '⚡';
-      case 'IOT': return '📡';
-      case 'BLOCKCHAIN': return '🔗';
-      case 'INVESTMENT': return '💰';
-      case 'SECURITY': return '🔒';
-      case 'MAINTENANCE': return '🔧';
-      case 'SYSTEM': return '🖥️';
-      default: return '📢';
+      case 'PERFORMANCE': return <BoltIcon className={cls} />;
+      case 'IOT': return <SignalIcon className={cls} />;
+      case 'BLOCKCHAIN': return <LinkIcon className={cls} />;
+      case 'INVESTMENT': return <CurrencyDollarIcon className={cls} />;
+      case 'SECURITY': return <LockClosedIcon className={cls} />;
+      case 'MAINTENANCE': return <WrenchScrewdriverIcon className={cls} />;
+      case 'SYSTEM': return <ComputerDesktopIcon className={cls} />;
+      default: return <MegaphoneIcon className={cls} />;
     }
   };
 
@@ -258,7 +260,7 @@ const AlertSettings: React.FC = () => {
               onClick={() => setShowTemplates(true)}
               className="bg-on-brand/20 hover:bg-on-brand/30 text-on-brand border-on-brand/30"
             >
-              📋 Templates
+              Templates
             </Button>
             <Button
               variant="primary"
@@ -292,7 +294,7 @@ const AlertSettings: React.FC = () => {
                     <div className={`w-3 h-3 rounded-full mt-2 ${getSeverityColor(rule.severity)}`}></div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="text-lg">{getTypeIcon(rule.type)}</span>
+                        <span className="text-text-secondary">{getTypeIcon(rule.type)}</span>
                         <h4 className="text-sm font-medium text-text-primary">{rule.name}</h4>
                         <Badge variant={rule.severity === 'CRITICAL' ? 'error' : rule.severity === 'HIGH' ? 'warning' : 'info'}>
                           {rule.severity}
@@ -366,7 +368,7 @@ const AlertSettings: React.FC = () => {
                 {ALERT_TEMPLATES.map((template) => (
                   <Card key={template.id} variant="default" className="p-4 hover:border-border transition-colors">
                     <div className="flex items-start space-x-3">
-                      <span className="text-2xl">{getTypeIcon(template.type)}</span>
+                      <span className="text-brand-primary">{getTypeIcon(template.type)}</span>
                       <div className="flex-1">
                         <h4 className="font-medium text-text-primary mb-1">{template.name}</h4>
                         <p className="text-sm text-text-secondary mb-2">{template.description}</p>

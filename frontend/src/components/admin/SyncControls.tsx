@@ -36,7 +36,7 @@ export const SyncControls = () => {
       setSyncResults(results);
       
       toast.dismiss(loadingToast);
-      toast.success(`✅ Sync completed! ${results.synced} synced, ${results.errors} errors`);
+      toast.success(`Sync completed! ${results.synced} synced, ${results.errors} errors`);
     } catch (error: any) {
       console.error('Sync failed:', error);
       toast.dismiss(loadingToast);
@@ -65,7 +65,7 @@ export const SyncControls = () => {
       );
 
       toast.dismiss(loadingToast);
-      toast.success(`✅ Project ${projectId} synced successfully!`);
+      toast.success(`Project ${projectId} synced successfully!`);
     } catch (error: any) {
       console.error('Single sync failed:', error);
       toast.dismiss(loadingToast);
@@ -77,7 +77,7 @@ export const SyncControls = () => {
 
   return (
     <Card variant="frosted" className="p-6">
-      <h2 className="text-xl font-bold mb-4">🔄 Blockchain Sync Controls</h2>
+      <h2 className="text-xl font-bold mb-4">Blockchain Sync Controls</h2>
       
       <div className="space-y-4 mb-6">
         <div>
@@ -128,7 +128,7 @@ export const SyncControls = () => {
 
       {syncResults && (
         <Card variant="default" className="p-4 bg-[var(--success-bg)] border border-success/20">
-          <h4 className="text-sm font-medium mb-2">📊 Last Sync Results</h4>
+          <h4 className="text-sm font-medium mb-2">Last Sync Results</h4>
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-success">{syncResults.synced}</p>
@@ -143,7 +143,7 @@ export const SyncControls = () => {
       )}
 
       <Card variant="default" className="mt-4 p-4 bg-[var(--info-bg)] border border-brand-primary/20">
-        <h4 className="text-sm font-medium mb-2">ℹ️ Sync Information</h4>
+        <h4 className="text-sm font-medium mb-2">Sync Information</h4>
         <ul className="text-xs text-secondary space-y-1">
           <li>• <strong>Automatic Sync:</strong> Projects sync automatically after blockchain transactions</li>
           <li>• <strong>Manual Sync:</strong> Use these controls for debugging or fixing data inconsistencies</li>

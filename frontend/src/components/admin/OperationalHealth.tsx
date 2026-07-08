@@ -223,7 +223,7 @@ export default function OperationalHealth({ className = '' }: OperationalHealthP
                     </div>
                     <div className="text-xs text-text-secondary">
                       {project.hasEfficiencyAlert && (
-                        <span className="text-danger">⚠️ Deviation: {project.efficiencyDeviation.toFixed(1)}%</span>
+                        <span className="text-danger">Deviation: {project.efficiencyDeviation.toFixed(1)}%</span>
                       )}
                     </div>
                   </td>
@@ -269,7 +269,7 @@ export default function OperationalHealth({ className = '' }: OperationalHealthP
       {/* Alerts Section */}
       {healthData && healthData.alertsCount > 0 && (
         <Card className="p-6 border-l-4 border-l-danger">
-                     <h3 className="text-xl font-bold text-text-primary mb-4">⚠️ Active Alerts</h3>
+                     <h3 className="text-xl font-bold text-text-primary mb-4">Active Alerts</h3>
           <div className="space-y-3">
             {healthData.projectsHealth
               .filter(project => project.hasEfficiencyAlert || project.uptimePercentage < 85)
@@ -282,12 +282,12 @@ export default function OperationalHealth({ className = '' }: OperationalHealthP
                   <div className="text-right">
                     {project.hasEfficiencyAlert && (
                                              <div className="text-danger text-sm">
-                         ⚠️ Efficiency: {project.efficiencyDeviation.toFixed(1)}% out of range
+                         Efficiency: {project.efficiencyDeviation.toFixed(1)}% out of range
                        </div>
                      )}
                      {project.uptimePercentage < 85 && (
                        <div className="text-danger text-sm">
-                         ⚠️ Uptime: {project.uptimePercentage.toFixed(1)}% (Target: 85%)
+                         Uptime: {project.uptimePercentage.toFixed(1)}% (Target: 85%)
                        </div>
                      )}
                   </div>
@@ -387,7 +387,7 @@ export default function OperationalHealth({ className = '' }: OperationalHealthP
                       <div className="text-xs text-text-secondary">
                         Esperado: {selectedProject.expectedEfficiency} kWh/L
                         {selectedProject.hasEfficiencyAlert && (
-                          <span className="text-danger ml-2">⚠️ Desviación detectada</span>
+                          <span className="text-danger ml-2">Desviación detectada</span>
                         )}
                       </div>
                     </div>
@@ -399,17 +399,17 @@ export default function OperationalHealth({ className = '' }: OperationalHealthP
                   <div className="space-y-2 text-sm">
                     {selectedProject.uptimePercentage < 85 && (
                       <div className="text-warning">
-                        ⚠️ El uptime está por debajo del objetivo. Considere revisar la máquina.
+                        El uptime está por debajo del objetivo. Considere revisar la máquina.
                       </div>
                     )}
                     {selectedProject.hasEfficiencyAlert && (
                       <div className="text-danger">
-                        ⚠️ La eficiencia energética está fuera del rango esperado. Verifique el funcionamiento.
+                        La eficiencia energética está fuera del rango esperado. Verifique el funcionamiento.
                       </div>
                     )}
                     {selectedProject.uptimePercentage >= 85 && !selectedProject.hasEfficiencyAlert && (
                       <div className="text-success">
-                        ✅ Todas las métricas están dentro del rango esperado.
+                        Todas las métricas están dentro del rango esperado.
                       </div>
                     )}
                   </div>

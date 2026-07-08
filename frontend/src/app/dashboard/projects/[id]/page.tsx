@@ -7,45 +7,18 @@ import axios from 'axios';
 import { ethers } from 'ethers';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Carousel } from 'react-responsive-carousel';
-import "react-responsive-carousel/lib/styles/carousel.min.css"; 
 
 import { useWeb3 } from '@/context/Web3Context';
 import toast from 'react-hot-toast';
 
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-
 import { StyledInput } from '@/components/StyledInput';
-import { GlowingButton } from '@/components/GlowingButton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ProjectStatusInfo } from '@/components/ProjectStatusInfo'; // Import the new component
 import { PerformanceChart } from '@/components/PerformanceChart'; // Import the new chart component
-
-// ChartJS registration is no longer needed here as it's handled in the component
-/*
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-*/
+import { CheckCircleIcon, ClockIcon, ArrowPathIcon, LinkIcon, CircleStackIcon, HashtagIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 // This should align with the backend enum
 type ProjectStatus = 
@@ -376,7 +349,7 @@ export default function ProjectDetailPage() {
           <div className="relative w-full h-full">
             <Image src={images[0]} alt={`${name} image 1`} fill className="object-cover" />
             {images.length > 1 && (
-              <div className="absolute bottom-4 right-4 bg-black/50 text-on-brand px-2 py-1 rounded text-sm">
+              <div className="absolute bottom-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
                 {images.length} images
               </div>
             )}
@@ -385,7 +358,7 @@ export default function ProjectDetailPage() {
       ) : (
         <div className="relative w-full h-60 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
           <Image src={mainImage} alt={name} fill className="object-cover" />
-          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#04070e]/85 via-[#04070e]/25 to-transparent"></div>
         </div>
       )}
 
@@ -419,42 +392,42 @@ export default function ProjectDetailPage() {
          <Card variant="frosted" className="p-4 mb-6">
            <div className="flex justify-between items-center">
              <div>
-               <h3 className="text-sm font-medium">Blockchain Integration</h3>
-               <div className="flex items-center gap-4 mt-2 text-xs">
-                 <span className={`flex items-center gap-1 ${project.deployedOnChain ? 'text-success' : 'text-text-muted'}`}>
-                   {project.deployedOnChain ? '✅' : '⏳'}
+               <h3 className="mono-label">Blockchain integration</h3>
+               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-xs">
+                 <span className={`inline-flex items-center gap-1.5 ${project.deployedOnChain ? 'text-success' : 'text-text-muted'}`}>
+                   {project.deployedOnChain ? <CheckCircleIcon className="h-3.5 w-3.5" /> : <ClockIcon className="h-3.5 w-3.5" />}
                    {project.deployedOnChain ? 'Deployed' : 'Not deployed'}
                  </span>
                  {project.blockchainProjectId && (
-                   <span className="text-brand-primary">
-                     🆔 Blockchain ID: #{project.blockchainProjectId}
+                   <span className="inline-flex items-center gap-1.5 text-brand-primary">
+                     <HashtagIcon className="h-3.5 w-3.5" /> ID #{project.blockchainProjectId}
                    </span>
                  )}
                  {project.blockchainAddress && project.blockchainAddress !== 'TBD' && (
-                   <span className="text-brand-secondary">
-                     📍 Contract: {project.blockchainAddress.slice(0, 8)}...
+                   <span className="inline-flex items-center gap-1.5 text-brand-secondary">
+                     <MapPinIcon className="h-3.5 w-3.5" /> {project.blockchainAddress.slice(0, 8)}…
                    </span>
                  )}
                  {onChainData && (
-                   <span className="text-success">
-                     🔗 Live data loaded
+                   <span className="inline-flex items-center gap-1.5 text-success">
+                     <LinkIcon className="h-3.5 w-3.5" /> Live data loaded
                    </span>
                  )}
                  {!onChainData && project.deployedOnChain && isConnected && (
-                   <span className="text-warning">
-                     💾 Using database data
+                   <span className="inline-flex items-center gap-1.5 text-warning">
+                     <CircleStackIcon className="h-3.5 w-3.5" /> Using database data
                    </span>
                  )}
                </div>
              </div>
-             <Button 
-               onClick={fetchOnChainData} 
-               variant="outline" 
+             <Button
+               onClick={fetchOnChainData}
+               variant="outline"
                size="sm"
-               className="text-xs"
                disabled={loadingOnChain || !isConnected}
              >
-               {loadingOnChain ? '⏳ Loading...' : '🔄 Get Live Data'}
+               <ArrowPathIcon className={`h-4 w-4 ${loadingOnChain ? 'animate-spin' : ''}`} />
+               {loadingOnChain ? 'Loading' : 'Get Live Data'}
              </Button>
            </div>
          </Card>
@@ -464,24 +437,24 @@ export default function ProjectDetailPage() {
       {project && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card variant="frosted" className="p-4 text-center">
-            <p className="text-xs text-secondary">Funding {onChainData ? 'Cap' : 'Goal'}</p>
-            <p className="text-lg font-bold">{goal.toFixed(2)} ETH</p>
-            <p className="text-xs text-text-muted">{onChainData ? '🔗 Blockchain' : '💾 Database'}</p>
+            <p className="mono-label mb-1">Funding {onChainData ? 'Cap' : 'Goal'}</p>
+            <p className="text-lg font-bold tabular-nums">{goal.toFixed(2)} ETH</p>
+            <p className="mono-label mt-1 !tracking-[0.08em]">{onChainData ? 'On-chain' : 'Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
-            <p className="text-xs text-secondary">Total Funded</p>
-            <p className="text-lg font-bold">{current.toFixed(2)} ETH</p>
-            <p className="text-xs text-text-muted">{onChainData ? '🔗 Live' : '💾 Database'}</p>
+            <p className="mono-label mb-1">Total Funded</p>
+            <p className="text-lg font-bold tabular-nums">{current.toFixed(2)} ETH</p>
+            <p className="mono-label mt-1 !tracking-[0.08em]">{onChainData ? 'Live' : 'Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
-            <p className="text-xs text-secondary">Progress</p>
-            <p className="text-lg font-bold">{fundingProgress.toFixed(1)}%</p>
-            <p className="text-xs text-text-muted">{onChainData ? '🔗 Live' : '💾 Calculated'}</p>
+            <p className="mono-label mb-1">Progress</p>
+            <p className="text-lg font-bold tabular-nums">{fundingProgress.toFixed(1)}%</p>
+            <p className="mono-label mt-1 !tracking-[0.08em]">{onChainData ? 'Live' : 'Calculated'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
-            <p className="text-xs text-secondary">Blockchain ID</p>
-            <p className="text-lg font-bold">#{project.blockchainProjectId || 'TBD'}</p>
-            <p className="text-xs text-text-muted">💾 Database</p>
+            <p className="mono-label mb-1">Blockchain ID</p>
+            <p className="text-lg font-bold tabular-nums">#{project.blockchainProjectId || 'TBD'}</p>
+            <p className="mono-label mt-1 !tracking-[0.08em]">Database</p>
           </Card>
         </div>
       )}
@@ -513,22 +486,22 @@ export default function ProjectDetailPage() {
                 <label htmlFor="percentage" className="block text-sm font-medium mb-1">
                   Funding Percentage ({percentage > 100 ? 100 : percentage.toFixed(3)}%)
                 </label>
-                <input 
-                  id="percentage" 
-                  type="range" 
-                  min="0" 
-                  max="100" 
+                <input
+                  id="percentage"
+                  type="range"
+                  min="0"
+                  max="100"
                   step="0.1"
                   value={percentage}
                   onChange={handleSliderChange}
-                  className="w-full h-2 bg-surface border border-border rounded-lg appearance-none cursor-pointer"
+                  className="w-full slider cursor-pointer"
                 />
               </div>
-              
+
               {!connectedAccount ? (
-                <GlowingButton onClick={connectWallet}>
+                <Button onClick={connectWallet} variant="accent" size="lg" className="w-full">
                   Connect Wallet to Invest
-                </GlowingButton>
+                </Button>
               ) : (
                 <>
                   <Card variant="default" className="text-center p-3 bg-success/20 border border-success">

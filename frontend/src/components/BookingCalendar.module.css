@@ -4,25 +4,25 @@
 */
 
 .calendar_container {
-  /* --- Custom Properties for Theming --- */
-  --calendar-bg: transparent; /* Background of the entire calendar */
-  --day-text-color: #e2e8f0; /* Default text color for days */
-  --day-outside-color: #475569; /* Text color for days of previous/next month */
-  --day-hover-bg: rgba(59, 130, 246, 0.15); /* Background on hover */
-  
+  /* --- Themed via app tokens (both light + dark) --- */
+  --calendar-bg: transparent;
+  --day-text-color: var(--text-primary);
+  --day-outside-color: var(--text-muted);
+  --day-hover-bg: color-mix(in srgb, var(--brand-primary) 14%, transparent);
+
   /* Selected Range Colors */
-  --range-start-end-bg: #3b82f6;
-  --range-start-end-text: #ffffff;
-  --rdp-accent-background-color: rgba(14, 98, 234, 0.571) !important; /* Color for the middle of the range */
-  --range-middle-text: #e2e8f0;
+  --range-start-end-bg: var(--brand-primary);
+  --range-start-end-text: var(--text-on-brand);
+  --rdp-accent-background-color: color-mix(in srgb, var(--brand-primary) 22%, transparent) !important;
+  --range-middle-text: var(--text-primary);
 
   /* Caption and Navigation */
-  --caption-text-color: #ffffff;
-  --nav-button-bg: rgba(255, 255, 255, 0.05);
-  --nav-button-hover-bg: rgba(255, 255, 255, 0.15);
+  --caption-text-color: var(--text-primary);
+  --nav-button-bg: var(--surface-muted);
+  --nav-button-hover-bg: color-mix(in srgb, var(--brand-primary) 16%, transparent);
 
   /* Weekday Headers */
-  --head-cell-text-color: #94a3b8;
+  --head-cell-text-color: var(--text-muted);
 
   /* General component styling */
   background-color: var(--calendar-bg);
