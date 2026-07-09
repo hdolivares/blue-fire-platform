@@ -29,15 +29,27 @@ export class UsersService {
     
     const hashedPassword = await bcrypt.hash(registerUserDto.password, 10);
     const newUser = new this.userModel({
-      ...registerUserDto,
+      firstName: registerUserDto.firstName,
+      lastName: registerUserDto.lastName,
+      country: registerUserDto.country,
+      walletAddress: registerUserDto.walletAddress,
       email, // Use lowercase email
       password: hashedPassword,
+      // Roles are assigned server-side, never taken from the client, to prevent
+      // privilege escalation. New self-service accounts are Investors by default.
+      roles: ['Investor'],
     });
     return newUser.save();
   }
 
   async findOneByEmail(email: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } }).select('+password').exec();
+    // Exact, case-insensitive match via collation — never interpolate user
+    // input into a RegExp (avoids NoSQL regex injection / ReDoS).
+    return this.userModel
+      .findOne({ email: email.toLowerCase() })
+      .collation({ locale: 'en', strength: 2 })
+      .select('+password')
+      .exec();
   }
 
   async findUserByResetToken(token: string): Promise<UserDocument | null> {

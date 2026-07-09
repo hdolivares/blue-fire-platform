@@ -1,7 +1,9 @@
 // Simple RPC URL configuration for backend
-// Set BLOCKCHAIN_RPC_URL in your environment to override the default
+// Set BLOCKCHAIN_RPC_URL in your environment to a keyed endpoint for production.
+// The default is the public (tokenless) Rootstock testnet node — no committed
+// credential. The previously hardcoded keyed URL was rotated out.
 
-const DEFAULT_RPC_URL = 'https://rpc.testnet.rootstock.io/3hsyiYuxA5dnq4wRX8fvq2PiU6JBjm-T';
+const DEFAULT_RPC_URL = 'https://public-node.testnet.rsk.co';
 
 export const getRpcUrl = (): string => {
   return process.env.BLOCKCHAIN_RPC_URL || DEFAULT_RPC_URL;

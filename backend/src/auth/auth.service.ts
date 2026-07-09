@@ -50,26 +50,15 @@ export class AuthService {
   }
 
 async login(user: any) {
-  console.log('Login - User object received:', {
-    _id: user._id,
-    firstName: user.firstName,
-    lastName: user.lastName,
+  const payload = {
     email: user.email,
+    sub: user._id,
     roles: user.roles,
-    walletAddress: user.walletAddress
-  });
-  
-  const payload = { 
-    email: user.email, 
-    sub: user._id, 
-    roles: user.roles, 
     walletAddress: user.walletAddress,
     firstName: user.firstName,
     lastName: user.lastName
   };
-  
-  console.log('Login - JWT payload:', payload);
-  
+
   return {
     access_token: this.jwtService.sign(payload),
     user: user,
@@ -86,7 +75,12 @@ async login(user: any) {
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    user.passwordResetToken = await bcrypt.hash(resetToken, 10);
+    // Store a SHA-256 hash of the (high-entropy) token so the reset lookup —
+    // which hashes the presented token the same way — actually matches. (The
+    // previous bcrypt hash could never match the sha256 lookup, so resets
+    // always failed.) SHA-256 is appropriate here: the token is 256-bit random,
+    // not a low-entropy password, and the lookup must be a deterministic match.
+    user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     user.passwordResetExpires = new Date(Date.now() + 3600000); // 1 hour from now
 
     try {

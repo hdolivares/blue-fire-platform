@@ -35,6 +35,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       // The secret key used to sign and verify the token.
       secretOrKey: secret,
+      // Pin the algorithm to prevent algorithm-confusion attacks.
+      algorithms: ['HS256'],
     });
   }
 

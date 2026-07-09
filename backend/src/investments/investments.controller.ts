@@ -5,6 +5,7 @@
 import { Controller, Post, Body, Request, Get, Param } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { InvestorOnly } from '../common/decorators/auth.decorator';
+import { CreateInvestmentDto } from './dto/create-investment.dto';
 
 @Controller('investments')
 @InvestorOnly()
@@ -17,7 +18,7 @@ export class InvestmentsController {
   @Post()
   logInvestment(
     @Request() req,
-    @Body() body: { projectId: string; amount: number },
+    @Body() body: CreateInvestmentDto,
   ) {
     const userId = req.user.userId;
     return this.investmentsService.create({

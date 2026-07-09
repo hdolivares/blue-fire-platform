@@ -16,6 +16,13 @@ import { subDays, eachDayOfInterval } from 'date-fns';
  * It uses an "upsert" strategy to avoid deleting existing data.
  */
 async function bootstrap() {
+  // Never seed a production database — this creates privileged accounts with
+  // well-known/dev passwords and wipes performance data.
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Refusing to run the seed script with NODE_ENV=production.');
+    process.exit(1);
+  }
+
   const app = await NestFactory.createApplicationContext(AppModule);
   
   const connection = app.get<Connection>(getConnectionToken());
@@ -29,9 +36,11 @@ async function bootstrap() {
   console.log('Seeding database...');
 
   // --- 1. Upsert (Update or Insert) Admin User ---
-  const adminEmail = 'hobeja7@gmail.com';
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@bluefire.local';
   const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash('admin_password_123', salt);
+  // Dev-only default; override via SEED_ADMIN_PASSWORD. Change immediately after
+  // first login on any shared environment.
+  const hashedPassword = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'ChangeMe_dev_only!', salt);
   
   await userModel.findOneAndUpdate(
     { email: adminEmail },

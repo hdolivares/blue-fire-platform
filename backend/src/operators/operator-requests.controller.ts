@@ -42,7 +42,8 @@ export class OperatorRequestsController {
 
   @Get(':requestId')
   @AdminOrOperator()
-  getRequestById(@Param('requestId') requestId: string) {
-    return this.operatorRequestsService.getRequestById(requestId);
+  getRequestById(@Param('requestId') requestId: string, @Request() req) {
+    const isAdmin = req.user?.roles?.includes('Admin');
+    return this.operatorRequestsService.getRequestById(requestId, req.user.userId, isAdmin);
   }
 } 

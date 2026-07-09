@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import api from '@/lib/axios'; // authenticated instance (attaches JWT)
 
 // Import contract ABIs
 import BlueFireFactoryABI from '@/contracts/BlueFireFactory.json';
@@ -530,8 +531,8 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Trigger sync with backend
-      await axios.post(`${API_URL}/projects/${databaseProject._id}/sync-after-transaction`, {
+      // Trigger sync with backend (authenticated — endpoint now requires a JWT)
+      await api.post(`/projects/${databaseProject._id}/sync-after-transaction`, {
         transactionType
       });
 

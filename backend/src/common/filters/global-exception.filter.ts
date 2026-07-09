@@ -59,8 +59,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = 'Validation failed';
       error = 'Bad Request';
     } else if (exception instanceof Error) {
-      message = exception.message;
-      error = exception.name;
+      // Do NOT leak internal error text (DB/driver messages, absolute paths,
+      // stack details) to clients in production. Full detail is still logged
+      // below.
+      if (process.env.NODE_ENV === 'production') {
+        message = 'Internal server error';
+        error = 'Internal Server Error';
+      } else {
+        message = exception.message;
+        error = exception.name;
+      }
     }
 
     // Log the error

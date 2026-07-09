@@ -7,19 +7,42 @@ import {
   Patch,
   UseInterceptors,
   UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 import { ProjectsService } from './projects.service';
 import { Public } from '../common/decorators/public.decorator';
-import { Roles } from '../common/decorators/roles.decorator';
+import { AdminOnly, Authenticated } from '../common/decorators/auth.decorator';
+
+// Restrict uploads to images and bound size/count (prevents memory-exhaustion
+// DoS and arbitrary file content being pushed to Cloudinary).
+const MAX_IMAGES = 8;
+const imageUploadOptions = {
+  limits: { fileSize: 8 * 1024 * 1024, files: MAX_IMAGES }, // 8 MB each
+  fileFilter: (
+    _req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, acceptFile: boolean) => void,
+  ) => {
+    if (/^image\/(png|jpe?g|webp|gif|avif)$/i.test(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new BadRequestException('Only image files are allowed'), false);
+    }
+  },
+};
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @Public()
+  // Admin-only: creates a project + uploads images. `body` is intentionally
+  // permissive (many multipart fields); safe because creation is restricted to
+  // trusted Admins by the guard.
+  @AdminOnly()
   @Post()
-  @UseInterceptors(FilesInterceptor('images')) // 'images' is the field name for files
+  @UseInterceptors(FilesInterceptor('images', MAX_IMAGES, imageUploadOptions))
   createProject(
     @Body() body: any,
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -52,7 +75,7 @@ export class ProjectsController {
     return this.projectsService.findById(id);
   }
 
-  @Roles('Admin')
+  @AdminOnly()
   @Patch(':id/blockchain')
   linkToBlockchain(
     @Param('id') id: string,
@@ -71,19 +94,21 @@ export class ProjectsController {
     return this.projectsService.findByBlockchainId(Number(blockchainId));
   }
 
-  @Roles('Admin')
+  @AdminOnly()
   @Post(':id/sync')
   syncProjectFromBlockchain(@Param('id') id: string) {
     return this.projectsService.syncProjectFromBlockchain(id);
   }
 
-  @Roles('Admin')
+  @AdminOnly()
   @Post('sync/all')
   syncAllProjectsFromBlockchain() {
     return this.projectsService.syncAllProjectsFromBlockchain();
   }
 
-  @Public()
+  // Any authenticated user may trigger a post-transaction resync of a project
+  // they just interacted with (investor/operator/admin). No longer public.
+  @Authenticated()
   @Post(':id/sync-after-transaction')
   syncProjectAfterTransaction(
     @Param('id') id: string,

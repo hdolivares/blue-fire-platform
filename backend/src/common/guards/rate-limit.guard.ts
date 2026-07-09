@@ -71,24 +71,16 @@ export class RateLimitGuard implements CanActivate {
   }
 
   private getClientIp(request: Request): string {
-    // Check for forwarded IP headers (for proxy/load balancer scenarios)
-    const forwardedFor = request.headers['x-forwarded-for'];
-    if (forwardedFor) {
-      return Array.isArray(forwardedFor) 
-        ? forwardedFor[0].split(',')[0].trim()
-        : forwardedFor.split(',')[0].trim();
-    }
-
-    const realIp = request.headers['x-real-ip'];
-    if (realIp) {
-      return Array.isArray(realIp) ? realIp[0] : realIp;
-    }
-
-    // Fallback to connection remote address
-    return request.ip || 
-           request.connection.remoteAddress || 
-           request.socket.remoteAddress || 
-           'unknown';
+    // Use Express's computed client IP. With `trust proxy` configured (see
+    // main.ts), req.ip is the real client address derived from the trusted
+    // nginx hop — NOT the raw, client-spoofable X-Forwarded-For header. Do not
+    // parse forwarding headers directly here or the limiter is trivially
+    // bypassable by rotating X-Forwarded-For.
+    return (
+      request.ip ||
+      request.socket?.remoteAddress ||
+      'unknown'
+    );
   }
 
   private generateKey(ip: string, url: string): string {

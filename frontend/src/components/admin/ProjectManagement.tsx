@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useWeb3 } from '@/context/Web3Context';
 import { API_URL } from '@/config/server';
 import axios from 'axios';
+import api from '@/lib/axios'; // authenticated instance (attaches JWT)
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -212,12 +213,12 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       toast.dismiss(loadingToast);
       toast.success('Escrow release approved on blockchain');
       
-      // Trigger project sync
-      await axios.post(
-        `${API_URL}/projects/${project._id}/sync-after-transaction`,
+      // Trigger project sync (authenticated)
+      await api.post(
+        `/projects/${project._id}/sync-after-transaction`,
         { transactionType: 'state_change' }
       );
-      
+
       onProjectUpdate();
     } catch (error: any) {
       console.error('Approve escrow release failed:', error);
@@ -254,12 +255,12 @@ export const ProjectManagement = ({ project, onProjectUpdate }: ProjectManagemen
       toast.dismiss(loadingToast);
       toast.success('Escrow released successfully');
       
-      // Trigger project sync
-      await axios.post(
-        `${API_URL}/projects/${project._id}/sync-after-transaction`,
+      // Trigger project sync (authenticated)
+      await api.post(
+        `/projects/${project._id}/sync-after-transaction`,
         { transactionType: 'state_change' }
       );
-      
+
       onProjectUpdate();
     } catch (error: any) {
       console.error('Release escrow failed:', error);

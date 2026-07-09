@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OperatorRequest } from './schemas/operator-request.schema';
@@ -95,7 +95,7 @@ export class OperatorRequestsService {
       .exec();
   }
 
-  async getRequestById(requestId: string) {
+  async getRequestById(requestId: string, requesterId?: string, isAdmin = false) {
     const request = await this.operatorRequestModel
       .findById(requestId)
       .populate('operator', 'firstName lastName email')
@@ -105,6 +105,14 @@ export class OperatorRequestsService {
 
     if (!request) {
       throw new NotFoundException('Operator request not found');
+    }
+
+    // Ownership check: a non-admin operator may only read their own request.
+    if (!isAdmin && requesterId) {
+      const ownerId = String((request.operator as any)?._id ?? request.operator);
+      if (ownerId !== String(requesterId)) {
+        throw new ForbiddenException('You do not have access to this request');
+      }
     }
 
     return request;
