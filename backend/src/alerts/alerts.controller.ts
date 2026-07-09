@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, Query, Request, ForbiddenException } from '@nestjs/common';
 import { AlertsService, Alert, AlertRule, AlertCondition } from '../services/alerts.service';
 import { AdminOnly } from '../common/decorators/auth.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -6,6 +6,17 @@ import { Roles } from '../common/decorators/roles.decorator';
 @Controller('alerts')
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
+
+  // Non-admins may only read their own alerts — the :userId path param is not
+  // trusted on its own (IDOR). Alerts are mock/in-memory today, but the route
+  // contract must not leak other users' data once the store is real.
+  private assertOwnAlertsOrAdmin(req: any, userId: string) {
+    const requester = req.user ?? {};
+    const isAdmin = Array.isArray(requester.roles) && requester.roles.includes('Admin');
+    if (!isAdmin && String(requester.userId) !== String(userId)) {
+      throw new ForbiddenException('You can only access your own alerts');
+    }
+  }
 
   // === ALERT MANAGEMENT ===
   @Get()
@@ -95,19 +106,22 @@ export class AlertsController {
   // === USER-SPECIFIC ALERTS ===
   @Get('user/:userId')
   @Roles('Admin', 'Investor', 'Operator')
-  async getUserAlerts(@Param('userId') userId: string) {
+  async getUserAlerts(@Request() req, @Param('userId') userId: string) {
+    this.assertOwnAlertsOrAdmin(req, userId);
     return this.alertsService.getAlerts({ userId });
   }
 
   @Get('user/:userId/unread')
   @Roles('Admin', 'Investor', 'Operator')
-  async getUserUnreadAlerts(@Param('userId') userId: string) {
+  async getUserUnreadAlerts(@Request() req, @Param('userId') userId: string) {
+    this.assertOwnAlertsOrAdmin(req, userId);
     return this.alertsService.getAlerts({ userId, isRead: false });
   }
 
   @Get('user/:userId/count')
   @Roles('Admin', 'Investor', 'Operator')
-  async getUserAlertCount(@Param('userId') userId: string) {
+  async getUserAlertCount(@Request() req, @Param('userId') userId: string) {
+    this.assertOwnAlertsOrAdmin(req, userId);
     const alerts = await this.alertsService.getAlerts({ userId });
     const unreadCount = alerts.filter(alert => !alert.isRead).length;
     const unresolvedCount = alerts.filter(alert => !alert.isResolved).length;

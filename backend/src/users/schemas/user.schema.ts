@@ -3,7 +3,21 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
-@Schema({ timestamps: true })
+// Credential material must never leave the API regardless of how a user document
+// reaches a response: `select: false` does not cover freshly save()d documents
+// (register) or full-document populate()s, so strip on every serialization path.
+const stripCredentials = (_doc: unknown, ret: Record<string, any>) => {
+  delete ret.password;
+  delete ret.passwordResetToken;
+  delete ret.passwordResetExpires;
+  return ret;
+};
+
+@Schema({
+  timestamps: true,
+  toJSON: { transform: stripCredentials },
+  toObject: { transform: stripCredentials },
+})
 export class User {
   @Prop({ required: true })
   firstName: string;
@@ -26,10 +40,10 @@ export class User {
   @Prop({ type: [String], required: true })
   roles!: string[];
 
-  @Prop()
+  @Prop({ select: false })
   passwordResetToken?: string;
 
-  @Prop()
+  @Prop({ select: false })
   passwordResetExpires?: Date;
 }
 

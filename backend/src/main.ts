@@ -11,9 +11,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const logger = new Logger('Bootstrap');
 
-  // Trust the single nginx reverse-proxy hop so Express derives the real client
-  // IP (req.ip) from X-Forwarded-For instead of trusting the raw client header.
-  // This is what makes the rate limiter's per-IP keying non-spoofable.
+  // Trust the single reverse-proxy hop (Caddy in production) so Express derives
+  // the real client IP (req.ip) from X-Forwarded-For instead of trusting the raw
+  // client header. This is what makes the rate limiter's per-IP keying non-spoofable.
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   // Security response headers (defense in depth alongside nginx).
@@ -49,10 +49,13 @@ async function bootstrap() {
 
   const port = configService.get('PORT') || 3001;
   const environment = configService.get('NODE_ENV') || 'development';
+  // Bind to loopback by default: only the reverse proxy should reach the API
+  // directly. Set HOST=0.0.0.0 explicitly if a deployment needs wider exposure.
+  const host = configService.get('HOST') || '127.0.0.1';
 
-  await app.listen(port);
-  
-  logger.log(`🚀 Blue Fire Platform API is running on port ${port}`);
+  await app.listen(port, host);
+
+  logger.log(`🚀 Blue Fire Platform API is running on ${host}:${port}`);
   logger.log(`🌍 Environment: ${environment}`);
   logger.log(`📚 API Documentation: http://localhost:${port}/docs`);
   logger.log(`🔗 Frontend URL: ${configService.get('FRONTEND_URL') || FRONTEND_URL}`);

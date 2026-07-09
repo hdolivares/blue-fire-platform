@@ -58,7 +58,7 @@ export class OperatorRequestsService {
 
     const request = await this.operatorRequestModel
       .findById(requestId)
-      .populate('operator')
+      .populate('operator', 'firstName lastName email')
       .populate('project');
 
     if (!request) {

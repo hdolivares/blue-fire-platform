@@ -91,8 +91,12 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-    // Add .populate('operator') to fetch the full user object
-    const project = await this.projectModel.findById(id).populate('operator').exec();
+    // Populate only the operator's public profile fields — never the full user
+    // document (this endpoint is publicly readable).
+    const project = await this.projectModel
+      .findById(id)
+      .populate('operator', 'firstName lastName email')
+      .exec();
     if (!project) {
       throw new NotFoundException(`Project with ID "${id}" not found`);
     }
@@ -131,7 +135,7 @@ export class ProjectsService {
   async getProjectsWithBlockchainInfo(): Promise<Project[]> {
     return this.projectModel
       .find()
-      .populate('operator')
+      .populate('operator', 'firstName lastName email')
       .sort({ createdAt: -1 })
       .exec();
   }

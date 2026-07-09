@@ -53,10 +53,13 @@ export class UsersService {
   }
 
   async findUserByResetToken(token: string): Promise<UserDocument | null> {
+    // The reset fields are select:false; they must be loaded here so that
+    // clearing them after a successful reset registers as a modification —
+    // otherwise the used token would stay valid until it expires.
     return this.userModel.findOne({
       passwordResetToken: token,
       passwordResetExpires: { $gt: Date.now() },
-    }).select('+password').exec();
+    }).select('+password +passwordResetToken +passwordResetExpires').exec();
   }
 
   async findAllOperators(): Promise<User[]> {
