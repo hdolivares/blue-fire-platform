@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsOptional, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class RegisterUserDto {
   @IsString()
@@ -31,6 +31,14 @@ export class RegisterUserDto {
   @IsOptional()
   @MaxLength(64)
   walletAddress?: string;
+
+  // Honeypot. A hidden form field that must stay empty; humans never see it,
+  // but form-filling bots populate it. `@IsOptional` skips validation when it's
+  // absent/empty, `@IsEmpty` rejects (400) any non-empty value. Whitelisted so
+  // the global `forbidNonWhitelisted` pipe doesn't 400 legitimate empty sends.
+  @IsOptional()
+  @IsEmpty({ message: 'Registration could not be completed.' })
+  website?: string;
 
   // NOTE: `roles` is intentionally NOT accepted from the client. Roles are
   // assigned server-side in UsersService.register to prevent privilege

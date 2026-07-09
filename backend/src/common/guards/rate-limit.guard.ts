@@ -6,7 +6,9 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { RATE_LIMIT_KEY, RateLimitOptions } from '../decorators/rate-limit.decorator';
 
 interface RateLimitStore {
   [key: string]: {
@@ -19,18 +21,30 @@ interface RateLimitStore {
 export class RateLimitGuard implements CanActivate {
   private readonly logger = new Logger(RateLimitGuard.name);
   private readonly store: RateLimitStore = {};
-  
-  // Rate limit configuration
+
+  // Lenient global default. Sensitive routes tighten this per-handler with the
+  // @RateLimit(...) decorator (e.g. auth endpoints — see AuthController).
   private readonly maxRequests = 100; // requests per window
   private readonly windowMs = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const ip = this.getClientIp(request);
     const key = this.generateKey(ip, request.url);
 
+    // Per-route override wins over the global default, so one bot can only make
+    // a handful of register/login attempts per window regardless of the lenient
+    // global budget.
+    const override = this.reflector.getAllAndOverride<RateLimitOptions>(
+      RATE_LIMIT_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    const maxRequests = override?.max ?? this.maxRequests;
+    const windowMs = override?.windowMs ?? this.windowMs;
+
     const now = Date.now();
-    const windowStart = now - this.windowMs;
 
     // Clean up expired entries
     this.cleanupExpiredEntries(now);
@@ -39,14 +53,14 @@ export class RateLimitGuard implements CanActivate {
     if (!this.store[key] || this.store[key].resetTime < now) {
       this.store[key] = {
         count: 0,
-        resetTime: now + this.windowMs,
+        resetTime: now + windowMs,
       };
     }
 
     // Check if rate limit exceeded
-    if (this.store[key].count >= this.maxRequests) {
+    if (this.store[key].count >= maxRequests) {
       this.logger.warn(`Rate limit exceeded for IP: ${ip}, URL: ${request.url}`);
-      
+
       throw new HttpException(
         {
           statusCode: HttpStatus.TOO_MANY_REQUESTS,
@@ -63,8 +77,8 @@ export class RateLimitGuard implements CanActivate {
 
     // Add rate limit headers to response
     const response = context.switchToHttp().getResponse();
-    response.setHeader('X-RateLimit-Limit', this.maxRequests);
-    response.setHeader('X-RateLimit-Remaining', this.maxRequests - this.store[key].count);
+    response.setHeader('X-RateLimit-Limit', maxRequests);
+    response.setHeader('X-RateLimit-Remaining', maxRequests - this.store[key].count);
     response.setHeader('X-RateLimit-Reset', new Date(this.store[key].resetTime).toISOString());
 
     return true;
