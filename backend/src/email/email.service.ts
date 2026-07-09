@@ -31,7 +31,9 @@ export class EmailService {
   private sender(): { name: string; email: string } {
     return {
       name: this.configService.get<string>('EMAIL_SENDER_NAME') || 'Blue Fire Platform',
-      email: this.configService.get<string>('EMAIL_SENDER_ADDRESS') || 'hobeja7@gmail.com',
+      // Domain-authenticated sender (DKIM + DMARC on bluefire.ink). Override per
+      // environment with EMAIL_SENDER_ADDRESS; must be a verified Brevo sender.
+      email: this.configService.get<string>('EMAIL_SENDER_ADDRESS') || 'noreply@bluefire.ink',
     };
   }
 
