@@ -7,26 +7,40 @@ import { Reveal } from "./ux";
 /* Sentence fragments with per-word scroll-scrub reveal. */
 const SENTENCES: Array<Array<{ w: string; cls?: string }>> = [
   [
-    { w: "Air" },
-    { w: "conditioning" },
-    { w: "already" },
-    { w: "makes" },
-    { w: "water.", cls: "accent" },
-  ],
-  [
-    { w: "It" },
-    { w: "just" },
-    { w: "throws" },
-    { w: "it" },
-    { w: "away.", cls: "ember" },
-  ],
-  [
-    { w: "We" },
-    { w: "built" },
+    { w: "The" },
+    { w: "most" },
+    { w: "advanced" },
+    { w: "tech" },
+    { w: "in" },
     { w: "the" },
-    { w: "machine" },
-    { w: "that" },
-    { w: "doesn’t.", cls: "accent" },
+    { w: "world," },
+  ],
+  [
+    { w: "in" },
+    { w: "one" },
+    { w: "system" },
+    { w: "—" },
+  ],
+  [
+    { w: "so" },
+    { w: "anyone" },
+    { w: "can" },
+    { w: "harvest" },
+    { w: "the" },
+    { w: "water,", cls: "accent" },
+  ],
+  [
+    { w: "keep" },
+    { w: "the" },
+    { w: "energy" },
+    { w: "savings,", cls: "ember" },
+  ],
+  [
+    { w: "and" },
+    { w: "share" },
+    { w: "in" },
+    { w: "the" },
+    { w: "profits.", cls: "accent" },
   ],
 ];
 
