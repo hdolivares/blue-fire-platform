@@ -135,11 +135,17 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const handleAccountsChanged = (accounts: string[]) => {
+  const handleAccountsChanged = async (accounts: string[]) => {
     if (accounts.length === 0) {
-      disconnectWallet();
+      disconnectWallet(false);
     } else {
-      setAccount(accounts[0]);
+      // Rebuild the signer and factory contract for the new account; updating
+      // only `account` would keep sending transactions from the old wallet.
+      try {
+        await setupConnection(new ethers.BrowserProvider(window.ethereum));
+      } catch (error) {
+        console.error('Failed to switch account:', error);
+      }
     }
   };
 
@@ -155,7 +161,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleDisconnect = () => {
-    disconnectWallet();
+    disconnectWallet(false);
   };
 
   const setupConnection = async (browserProvider: ethers.BrowserProvider) => {
@@ -225,8 +231,18 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       // First try to add/switch to Anvil network
               await addRSKTestnetNetwork();
       
-      // Request account access
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      // Ask MetaMask for account permission so the user can pick which
+      // account to connect (eth_requestAccounts silently reuses the account
+      // already permitted for this site). Fall back for wallets without it.
+      try {
+        await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        });
+      } catch (permissionError: any) {
+        if (permissionError?.code === 4001) throw permissionError; // user rejected
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      }
       
       const browserProvider = new ethers.BrowserProvider(window.ethereum);
       await setupConnection(browserProvider);
@@ -314,7 +330,18 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     throw new Error('No localhost networks available. Please add Anvil network manually.');
   };
 
-  const disconnectWallet = () => {
+  // revokePermission is false when the wallet itself reported the disconnect
+  // (revoking again would just re-trigger accountsChanged).
+  const disconnectWallet = (revokePermission = true) => {
+    // Also drop the site's account permission in the wallet, otherwise the
+    // next connect silently reconnects the same account. Not every wallet
+    // supports this, so failures are ignored.
+    if (revokePermission) {
+      window.ethereum
+        ?.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] })
+        .catch(() => {});
+    }
+
     setIsConnected(false);
     setAccount(null);
     setChainId(null);
