@@ -12,7 +12,7 @@ interface Investor {
   firstName: string;
   lastName: string;
   email: string;
-  walletAddress: string;
+  walletAddress?: string;
   country: string;
   createdAt: string;
 }
@@ -21,13 +21,14 @@ interface Investment {
   _id: string;
   amount: number;
   createdAt: string;
+  // Populated refs are null if the user/project was deleted.
   user: {
     _id: string;
     firstName: string;
     lastName: string;
     email: string;
-    walletAddress: string;
-  };
+    walletAddress?: string;
+  } | null;
   project: {
     _id: string;
     projectName: string;
@@ -35,7 +36,7 @@ interface Investment {
     status: string;
     fundingGoal: number;
     currentFunding: number;
-  };
+  } | null;
 }
 
 interface InvestorStats {
@@ -86,18 +87,20 @@ export default function AdminInvestorsPage() {
     return `${month} ${day}, ${year}`;
   };
 
-  const formatWalletAddress = (address: string) => {
+  // Wallets are optional at signup, so many investors have none linked.
+  const formatWalletAddress = (address?: string) => {
+    if (!address) return 'Not linked';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   const getInvestorTotalInvestment = (investorId: string) => {
     return investments
-      .filter(inv => inv.user._id === investorId)
+      .filter(inv => inv.user?._id === investorId)
       .reduce((total, inv) => total + inv.amount, 0);
   };
 
   const getInvestorInvestmentCount = (investorId: string) => {
-    return investments.filter(inv => inv.user._id === investorId).length;
+    return investments.filter(inv => inv.user?._id === investorId).length;
   };
 
   if (loading) {
@@ -226,14 +229,14 @@ export default function AdminInvestorsPage() {
                   <tr key={investment._id} className="border-b border-border hover:bg-surface-muted">
                     <td className="py-3 px-4">
                       <div>
-                        <div className="font-semibold">{investment.user.firstName} {investment.user.lastName}</div>
-                        <div className="text-sm text-secondary">{investment.user.email}</div>
+                        <div className="font-semibold">{investment.user ? `${investment.user.firstName} ${investment.user.lastName}` : 'Deleted user'}</div>
+                        <div className="text-sm text-secondary">{investment.user?.email}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div>
-                        <div className="font-semibold">{investment.project.projectName}</div>
-                        <div className="text-sm text-secondary">{investment.project.location}</div>
+                        <div className="font-semibold">{investment.project?.projectName ?? 'Deleted project'}</div>
+                        <div className="text-sm text-secondary">{investment.project?.location}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4 font-semibold">
@@ -241,13 +244,13 @@ export default function AdminInvestorsPage() {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-sm ${
-                        investment.project.status === 'OPERATIONAL'
+                        investment.project?.status === 'OPERATIONAL'
                           ? 'bg-[var(--success-bg)] text-[var(--success-fg)]'
-                          : investment.project.status === 'SEEKING_FUNDING'
+                          : investment.project?.status === 'SEEKING_FUNDING'
                           ? 'bg-[var(--warning-bg)] text-[var(--warning-fg)]'
                           : 'bg-surface-muted text-text-secondary'
                       }`}>
-                        {investment.project.status.replace('_', ' ')}
+                        {investment.project?.status?.replace('_', ' ') ?? '—'}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-secondary text-sm">
