@@ -73,6 +73,16 @@ export class Project extends Document {
   @Prop()
   machineModel?: string; // Machine model for blockchain deployment
 
+  // Investor-facing story (shown in "About this project")
+  @Prop({ maxlength: 300 })
+  summary?: string; // One or two sentences shown on cards and the page header
+
+  @Prop({ maxlength: 3000 })
+  opportunity?: string; // The idea: why this site, what the machine solves
+
+  @Prop({ maxlength: 3000 })
+  community?: string; // Who benefits and the local impact
+
   // Sync tracking fields
   @Prop()
   currentFundingETH?: number; // Current funding in ETH from blockchain

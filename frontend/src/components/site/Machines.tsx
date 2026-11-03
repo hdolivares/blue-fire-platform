@@ -3,36 +3,9 @@
 import { useRef, useState } from "react";
 import { gsap, useGSAP, reducedMotion } from "./gsap";
 import { SectionHead } from "./ux";
+import { MACHINE_MODELS } from "@/lib/machine-models";
 
-const MODELS = [
-  {
-    id: "250",
-    name: "AWA Modula 250",
-    water: 2500,
-    hot: 2000,
-    air: 8000,
-    scale: 0.86,
-    audience: "Boutique hotels, residential complexes, light industry.",
-  },
-  {
-    id: "500",
-    name: "AWA Modula 500",
-    water: 5000,
-    hot: 4000,
-    air: 16000,
-    scale: 1,
-    audience: "Hospitals, large resorts, data centers, manufacturing.",
-  },
-  {
-    id: "1000",
-    name: "AWA Modula 1000",
-    water: 10000,
-    hot: 8000,
-    air: 32000,
-    scale: 1.13,
-    audience: "Industrial parks, bottling lines, remote communities.",
-  },
-] as const;
+const MODELS = MACHINE_MODELS;
 
 /** Tweens between spec values when the selected model changes. */
 function SpecValue({ value }: { value: number }) {

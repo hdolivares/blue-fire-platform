@@ -18,7 +18,8 @@ import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ProjectStatusInfo } from '@/components/ProjectStatusInfo'; // Import the new component
 import { PerformanceChart } from '@/components/PerformanceChart'; // Import the new chart component
-import { CheckCircleIcon, ClockIcon, ArrowPathIcon, LinkIcon, CircleStackIcon, HashtagIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ClockIcon, ArrowPathIcon, LinkIcon, CircleStackIcon, HashtagIcon, MapPinIcon, CpuChipIcon, SunIcon } from '@heroicons/react/24/outline';
+import { findMachineModel } from '@/lib/machine-models';
 
 // This should align with the backend enum
 type ProjectStatus = 
@@ -44,8 +45,13 @@ interface Project {
   imageUrl?: string;
   imageUrls?: string[];
   // Other fields that might exist
+  location?: string;
   avgHumidity?: number;
   avgTemperature?: number;
+  // Investor-facing story
+  summary?: string;
+  opportunity?: string;
+  community?: string;
   // Blockchain integration fields
   blockchainProjectId?: number;
   blockchainAddress?: string;
@@ -59,6 +65,10 @@ interface PerformanceData {
   waterProduction: number;
 }
 */
+// Testnet amounts are tiny (e.g. 0.0003), so never round to 2 decimals.
+const formatRbtc = (value: number) =>
+  `${value.toLocaleString('en-US', { maximumFractionDigits: 6 })} RBTC`;
+
 const formatStatus = (status: string = '') => {
   return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
 };
@@ -215,7 +225,9 @@ export default function ProjectDetailPage() {
   
   // Use blockchain data when available, fallback to database
   const goal = onChainData ? parseFloat(onChainData.fundingCap) : (project?.fundingGoal ?? project?.goalAmount ?? 0);
-  const current = onChainData ? parseFloat(onChainData.totalFunded) : (project?.currentFunding ?? 0);
+  const current = onChainData ? parseFloat(onChainData.totalFunded) : (project?.currentAmount ?? project?.currentFunding ?? 0);
+  const formatAmount = (value: number) => (onChainData ? formatRbtc(value) : `$${value.toLocaleString('en-US')}`);
+  const machine = findMachineModel(project?.machineModel);
   const fundingProgress = onChainData ? onChainData.fundingProgress : (goal > 0 ? (current / goal) * 100 : 0);
   const projectState = project?.deployedOnChain ? (onChainData?.state ?? 0) : undefined; // 0 = SEEKING_FUNDING
 
@@ -387,6 +399,65 @@ export default function ProjectDetailPage() {
         </Badge>
       </div>
 
+      {project.summary && (
+        <p className="text-lg text-secondary max-w-3xl mb-6">{project.summary}</p>
+      )}
+
+      {/* --- About this project: always visible, whatever the funding stage --- */}
+      <Card variant="frosted" className="p-6 mb-6">
+        <h2 className="section-header">About this project</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <dl className="space-y-5">
+            {project.location && (
+              <div>
+                <dt className="mono-label flex items-center gap-1.5"><MapPinIcon className="h-3.5 w-3.5" /> Location</dt>
+                <dd className="mt-1 font-semibold">{project.location}</dd>
+              </div>
+            )}
+            {project.machineModel && (
+              <div>
+                <dt className="mono-label flex items-center gap-1.5"><CpuChipIcon className="h-3.5 w-3.5" /> Machine</dt>
+                <dd className="mt-1 font-semibold">{project.machineModel}</dd>
+                {machine && (
+                  <dd className="text-sm text-secondary mt-1">
+                    {machine.water.toLocaleString('en-US')} L/day drinking water · {machine.hot.toLocaleString('en-US')} L/h hot water · {machine.air.toLocaleString('en-US')} m³/h cool air
+                  </dd>
+                )}
+              </div>
+            )}
+            {(project.avgHumidity || project.avgTemperature) ? (
+              <div>
+                <dt className="mono-label flex items-center gap-1.5"><SunIcon className="h-3.5 w-3.5" /> Climate</dt>
+                <dd className="mt-1 font-semibold">
+                  {project.avgHumidity ? `${project.avgHumidity}% avg. humidity` : ''}
+                  {project.avgHumidity && project.avgTemperature ? ' · ' : ''}
+                  {project.avgTemperature ? `${project.avgTemperature} °C avg. temperature` : ''}
+                </dd>
+                <dd className="text-sm text-secondary mt-1">Humid, warm air is what the machine condenses into water.</dd>
+              </div>
+            ) : null}
+          </dl>
+
+          <div className="lg:col-span-2 space-y-6">
+            {project.opportunity && (
+              <div>
+                <h3 className="mono-label mb-2">The idea</h3>
+                <p className="text-secondary leading-relaxed whitespace-pre-line">{project.opportunity}</p>
+              </div>
+            )}
+            {project.community && (
+              <div>
+                <h3 className="mono-label mb-2">Community &amp; impact</h3>
+                <p className="text-secondary leading-relaxed whitespace-pre-line">{project.community}</p>
+              </div>
+            )}
+            {!project.opportunity && !project.community && (
+              <p className="text-secondary">More details about this project are coming soon.</p>
+            )}
+          </div>
+        </div>
+      </Card>
+
              {/* Blockchain linking status */}
        {project && (
          <Card variant="frosted" className="p-4 mb-6">
@@ -438,12 +509,12 @@ export default function ProjectDetailPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card variant="frosted" className="p-4 text-center">
             <p className="mono-label mb-1">Funding {onChainData ? 'Cap' : 'Goal'}</p>
-            <p className="text-lg font-bold tabular-nums">{goal.toFixed(2)} ETH</p>
+            <p className="text-lg font-bold tabular-nums">{formatAmount(goal)}</p>
             <p className="mono-label mt-1 !tracking-[0.08em]">{onChainData ? 'On-chain' : 'Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
             <p className="mono-label mb-1">Total Funded</p>
-            <p className="text-lg font-bold tabular-nums">{current.toFixed(2)} ETH</p>
+            <p className="text-lg font-bold tabular-nums">{formatAmount(current)}</p>
             <p className="mono-label mt-1 !tracking-[0.08em]">{onChainData ? 'Live' : 'Database'}</p>
           </Card>
           <Card variant="frosted" className="p-4 text-center">
@@ -524,11 +595,11 @@ export default function ProjectDetailPage() {
             <Card variant="default" className="bg-surface-muted p-6 flex flex-col items-center justify-center text-center">
                 <p className="text-secondary">Funding Progress</p>
                 <p className="text-4xl font-bold my-2">
-                  {current.toFixed(3)} ETH / <span className="text-2xl text-secondary">{goal.toFixed(3)} ETH</span>
+                  {formatAmount(current)} / <span className="text-2xl text-secondary">{formatAmount(goal)}</span>
                 </p>
                 <ProgressBar value={fundingProgress} className="mb-2" />
                 <p className="text-sm text-secondary">
-                  {(goal - current).toFixed(3)} ETH remaining
+                  {formatAmount(Math.max(goal - current, 0))} remaining
                 </p>
             </Card>
           </div>

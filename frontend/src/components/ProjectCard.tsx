@@ -21,6 +21,8 @@ interface Project {
   goalAmount?: number;
   currentAmount?: number;
   mainImage?: string;
+  location?: string;
+  summary?: string;
   // --- Legacy fields for backward compatibility ---
   projectName?: string;
   fundingGoal?: number;
@@ -141,6 +143,12 @@ export const ProjectCard = ({ project }: { project: Project }) => {
               </Badge>
             )}
           </div>
+          {project.location && (
+            <p className="text-sm text-text-secondary mb-2">{project.location}</p>
+          )}
+          {project.summary && (
+            <p className="text-sm text-text-secondary mb-3 line-clamp-3">{project.summary}</p>
+          )}
           <p className="text-text-secondary mb-4">
             Funding Goal: ${goal.toLocaleString()}
           </p>

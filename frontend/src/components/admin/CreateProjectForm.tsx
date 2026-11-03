@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { API_URL } from '@/config/server';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { StyledInput } from '@/components/StyledInput';
+import { StyledInput, StyledTextarea } from '@/components/StyledInput';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
@@ -32,6 +32,10 @@ const INITIAL_FORM = {
   goalAmount: '1', // USD equivalent for database (now editable)
   avgHumidity: '75', // Now editable
   avgTemperature: '25', // Now editable
+  // Investor-facing story (optional)
+  summary: '',
+  opportunity: '',
+  community: '',
   deployToBlockchain: true,
 };
 
@@ -129,7 +133,7 @@ export const CreateProjectForm = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -197,6 +201,9 @@ export const CreateProjectForm = () => {
       backendData.append('deployToBlockchain', formData.deployToBlockchain.toString());
       backendData.append('fundingCap', formData.fundingCap); // For blockchain deployment
       backendData.append('beneficiary', formData.beneficiary);
+      backendData.append('summary', formData.summary.trim());
+      backendData.append('opportunity', formData.opportunity.trim());
+      backendData.append('community', formData.community.trim());
       
       // Add images if selected
       if (images) {
@@ -481,6 +488,49 @@ export const CreateProjectForm = () => {
               onChange={handleChange}
               placeholder="25"
               required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-2">
+          <div>
+            <h3 className="mono-label">Project story (optional)</h3>
+            <p className="text-xs text-secondary mt-1">
+              Shown to investors in &ldquo;About this project&rdquo;. You can edit it later from the project&apos;s admin page.
+            </p>
+          </div>
+          <div>
+            <label htmlFor="summary" className="block text-sm font-medium mb-1">Summary</label>
+            <StyledTextarea
+              id="summary"
+              name="summary"
+              rows={2}
+              maxLength={300}
+              value={formData.summary}
+              onChange={handleChange}
+              placeholder="One or two sentences shown on the project card."
+            />
+          </div>
+          <div>
+            <label htmlFor="opportunity" className="block text-sm font-medium mb-1">The idea</label>
+            <StyledTextarea
+              id="opportunity"
+              name="opportunity"
+              maxLength={3000}
+              value={formData.opportunity}
+              onChange={handleChange}
+              placeholder="Why this site, what water and energy problem the machine solves."
+            />
+          </div>
+          <div>
+            <label htmlFor="community" className="block text-sm font-medium mb-1">Community &amp; impact</label>
+            <StyledTextarea
+              id="community"
+              name="community"
+              maxLength={3000}
+              value={formData.community}
+              onChange={handleChange}
+              placeholder="Who benefits locally and how."
             />
           </div>
         </div>

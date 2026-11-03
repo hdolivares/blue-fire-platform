@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ProjectStatusInfo } from '@/components/ProjectStatusInfo';
 import { PerformanceChart } from '@/components/PerformanceChart';
 import { ProjectManagement } from '@/components/admin/ProjectManagement';
+import { ProjectStoryEditor } from '@/components/admin/ProjectStoryEditor';
 
 // Should match backend enums
 type ProjectStatus = 
@@ -36,6 +37,9 @@ interface Project {
   blockchainProjectId?: number;
   blockchainAddress?: string;
   deployedOnChain?: boolean;
+  summary?: string;
+  opportunity?: string;
+  community?: string;
   operator?: {
     _id: string;
     firstName: string;
@@ -170,6 +174,14 @@ export default function AdminProjectDetailPage() {
           </div>
         </div>
               </Card>
+
+      <div className="mt-8">
+        <ProjectStoryEditor
+          projectId={id as string}
+          initial={project}
+          onSaved={fetchProjectAndOperators}
+        />
+      </div>
 
       <div className="mt-8 relative z-[40]">
         <ProjectManagement 

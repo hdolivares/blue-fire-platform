@@ -128,6 +128,23 @@ export class ProjectsService {
     return project;
   }
 
+  async updateStory(
+    id: string,
+    story: { summary?: string; opportunity?: string; community?: string },
+  ): Promise<Project> {
+    const update: Record<string, string> = {};
+    for (const key of ['summary', 'opportunity', 'community'] as const) {
+      if (story[key] !== undefined) update[key] = story[key]!.trim();
+    }
+    const project = await this.projectModel
+      .findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true })
+      .exec();
+    if (!project) {
+      throw new NotFoundException(`Project with ID "${id}" not found`);
+    }
+    return project;
+  }
+
   async findByBlockchainId(blockchainProjectId: number): Promise<Project | null> {
     return this.projectModel.findOne({ blockchainProjectId }).exec();
   }

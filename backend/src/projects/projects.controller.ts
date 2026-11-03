@@ -14,6 +14,7 @@ import type { Request } from 'express';
 import { ProjectsService } from './projects.service';
 import { Public } from '../common/decorators/public.decorator';
 import { AdminOnly, Authenticated } from '../common/decorators/auth.decorator';
+import { UpdateProjectStoryDto } from './dto/update-project-story.dto';
 
 // Restrict uploads to images and bound size/count (prevents memory-exhaustion
 // DoS and arbitrary file content being pushed to Cloudinary).
@@ -86,6 +87,12 @@ export class ProjectsController {
       body.blockchainProjectId,
       body.blockchainAddress
     );
+  }
+
+  @AdminOnly()
+  @Patch(':id/story')
+  updateStory(@Param('id') id: string, @Body() body: UpdateProjectStoryDto) {
+    return this.projectsService.updateStory(id, body);
   }
 
   @Public()
