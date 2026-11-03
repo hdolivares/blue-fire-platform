@@ -66,7 +66,13 @@ export interface Web3ContextType {
   depositRevenue: (projectAddress: string, amount: string) => Promise<any>;
   
   // Admin functions
-  createProject: (name: string, location: string, model: string, fundingCap: string, beneficiary: string) => Promise<any>;
+  createProject: (
+    name: string,
+    location: string,
+    model: string,
+    fundingCap: string,
+    beneficiary: string,
+  ) => Promise<{ tx: any; receipt: any; projectId: number | null; projectAddress: string | null }>;
   setProjectState: (projectId: number, state: number) => Promise<any>;
   setAlice: (projectId: number, aliceAddress: string) => Promise<any>;
   approveEscrowRelease: (projectId: number) => Promise<any>;
@@ -645,12 +651,29 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       ethers.parseEther(fundingCap),
       beneficiary
     );
-    await tx.wait();
-    
+    const receipt = await tx.wait();
+
+    // Read the new project's id/address from the ProjectCreated event rather
+    // than inferring it from nextProjectId (which races with other creators).
+    let projectId: number | null = null;
+    let projectAddress: string | null = null;
+    for (const log of receipt?.logs ?? []) {
+      try {
+        const parsed = factoryContract.interface.parseLog(log);
+        if (parsed?.name === 'ProjectCreated') {
+          projectId = Number(parsed.args.projectId);
+          projectAddress = parsed.args.projectAddress;
+          break;
+        }
+      } catch {
+        // Not a factory event.
+      }
+    }
+
     // Refresh projects after creation
     await refreshProjects();
-    
-    return tx;
+
+    return { tx, receipt, projectId, projectAddress };
   };
 
   const setProjectState = async (projectId: number, state: number) => {

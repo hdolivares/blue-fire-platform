@@ -9,6 +9,38 @@ import axios from 'axios';
 import { StyledInput } from '@/components/StyledInput';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import Link from 'next/link';
+
+// Outcome of the last submit. While set, the form is replaced by a status
+// panel so a finished (or half-finished) project can't be submitted twice.
+type CreationResult = {
+  name: string;
+  databaseId: string;
+  deployed: boolean;
+  blockchainProjectId?: number;
+  blockchainAddress?: string;
+  error?: string;
+};
+
+const INITIAL_FORM = {
+  name: '',
+  location: '',
+  model: 'AquaGen-3000',
+  fundingCap: '0.0001', // RBTC
+  beneficiary: '',
+  // Backend fields
+  goalAmount: '1', // USD equivalent for database (now editable)
+  avgHumidity: '75', // Now editable
+  avgTemperature: '25', // Now editable
+  deployToBlockchain: true,
+};
+
+const describeChainError = (error: any): string => {
+  if (error?.code === 'ACTION_REJECTED' || error?.info?.error?.code === 4001) {
+    return 'The transaction was rejected in the wallet.';
+  }
+  return error?.shortMessage || error?.reason || error?.message || 'Unknown blockchain error.';
+};
 
 export const CreateProjectForm = () => {
   const { isConnected, account, createProject, refreshProjects, factoryContract } = useWeb3();
@@ -16,20 +48,86 @@ export const CreateProjectForm = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [deploymentStep, setDeploymentStep] = useState('');
   const [images, setImages] = useState<FileList | null>(null);
-  
+  const [result, setResult] = useState<CreationResult | null>(null);
+
   // Form state - Enhanced for dual system
-  const [formData, setFormData] = useState({
-    name: '',
-    location: '',
-    model: 'AquaGen-3000',
-    fundingCap: '0.0001', // RBTC
-    beneficiary: account || '',
-    // Backend fields
-    goalAmount: '1', // USD equivalent for database (now editable)
-    avgHumidity: '75', // Now editable
-    avgTemperature: '25', // Now editable
-    deployToBlockchain: true,
-  });
+  const [formData, setFormData] = useState({ ...INITIAL_FORM, beneficiary: account || '' });
+
+  const resetForm = () => {
+    setFormData({ ...INITIAL_FORM, beneficiary: account || '' });
+    setImages(null);
+    setResult(null);
+  };
+
+  // Creates the on-chain project and links it to the database record.
+  // Throws if the transaction fails or is rejected.
+  const deployAndLink = async (databaseId: string) => {
+    const created = await createProject(
+      formData.name,
+      formData.location,
+      formData.model,
+      formData.fundingCap,
+      formData.beneficiary || account!
+    );
+
+    const blockchainProjectId = created.projectId ?? await getActualNextProjectId();
+    let blockchainAddress = created.projectAddress ?? 'TBD';
+    if (!created.projectAddress && factoryContract) {
+      try {
+        blockchainAddress = await factoryContract.getProjectAddress(blockchainProjectId);
+      } catch (error) {
+        console.warn('Failed to get project address:', error);
+      }
+    }
+
+    try {
+      await linkProject(databaseId, blockchainProjectId, blockchainAddress);
+    } catch (error: any) {
+      // The project exists on-chain; only the database link failed. Keep the
+      // on-chain id so a retry re-links instead of creating a duplicate.
+      throw Object.assign(new Error(`Linking failed: ${error?.message ?? 'unknown error'}`), {
+        onChain: { blockchainProjectId, blockchainAddress },
+      });
+    }
+
+    return { blockchainProjectId, blockchainAddress };
+  };
+
+  const linkProject = (databaseId: string, blockchainProjectId: number, blockchainAddress: string) =>
+    axios.patch(
+      `${API_URL}/projects/${databaseId}/blockchain`,
+      { blockchainProjectId, blockchainAddress },
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+
+  const handleRetryDeployment = async () => {
+    if (!result || result.deployed) return;
+    setIsCreating(true);
+    setDeploymentStep('Deploying to blockchain...');
+    const retryToast = toast.loading('Deploying to blockchain...');
+    try {
+      let linked;
+      if (result.blockchainProjectId != null) {
+        // Already on-chain; only the database link is missing.
+        const blockchainAddress = result.blockchainAddress ?? 'TBD';
+        await linkProject(result.databaseId, result.blockchainProjectId, blockchainAddress);
+        linked = { blockchainProjectId: result.blockchainProjectId, blockchainAddress };
+      } else {
+        linked = await deployAndLink(result.databaseId);
+      }
+      toast.dismiss(retryToast);
+      toast.success('Project deployed and linked!');
+      setResult({ ...result, deployed: true, error: undefined, ...linked });
+    } catch (error: any) {
+      console.error('Blockchain deployment retry failed:', error);
+      toast.dismiss(retryToast);
+      toast.error('Blockchain deployment failed');
+      setResult({ ...result, ...error?.onChain, error: describeChainError(error) });
+    } finally {
+      setIsCreating(false);
+      setDeploymentStep('');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -124,69 +222,31 @@ export const CreateProjectForm = () => {
         const blockchainToast = toast.loading('Deploying to blockchain...');
 
         try {
-          await createProject(
-            formData.name,
-            formData.location,
-            formData.model,
-            formData.fundingCap,
-            formData.beneficiary || account
-          );
-
+          const linked = await deployAndLink(databaseProjectId);
           toast.dismiss(blockchainToast);
-
-          // Step 3: Link database project to blockchain project
-          setDeploymentStep('Linking projects...');
-          const linkToast = toast.loading('Linking database to blockchain...');
-
-                                // Get the actual blockchain project ID that was just created
-           const actualBlockchainId = await getActualNextProjectId();
-           
-           // Get the actual project contract address
-           let projectAddress = 'TBD';
-           try {
-             if (factoryContract) {
-               projectAddress = await factoryContract.getProjectAddress(actualBlockchainId);
-               console.log('🏭 Got project address:', projectAddress);
-             }
-           } catch (error) {
-             console.warn('Failed to get project address:', error);
-           }
-           
-                     await axios.patch(
-            `${API_URL}/projects/${databaseProjectId}/blockchain`,
-             {
-               blockchainProjectId: actualBlockchainId,
-               blockchainAddress: projectAddress,
-             },
-             {
-               headers: { 'Authorization': `Bearer ${token}` },
-             }
-           );
-
-          toast.dismiss(linkToast);
           toast.success('Project fully created and deployed!');
-
+          setResult({ name: formData.name, databaseId: databaseProjectId, deployed: true, ...linked });
         } catch (blockchainError: any) {
           console.error('Blockchain deployment failed:', blockchainError);
+          toast.dismiss(blockchainToast);
           toast.error('Project created in database but blockchain deployment failed');
+          setResult({
+            name: formData.name,
+            databaseId: databaseProjectId,
+            deployed: false,
+            ...blockchainError?.onChain,
+            error: describeChainError(blockchainError),
+          });
         }
       } else {
         toast.success('Project created in database (blockchain deployment skipped)');
-      }
-
-              // Reset form
-        setFormData({
-          name: '',
-          location: '',
-          model: 'AquaGen-3000',
-          fundingCap: '0.0001',
-          beneficiary: account || '',
-          goalAmount: '1',
-          avgHumidity: '75',
-          avgTemperature: '25',
-          deployToBlockchain: true,
+        setResult({
+          name: formData.name,
+          databaseId: databaseProjectId,
+          deployed: false,
+          error: 'Blockchain deployment was skipped.',
         });
-        setImages(null);
+      }
 
       // Refresh projects list
       if (refreshProjects) {
@@ -238,6 +298,62 @@ export const CreateProjectForm = () => {
       <Card variant="frosted" className="p-6">
         <h2 className="text-xl font-bold mb-4">Create New Project</h2>
         <p className="text-secondary">Please connect your wallet to create projects.</p>
+      </Card>
+    );
+  }
+
+  if (result) {
+    return (
+      <Card variant="frosted" className="p-6">
+        {result.deployed ? (
+          <>
+            <h2 className="text-xl font-bold mb-2 text-success">Project created on-chain</h2>
+            <p className="text-secondary mb-4">
+              <strong className="text-primary">{result.name}</strong> is saved and deployed as on-chain
+              project #{result.blockchainProjectId}
+              {result.blockchainAddress && result.blockchainAddress !== 'TBD' && (
+                <> (contract <code className="text-xs">{result.blockchainAddress}</code>)</>
+              )}
+              . It is now open for funding.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold mb-2 text-warning">Saved, but not on-chain yet</h2>
+            <p className="text-secondary mb-2">
+              <strong className="text-primary">{result.name}</strong> was saved in the database, but the
+              blockchain deployment did not complete. {result.error}
+            </p>
+            <p className="text-secondary mb-4 text-sm">
+              Investors can&apos;t fund it until it&apos;s deployed. Retrying deploys this same project, so no
+              duplicate is created.
+            </p>
+          </>
+        )}
+
+        {isCreating && deploymentStep && (
+          <p className="text-sm text-brand-primary mb-4">{deploymentStep}</p>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          {!result.deployed && (
+            <Button onClick={handleRetryDeployment} disabled={isCreating || !isConnected} variant="primary">
+              {isCreating
+              ? 'Working...'
+              : result.blockchainProjectId != null
+                ? 'Retry linking'
+                : 'Retry on-chain deployment'}
+            </Button>
+          )}
+          <Link href={`/admin/projects/${result.databaseId}`}>
+            <Button variant="outline" disabled={isCreating}>View project</Button>
+          </Link>
+          {result.deployed && (
+            <Button onClick={resetForm} variant="outline" disabled={isCreating}>
+              Create another project
+            </Button>
+          )}
+        </div>
       </Card>
     );
   }
