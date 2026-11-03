@@ -55,6 +55,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User no longer exists');
     }
 
+    // Reject tokens issued before the last password reset (iat is in seconds).
+    if (user.passwordChangedAt && payload.iat * 1000 < user.passwordChangedAt.getTime()) {
+      throw new UnauthorizedException('Session expired, please log in again');
+    }
+
     // Return user object that will be attached to the request
     return {
       userId: user._id,

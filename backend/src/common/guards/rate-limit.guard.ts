@@ -32,7 +32,11 @@ export class RateLimitGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const ip = this.getClientIp(request);
-    const key = this.generateKey(ip, request.url);
+    // Key on the route handler, not the raw URL: Express matches case- and
+    // trailing-slash-insensitively, so URL variants (/auth/login/, /AUTH/login)
+    // would otherwise each get a fresh bucket for the same handler.
+    const route = `${context.getClass().name}.${context.getHandler().name}`;
+    const key = this.generateKey(ip, route);
 
     // Per-route override wins over the global default, so one bot can only make
     // a handful of register/login attempts per window regardless of the lenient
@@ -97,10 +101,8 @@ export class RateLimitGuard implements CanActivate {
     );
   }
 
-  private generateKey(ip: string, url: string): string {
-    // Create a key based on IP and URL path
-    const path = url.split('?')[0]; // Remove query parameters
-    return `${ip}:${path}`;
+  private generateKey(ip: string, route: string): string {
+    return `${ip}:${route}`;
   }
 
   private cleanupExpiredEntries(now: number): void {
@@ -113,8 +115,8 @@ export class RateLimitGuard implements CanActivate {
   }
 
   // Method to get current rate limit status (for debugging)
-  getRateLimitStatus(ip: string, url: string): any {
-    const key = this.generateKey(ip, url);
+  getRateLimitStatus(ip: string, route: string): any {
+    const key = this.generateKey(ip, route);
     const entry = this.store[key];
     
     if (!entry) {

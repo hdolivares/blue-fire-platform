@@ -1,7 +1,7 @@
 // Server configuration for frontend
 // Set NEXT_PUBLIC_API_URL in your .env.local file to override the default
 
-const DEFAULT_API_URL = 'https://app.bluefire.love/api';
+const DEFAULT_API_URL = '/api';
 
 export const getApiUrl = (): string => {
   return process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;

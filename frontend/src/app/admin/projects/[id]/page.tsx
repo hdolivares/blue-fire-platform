@@ -61,11 +61,10 @@ export default function AdminProjectDetailPage() {
       api.get(`/projects/${id}`)
         .then((response: any) => {
           setProject(response.data);
-          if (response.data.operator) {
-            setSelectedOperator(response.data.operator);
-          }
         });
       
+      // The public project endpoint omits operator emails, so take the full
+      // operator record from the admin-only operators list.
       api.get('/operators')
         .then((response: any) => {
           setOperators(response.data);
@@ -74,6 +73,12 @@ export default function AdminProjectDetailPage() {
   };
 
   useEffect(fetchProjectAndOperators, [id, token]);
+
+  const assignedOperator = operators.find((o) => o._id === project?.operator?._id);
+
+  useEffect(() => {
+    if (assignedOperator) setSelectedOperator(assignedOperator);
+  }, [assignedOperator]);
 
   const handleAssignOperator = async () => {
     if (!selectedOperator) return;
@@ -115,7 +120,7 @@ export default function AdminProjectDetailPage() {
       <Card variant="default" className="mt-8 p-6 overflow-visible relative z-[60]">
         <h2 className="section-header">Assign Operator</h2>
         {project.operator ? (
-          <p className="text-success">Currently assigned to: {project.operator.firstName} {project.operator.lastName} ({project.operator.email})</p>
+          <p className="text-success">Currently assigned to: {project.operator.firstName} {project.operator.lastName}{assignedOperator ? ` (${assignedOperator.email})` : ''}</p>
         ) : (
           <p className="text-warning">No operator assigned.</p>
         )}

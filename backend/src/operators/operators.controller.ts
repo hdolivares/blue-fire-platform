@@ -1,6 +1,6 @@
 import { Controller, Get, Request } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { AdminOrOperator } from '../common/decorators/auth.decorator';
+import { AdminOnly, AdminOrOperator } from '../common/decorators/auth.decorator';
 
 @Controller('operators')
 @AdminOrOperator()
@@ -12,6 +12,7 @@ export class OperatorsController {
    * with the 'Operator' role.
    */
   @Get()
+  @AdminOnly()
   findAllOperators() {
     return this.usersService.findAllOperators();
   }

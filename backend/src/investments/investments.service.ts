@@ -88,7 +88,7 @@ export class InvestmentsService {
   async getProjectInfo(projectId: number): Promise<any> {
     try {
       // Get factory contract
-      const factoryAddress = this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+      const factoryAddress = this.configService.get<string>('BLUE_FIRE_FACTORY_ADDRESS') || '0x9f715843A5bcF6d8afBa99FAed3d8F5634a3310b';
       const factoryAbiPath = path.join(process.cwd(), 'src', 'contracts', 'BlueFireFactory.json');
       
       if (!fs.existsSync(factoryAbiPath)) {

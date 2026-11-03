@@ -95,7 +95,7 @@ export class ProjectsService {
     // document (this endpoint is publicly readable).
     const project = await this.projectModel
       .findById(id)
-      .populate('operator', 'firstName lastName email')
+      .populate('operator', 'firstName lastName')
       .exec();
     if (!project) {
       throw new NotFoundException(`Project with ID "${id}" not found`);
@@ -135,7 +135,7 @@ export class ProjectsService {
   async getProjectsWithBlockchainInfo(): Promise<Project[]> {
     return this.projectModel
       .find()
-      .populate('operator', 'firstName lastName email')
+      .populate('operator', 'firstName lastName')
       .sort({ createdAt: -1 })
       .exec();
   }

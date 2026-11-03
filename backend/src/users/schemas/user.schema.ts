@@ -45,6 +45,10 @@ export class User {
 
   @Prop({ select: false })
   passwordResetExpires?: Date;
+
+  // Tokens issued before this moment are rejected (see JwtStrategy.validate).
+  @Prop()
+  passwordChangedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

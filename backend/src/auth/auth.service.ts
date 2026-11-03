@@ -43,6 +43,8 @@ export class AuthService {
     user.password = await bcrypt.hash(newPass, 10);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
+    // Invalidates every JWT issued before the reset (checked in JwtStrategy).
+    user.passwordChangedAt = new Date();
     
     await user.save();
 
