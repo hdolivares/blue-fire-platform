@@ -1,355 +1,184 @@
-# Blue Fire Platform
+# BlueFire Platform
 
-A **blockchain-based water production investment platform** that enables investors to fund water production machines while providing operators with tools to manage projects and track performance. Built with modern web technologies and deployed on RSK blockchain.
+BlueFire funds atmospheric-water machines on-chain. Each physical machine is one
+isolated smart contract on Rootstock (RSK); investors fund it and receive an
+ERC-721 position NFT, operators deposit water-sales revenue, and investors claim
+their pro-rata share.
 
-## 🎯 Overview
+Live: **https://bluefire.ink** (Rootstock **testnet**).
 
-Blue Fire Platform is a **DeFi platform for water infrastructure funding** where each physical water machine maps 1:1 to an isolated blockchain smart contract. Investors purchase ERC-721 NFT position tokens to fund projects and receive pro-rata revenue distributions from water sales.
+The repo has three parts:
 
-### Key Features
+| Folder       | What it is                                                                 |
+| ------------ | -------------------------------------------------------------------------- |
+| `frontend/`  | Next.js 15 (App Router, React 19, Tailwind 4, GSAP). Public landing page at `/`, auth pages, and the Admin / Investor / Operator dashboards. Brand guide renders at `/brand`. |
+| `backend/`   | NestJS 11 API on MongoDB (Mongoose). JWT auth with roles, Brevo email, Cloudinary uploads, ethers v6 reads of the contracts. |
+| `contracts/` | Foundry project: `BlueFireFactory` + `UnitProjectERC721` (Solidity 0.8.26). |
 
-- **🌊 Water Infrastructure Funding**: Fund water production machines through blockchain
-- **🎫 NFT Position Tokens**: ERC-721 tokens representing investment positions
-- **📊 Real-time Performance Tracking**: Monitor project performance and revenue
-- **👥 Multi-role System**: Admin, Operator, and Investor dashboards
-- **🔐 Secure Authentication**: JWT-based authentication with role-based access
-- **📱 Modern UI/UX**: Responsive design with smooth animations
-- **⚡ Blockchain Integration**: Direct smart contract interaction
-- **📧 Email Notifications**: Automated notifications via Brevo
-- **📁 File Management**: Cloud storage via Cloudinary
+## Roles
 
-## 🏗️ Architecture
+- **Investor** (default for every signup): browse projects, fund them with a wallet, track the portfolio, claim revenue.
+- **Operator**: sees their assigned project, submits performance data and resource requests, deposits revenue on-chain.
+- **Admin**: creates projects (with images), assigns operators, reviews operator requests, deploys/syncs projects on-chain, analytics.
 
-### Tech Stack
+Admin is never granted through the API. Promote a user directly in MongoDB:
 
-#### Backend
-- **Framework**: NestJS with TypeScript
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT with Passport.js
-- **File Storage**: Cloudinary
-- **Email Service**: Brevo (formerly Sendinblue)
-- **Blockchain**: Ethers.js v6
+```js
+db.users.updateOne({ email: "someone@example.com" }, { $addToSet: { roles: "Admin" } })
+```
 
-#### Frontend
-- **Framework**: Next.js 15 with App Router
-- **UI Library**: React 19 with TypeScript
-- **Styling**: Tailwind CSS 4
-- **Animations**: Lottie Web
-- **Charts**: Chart.js with React wrapper
-- **State Management**: React Context API
+Roles are re-read from the DB on every request; the user has to log in again for the UI to show the new role.
 
-#### Blockchain
-- **Network**: RSK Testnet (Chain ID: 31)
-- **Language**: Solidity ^0.8.20
-- **Framework**: Foundry
-- **Contracts**: BlueFireFactory + UnitProjectERC721
+## Local development
 
-## 🚀 Quick Start
+Prerequisites: Node.js 20+, a local MongoDB, and [Foundry](https://book.getfoundry.sh/) for the contracts.
 
-### Prerequisites
-
-- Node.js 18+
-- MongoDB
-- Git
-
-### Installation
-
-1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone --recurse-submodules https://github.com/hdolivares/blue-fire-platform.git
 cd blue-fire-platform
 ```
 
-2. **Backend Setup**
+**Backend** (API on `http://localhost:3001`)
+
 ```bash
 cd backend
 npm install
-cp .env.example .env  # Configure environment variables
+# create backend/.env (see below)
+npm run seed        # optional: dev admin + sample projects; refuses to run when NODE_ENV=production
 npm run start:dev
 ```
 
-3. **Frontend Setup** (in a new terminal)
+**Frontend** (on `http://localhost:8080`)
+
 ```bash
 cd frontend
 npm install
+echo "NEXT_PUBLIC_API_URL=http://localhost:3001" > .env.local
 npm run dev
 ```
 
-4. **Environment Configuration**
+The API has **no global `/api` prefix**. In production the reverse proxy serves it under `/api` and strips the prefix, so locally you point the frontend straight at the API port.
 
-Create `.env` file in the `backend` directory:
+### Environment variables
+
+`.env` files are gitignored. Never commit real values.
+
+**`backend/.env`**
+
+| Variable | Required | Notes |
+| -------- | -------- | ----- |
+| `DATABASE_URL` | yes | e.g. `mongodb://localhost:27017/bluefire` (use an authenticated user in production) |
+| `JWT_SECRET` | yes | Long random string (`openssl rand -hex 48`) |
+| `FRONTEND_URL` | yes | CORS origin and base URL for email links, e.g. `http://localhost:8080` |
+| `PORT` / `HOST` | no | Default `3001` / `127.0.0.1` (the API binds to loopback unless `HOST` says otherwise) |
+| `NODE_ENV` | no | `production` on the server |
+| `BREVO_API_KEY` | for email | Password-reset and weekly status emails |
+| `EMAIL_SENDER_ADDRESS` / `EMAIL_SENDER_NAME` | no | Default `noreply@bluefire.ink` (must be a verified Brevo sender) |
+| `STATUS_REPORT_EMAIL` | no | Recipient of the weekly status email (Mondays 09:00) |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | for uploads | Project images. The app reads these three, not `CLOUDINARY_URL` |
+| `BLOCKCHAIN_RPC_URL` | no | Default: public Rootstock testnet node |
+| `BLOCKCHAIN_CHAIN_ID` | no | Default `31` (RSK testnet) |
+| `BLUE_FIRE_FACTORY_ADDRESS` | no | Default: the testnet factory below |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | seed only | Credentials for the dev admin created by `npm run seed` |
+
+**`frontend/.env.local`** (or `.env.production` on the server)
+
+| Variable | Notes |
+| -------- | ----- |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3001` locally, `/api` in production |
+| `NEXT_PUBLIC_RPC_URL` | Optional; default is the public Rootstock testnet node |
+
+### Useful commands
+
 ```bash
-# Database
-DATABASE_URL=mongodb://localhost:27017/blue-fire
+# backend
+npm run build && npm run start:prod
+npm run lint
+npm test                 # note: several scaffold specs from the Nest template are stale
 
-# Authentication
-JWT_SECRET=your-secret-key
-FRONTEND_URL=http://localhost:3000
+# frontend
+npm run build && npm start
+npm run lint
 
-# External Services
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-BREVO_API_KEY=your-brevo-key
-
-# Blockchain
-BLOCKCHAIN_RPC_URL=https://rpc.testnet.rootstock.io/3hsyiYuxA5dnq4wRX8fvq2PiU6JBjm-T
-STAKING_VAULT_ADDRESS=contract-address
-UNIT_CONTROLLER_ADDRESS=contract-address
-```
-
-### Development Commands
-
-#### Backend
-```bash
-npm run start:dev      # Development server with hot reload
-npm run build          # Build for production
-npm run start:prod     # Start production server
-npm run test           # Run unit tests
-npm run test:e2e       # Run end-to-end tests
-npm run seed           # Seed database with sample data
-```
-
-#### Frontend
-```bash
-npm run dev            # Development server with Turbopack
-npm run build          # Build for production
-npm run start          # Start production server
-npm run lint           # Lint code
-```
-
-#### Smart Contracts
-```bash
+# contracts
 cd contracts
-forge test             # Run tests
-forge test --gas-report # Gas optimization report
-forge coverage         # Test coverage
+forge build
+forge test               # add --gas-report or use `forge coverage`
 ```
 
-## 🔐 User Roles & Capabilities
+## Smart contracts
 
-### 👨‍💼 Admin
-- **Project Creation**: Create and manage water machine projects
-- **User Management**: Manage users and assign roles
-- **Analytics Dashboard**: Comprehensive platform analytics
-- **Blockchain Deployment**: Deploy projects to blockchain
-- **Operator Assignment**: Assign operators to projects
-- **Investor Management**: Track and manage all investors
-- **Escrow Management**: Control fund releases via two-step process
+- **`BlueFireFactory`** deploys one `UnitProjectERC721` per machine (minimal-proxy clones of a single implementation), owns admin actions (escrow approval, operator assignment, transfer gating).
+- **`UnitProjectERC721`** holds the funding, escrow and revenue accounting for one machine and mints position NFTs to investors.
 
-### 💰 Investor
-- **Project Discovery**: Browse and filter available projects
-- **Investment Management**: Fund projects and track portfolio
-- **Performance Monitoring**: View project performance and returns
-- **Revenue Claims**: Claim earned rewards from water sales
-- **NFT Management**: Manage position tokens (transfer when enabled)
+Lifecycle: `SEEKING_FUNDING → FUNDED → OPERATIONAL → CLOSED`. Funding stops at the cap; the admin approves and releases escrow to the beneficiary; then the operator can deposit revenue (`payWaterRevenue`) and investors `claim(tokenId)`.
 
-### 🔧 Operator (Alice)
-- **Project Management**: View assigned projects and details
-- **Performance Reporting**: Submit performance data and metrics
-- **Revenue Deposits**: Deposit water sales revenue to blockchain
-- **Request System**: Submit requests for resources and support
-
-## 🔗 Blockchain Integration
-
-### Smart Contract Architecture
-
-The platform uses two main contracts:
-
-1. **BlueFireFactory**: Central factory that deploys project instances
-2. **UnitProjectERC721**: Individual project contracts with ERC-721 NFT positions
-
-### Project Lifecycle
+Revenue uses an accumulator so claims are O(1):
 
 ```
-SEEKING_FUNDING → FUNDED → OPERATIONAL → CLOSED
+accRevenuePerShare += revenueDeposit * 1e18 / totalFunded
+pending(tokenId)    = funded[tokenId] * accRevenuePerShare / 1e18 - rewardDebt[tokenId]
 ```
 
-1. **SEEKING_FUNDING**: Project is open for investment
-2. **FUNDED**: Funding cap reached, awaiting escrow release
-3. **OPERATIONAL**: Revenue distribution active
-4. **CLOSED**: Project concluded
+NFT transfers are disabled by default and can be enabled per project; unclaimed rewards travel with the token.
 
-### Revenue Distribution
+**RSK testnet deployment (chain 31)**
 
-Uses an accumulator model for O(1) reward claims:
-```
-accRevenuePerShare += (revenueDeposit * PRECISION) / totalFunded
-pendingRewards = (funded[tokenId] * accRevenuePerShare / PRECISION) - rewardDebt[tokenId]
-```
+| Contract | Address |
+| -------- | ------- |
+| BlueFireFactory | `0x9f715843A5bcF6d8afBa99FAed3d8F5634a3310b` |
+| UnitProjectERC721 implementation | `0x460B288FA286Fff723A4F3B219241Ab184df9163` |
 
-### Network Configuration
+To redeploy: `PRIVATE_KEY=... forge script script/Deploy.s.sol --rpc-url <rpc> --broadcast`, then update `frontend/src/contracts/contract-address.json` and `BLUE_FIRE_FACTORY_ADDRESS`. ABIs used by the apps live in `backend/src/contracts/` and `frontend/src/contracts/`.
 
-- **Network**: RSK Testnet
-- **Chain ID**: 31
-- **RPC URL**: `https://rpc.testnet.rootstock.io/3hsyiYuxA5dnq4wRX8fvq2PiU6JBjm-T`
+## API overview
 
-## 📁 Project Structure
+All routes require a valid JWT (`Authorization: Bearer <token>`) unless marked public. Role checks are enforced by global guards.
 
-```
-blue-fire-platform/
-├── backend/                 # NestJS backend
-│   ├── src/
-│   │   ├── auth/           # Authentication
-│   │   ├── users/          # User management
-│   │   ├── projects/       # Project management
-│   │   ├── investments/    # Investment tracking
-│   │   ├── performance/    # Performance data
-│   │   ├── admin/          # Admin functionality
-│   │   ├── operators/      # Operator management
-│   │   ├── investors/      # Investor functionality
-│   │   ├── email/          # Email service
-│   │   ├── cloudinary/     # File upload service
-│   │   └── services/       # Blockchain service
-│   └── package.json
-├── frontend/               # Next.js frontend
-│   ├── src/
-│   │   ├── app/           # App Router pages
-│   │   ├── components/    # React components
-│   │   ├── context/       # React Context providers
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── lib/           # Utility libraries
-│   │   └── types/         # TypeScript definitions
-│   └── package.json
-├── contracts/              # Smart contracts
-│   ├── contracts/
-│   │   ├── BlueFireFactory.sol
-│   │   ├── UnitProjectERC721.sol
-│   │   └── interfaces/
-│   ├── test/              # Test files
-│   └── foundry.toml
-└── README.md
-```
+| Area | Routes | Access |
+| ---- | ------ | ------ |
+| Auth | `POST /auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password` | Public, rate-limited |
+| Projects | `GET /projects`, `/projects/:id`, `/projects/enhanced/all`, `/projects/blockchain/:id` | Public |
+| | `POST /projects`, `PATCH /projects/:id/blockchain`, `POST /projects/:id/sync`, `/projects/sync/all` | Admin |
+| Performance | `GET /performance/:projectId`, `/performance/:projectId/historical` | Public |
+| Investments | `POST /investments`, `GET /investments/:projectId/positions` … | Investor |
+| Investors | `GET /investors/my-portfolio`, `/investors/portfolio-summary` | Investor |
+| Operators | `GET /operators/my-project`, `POST /operator-requests`, `GET /operator-requests/my-requests` | Operator |
+| Admin | `/admin/*` (dashboard, investors, projects, operator assignment, analytics), `/alerts/*` | Admin |
 
-## 🛣️ API Endpoints
+## Deployment
 
-### Authentication
-```http
-POST /auth/login              # User login
-POST /auth/register           # User registration
-POST /auth/forgot-password    # Password reset request
-POST /auth/reset-password     # Password reset
-```
+Production runs on a single VPS:
 
-### Projects (Public)
-```http
-GET  /projects               # List all projects
-GET  /projects/:id           # Get project details
-POST /projects               # Create project (Admin only)
-GET  /performance/:projectId # Get performance data
-```
+- **Caddy** terminates TLS for `bluefire.ink`; `handle_path /api/*` proxies to the API (stripping `/api`), everything else goes to Next.js.
+- **PM2** runs `bluefire-api` (`node dist/main`) and `bluefire-web` (`next start`) as an unprivileged `deploy` user, both bound to `127.0.0.1`.
+- **MongoDB** runs on the same box, localhost-only, with authentication enabled.
+- Only ports 22/80/443 are open.
 
-### Admin Routes
-```http
-GET    /admin/dashboard                           # Dashboard stats
-GET    /admin/investors                          # All investors
-GET    /admin/investments                        # All investments
-GET    /admin/investor-stats                     # Investor statistics
-PATCH  /admin/projects/:id/assign-operator       # Assign operator
-```
-
-### Investor Routes
-```http
-GET /investors/my-portfolio      # My portfolio
-GET /investors/portfolio-summary # Portfolio summary
-POST /investments                # Log investment
-GET /investments/:id/claimable   # Claimable rewards
-```
-
-### Operator Routes
-```http
-GET /operators           # List operators (Admin only)
-GET /operators/my-project # My assigned project
-```
-
-## 🧪 Testing
-
-### Smart Contracts
-```bash
-cd contracts
-forge test             # Run all tests
-forge test --gas-report # Gas optimization
-forge coverage         # Coverage report
-```
-
-### Backend
-```bash
-cd backend
-npm run test           # Unit tests
-npm run test:e2e       # End-to-end tests
-```
-
-### Test Coverage
-- **Smart Contracts**: 100% coverage (97 tests)
-- **Backend**: ~60% coverage
-- **Frontend**: Manual testing
-
-## 🚀 Deployment
-
-### Production Setup
-
-1. **Environment Variables**: Configure production environment variables
-2. **Database**: Set up production MongoDB instance
-3. **File Storage**: Configure Cloudinary for production
-4. **Email Service**: Set up Brevo for production
-5. **Blockchain**: Deploy contracts to RSK Mainnet
-
-### Docker Deployment
+Update the server:
 
 ```bash
-# Build and run with Docker Compose
-docker-compose up -d
+cd ~/blue-fire-platform && git pull
+cd backend  && npm ci && npm run build
+cd ../frontend && npm ci && npm run build
+pm2 restart bluefire-api bluefire-web
 ```
 
-### SSL Configuration
+Stop the frontend before rebuilding it, or build into a clean checkout: running `next build` while a dev server shares `.next` corrupts it.
 
-The project includes SSL setup scripts and nginx configuration for secure deployment.
+## Security notes
 
-## 📊 Development Status
+The original server was compromised in 2025 through an unpatched Next.js RCE while the app ran as root. Since then:
 
-- **Backend**: ~95% Complete
-- **Frontend**: ~90% Complete  
-- **Smart Contracts**: 100% Complete & Tested
-- **Integration**: ~80% Complete
-- **Testing**: 100% (Smart Contracts), ~60% (Backend/Frontend)
+- Next.js/React are kept on patched releases. Re-check `npm audit --omit=dev` in both apps before each deploy.
+- Every API route is authenticated by default; public routes are opt-in with `@Public()`. Signup always creates an Investor. Login/signup/reset are rate-limited per IP, and signup has a honeypot field.
+- Passwords are bcrypt-hashed; reset tokens are stored as SHA-256 hashes and expire. JWTs are HS256.
+- The API sends Helmet headers and generic 500 errors in production; the frontend sends a CSP, HSTS and frame-blocking headers.
+- Services run as a non-root user, bound to localhost, behind Caddy; MongoDB requires auth.
+- All secrets from the old server were rotated. Secrets live only in the server's `.env` files.
 
-## 🔮 Roadmap
+Known follow-ups: the JWT is kept in `localStorage` (an httpOnly cookie would be stronger), and the CSP still allows `'unsafe-inline'` scripts for Next's bootstrap.
 
-### Planned Features
-- **Real-time Notifications**: WebSocket integration
-- **Mobile Application**: Native mobile app
-- **Advanced Analytics**: Enhanced reporting and insights
-- **Multi-language Support**: Internationalization
-- **API Documentation**: Swagger/OpenAPI documentation
-- **Automated Testing**: E2E test suite
-- **Caching Layer**: Redis integration
-- **Microservices**: Modular architecture
+## License
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation in the `/docs` folder
-- Review the architecture diagrams in `ARCHITECTURE_DIAGRAMS.md`
-
-## 🙏 Acknowledgments
-
-- Built with modern web technologies
-- Powered by RSK blockchain
-- Integrated with Cloudinary and Brevo services
-
----
-
-**Blue Fire Platform** - Revolutionizing water infrastructure funding through blockchain technology.
+MIT
